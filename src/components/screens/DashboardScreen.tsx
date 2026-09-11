@@ -27,7 +27,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
   const { t } = useLanguage();
 
   return (
-    <div className="relative min-h-[640px] h-full flex flex-col bg-[#F8FAFC] overflow-y-auto no-scrollbar pb-20">
+    <div className="relative min-h-[640px] h-full flex flex-col bg-[#F8FAFC] overflow-y-auto no-scrollbar pb-28">
       {/* Top Header Card */}
       <div className="p-5 pb-3 bg-white border-b border-slate-100 shadow-sm">
         <div className="flex items-center justify-between">
@@ -295,6 +295,47 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
             </span>
             <ChevronRight className="w-4 h-4 text-slate-400" />
           </button>
+        </div>
+      </div>
+
+      {/* Recommended Safe Paths Quick Select Card */}
+      <div className="px-4 mt-5">
+        <div className="p-4 rounded-3xl bg-gradient-to-br from-blue-900 to-indigo-950 text-white shadow-xl">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-xl bg-blue-500/30 flex items-center justify-center">
+                <Shield className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div>
+                <h3 className="text-xs font-extrabold text-white">Recommended Safe Paths</h3>
+                <p className="text-[10px] text-blue-200">High-illumination verified paths</p>
+              </div>
+            </div>
+            <button
+              onClick={() => onNavigate('route_search')}
+              className="px-2.5 py-1 rounded-xl bg-white/15 hover:bg-white/25 text-white text-[10px] font-bold transition-colors"
+            >
+              View All Paths →
+            </button>
+          </div>
+
+          <div 
+            onClick={() => onNavigate('route_comparison')}
+            className="p-3 rounded-2xl bg-white/10 hover:bg-white/15 border border-white/10 cursor-pointer transition-all flex items-center justify-between"
+          >
+            <div>
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-bold text-white">Grand Blvd Safe Corridor</span>
+                <span className="px-1.5 py-0.2 rounded-full bg-emerald-500 text-white text-[9px] font-black">
+                  94% SAFE
+                </span>
+              </div>
+              <p className="text-[10px] text-blue-200 mt-0.5">1.2 km • 14 min walk • 98% Lit</p>
+            </div>
+            <button className="px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold shadow-md transition-colors">
+              Select Path
+            </button>
+          </div>
         </div>
       </div>
     </div>

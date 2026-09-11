@@ -29,7 +29,7 @@ export const ShapExplainabilityScreen: React.FC<ShapExplainabilityScreenProps> =
   const maxVal = 40;
 
   return (
-    <div className="relative min-h-[640px] h-full flex flex-col justify-between bg-[#F8FAFC] overflow-y-auto no-scrollbar p-4 pb-6">
+    <div className="relative min-h-[640px] h-full flex flex-col justify-between bg-[#F8FAFC] overflow-y-auto no-scrollbar p-4 pb-28">
       {/* Top Header */}
       <div>
         <div className="flex items-center justify-between pt-2 mb-4">

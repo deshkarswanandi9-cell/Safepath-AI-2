@@ -61,7 +61,7 @@ export const TrustedContactsScreen: React.FC<TrustedContactsScreenProps> = ({ on
   };
 
   return (
-    <div className="relative min-h-[640px] h-full flex flex-col justify-between bg-[#F8FAFC] overflow-y-auto no-scrollbar p-4 pb-6">
+    <div className="relative min-h-[640px] h-full flex flex-col justify-between bg-[#F8FAFC] overflow-y-auto no-scrollbar p-4 pb-28">
       {/* Top Header */}
       <div>
         <div className="pt-2 flex items-center justify-between mb-4">

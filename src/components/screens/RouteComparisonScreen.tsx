@@ -31,7 +31,7 @@ export const RouteComparisonScreen: React.FC<RouteComparisonScreenProps> = ({
   onSelectRoute
 }) => {
   return (
-    <div className="relative min-h-[640px] h-full flex flex-col justify-between bg-[#F8FAFC] overflow-y-auto no-scrollbar pb-6">
+    <div className="relative min-h-[640px] h-full flex flex-col justify-between bg-[#F8FAFC] overflow-y-auto no-scrollbar pb-28">
       {/* Top Map Preview showing comparison */}
       <div className="relative h-56 w-full shrink-0 border-b border-slate-200">
         <MapEngine

@@ -52,7 +52,7 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
   };
 
   return (
-    <div className={`relative min-h-[640px] h-full flex flex-col justify-between overflow-y-auto no-scrollbar p-4 pb-20 transition-colors ${
+    <div className={`relative min-h-[640px] h-full flex flex-col justify-between overflow-y-auto no-scrollbar p-4 pb-28 transition-colors ${
       darkMode ? 'bg-slate-900 text-slate-100' : 'bg-[#F8FAFC] text-slate-900'
     }`}>
       <div>

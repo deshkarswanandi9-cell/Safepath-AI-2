@@ -106,7 +106,7 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
   };
 
   return (
-    <div className="relative min-h-[640px] h-full flex flex-col justify-between bg-gradient-to-b from-rose-50/50 via-white to-slate-50 overflow-y-auto no-scrollbar pb-6">
+    <div className="relative min-h-[640px] h-full flex flex-col justify-between bg-gradient-to-b from-rose-50/50 via-white to-slate-50 overflow-y-auto no-scrollbar pb-28">
       {/* Top Header */}
       <div className="p-4 pt-3 flex items-center justify-between border-b border-rose-100 bg-white/80 backdrop-blur-md">
         <button
