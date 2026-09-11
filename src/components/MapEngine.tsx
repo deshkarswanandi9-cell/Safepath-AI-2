@@ -14,7 +14,11 @@ import {
   AlertTriangle,
   Radio,
   CheckCircle2,
-  X
+  X,
+  LocateFixed,
+  TreePine,
+  Coffee,
+  Hospital
 } from 'lucide-react';
 import { RouteOption, EmergencyHelpPoint } from '../types';
 import { MOCK_HELP_POINTS, MOCK_HEATMAP_ZONES } from '../data/mockData';
@@ -55,7 +59,7 @@ export const MapEngine: React.FC<MapEngineProps> = ({
   // Compute interpolated GPS position along active route
   const getGpsPosition = () => {
     if (!activeRoute || !activeRoute.pathPoints || activeRoute.pathPoints.length < 2) {
-      return { x: 18, y: 80 };
+      return { x: 18, y: 80, angle: 45 };
     }
     const points = activeRoute.pathPoints;
     const totalSegments = points.length - 1;
@@ -67,9 +71,14 @@ export const MapEngine: React.FC<MapEngineProps> = ({
     const p1 = points[segIndex];
     const p2 = points[segIndex + 1];
 
+    const dx = p2.x - p1.x;
+    const dy = p2.y - p1.y;
+    const angle = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
+
     return {
-      x: p1.x + (p2.x - p1.x) * segFraction,
-      y: p1.y + (p2.y - p1.y) * segFraction
+      x: p1.x + dx * segFraction,
+      y: p1.y + dy * segFraction,
+      angle
     };
   };
 
@@ -84,84 +93,110 @@ export const MapEngine: React.FC<MapEngineProps> = ({
   };
 
   return (
-    <div className={`relative w-full overflow-hidden bg-[#F3F6F9] select-none ${heightClass}`}>
-      {/* SVG Vector Map Canvas */}
+    <div className={`relative w-full overflow-hidden bg-[#E8ECEF] select-none ${heightClass}`}>
+      {/* SVG Vector Map Canvas with Google Maps Aesthetic */}
       <svg
         viewBox="0 0 500 500"
         className="w-full h-full object-cover transition-transform duration-300 ease-out"
         style={{ transform: `scale(${zoom})` }}
       >
         <defs>
-          {/* Subtle Grid / Ground Pattern */}
-          <pattern id="city-blocks" width="40" height="40" patternUnits="userSpaceOnUse">
-            <rect width="36" height="36" x="2" y="2" rx="3" fill="#EAEFF5" />
+          {/* Google Maps Building Blocks Pattern */}
+          <pattern id="gmap-buildings" width="50" height="50" patternUnits="userSpaceOnUse">
+            <rect width="20" height="18" x="4" y="4" rx="2" fill="#E1E5E9" />
+            <rect width="18" height="16" x="28" y="4" rx="2" fill="#DEE2E6" />
+            <rect width="16" height="20" x="4" y="26" rx="2" fill="#DEE2E6" />
+            <rect width="20" height="16" x="24" y="28" rx="2" fill="#E1E5E9" />
           </pattern>
-          {/* Park Pattern */}
-          <linearGradient id="park-grad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#D1FAE5" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#A7F3D0" stopOpacity="0.6" />
+
+          {/* Google Maps Park Gradient */}
+          <linearGradient id="gmap-park" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#C8E6C9" />
+            <stop offset="100%" stopColor="#A5D6A7" />
           </linearGradient>
-          {/* Waterway Gradient */}
-          <linearGradient id="river-grad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#BFDBFE" />
+
+          {/* Google Maps Waterway */}
+          <linearGradient id="gmap-water" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#AADAFF" />
             <stop offset="100%" stopColor="#93C5FD" />
           </linearGradient>
-          {/* Safe Route Glowing Gradient */}
-          <linearGradient id="safe-route-glow" x1="0" y1="1" x2="1" y2="0">
-            <stop offset="0%" stopColor="#10B981" />
-            <stop offset="60%" stopColor="#059669" />
-            <stop offset="100%" stopColor="#2563EB" />
+
+          {/* Google Maps Royal Blue Navigation Route */}
+          <linearGradient id="gmap-nav-blue" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stopColor="#1A73E8" />
+            <stop offset="100%" stopColor="#4285F4" />
           </linearGradient>
-          {/* Radial Gradient for Heatmaps */}
+
+          {/* Safe Corridor Emerald Line */}
+          <linearGradient id="gmap-safe-corridor" x1="0" y1="1" x2="1" y2="0">
+            <stop offset="0%" stopColor="#0F9D58" />
+            <stop offset="50%" stopColor="#10B981" />
+            <stop offset="100%" stopColor="#1A73E8" />
+          </linearGradient>
+
+          {/* Heatmaps */}
           <radialGradient id="heat-safe" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#10B981" stopOpacity="0.38" />
-            <stop offset="70%" stopColor="#10B981" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
+            <stop offset="0%" stopColor="#0F9D58" stopOpacity="0.32" />
+            <stop offset="70%" stopColor="#34A853" stopOpacity="0.12" />
+            <stop offset="100%" stopColor="#34A853" stopOpacity="0" />
           </radialGradient>
           <radialGradient id="heat-caution" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.35" />
-            <stop offset="80%" stopColor="#F59E0B" stopOpacity="0.12" />
-            <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
+            <stop offset="0%" stopColor="#FBBC04" stopOpacity="0.35" />
+            <stop offset="80%" stopColor="#FBBC04" stopOpacity="0.10" />
+            <stop offset="100%" stopColor="#FBBC04" stopOpacity="0" />
           </radialGradient>
           <radialGradient id="heat-danger" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#EF4444" stopOpacity="0.45" />
-            <stop offset="70%" stopColor="#EF4444" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#EF4444" stopOpacity="0" />
+            <stop offset="0%" stopColor="#EA4335" stopOpacity="0.45" />
+            <stop offset="70%" stopColor="#EA4335" stopOpacity="0.15" />
+            <stop offset="100%" stopColor="#EA4335" stopOpacity="0" />
           </radialGradient>
-          {/* Pulse marker animation */}
-          <filter id="beacon-glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-            <feMerge>
-              <feMergeNode in="coloredBlur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+
+          {/* Navigation Cone Gradient */}
+          <linearGradient id="nav-cone-beam" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0%" stopColor="#4285F4" stopOpacity="0.45" />
+            <stop offset="100%" stopColor="#4285F4" stopOpacity="0.0" />
+          </linearGradient>
         </defs>
 
-        {/* Base City Blocks */}
-        <rect width="500" height="500" fill="#F8FAFC" />
-        <rect width="500" height="500" fill="url(#city-blocks)" />
+        {/* Base Map Canvas / Land */}
+        <rect width="500" height="500" fill="#F0F3F6" />
+        <rect width="500" height="500" fill="url(#gmap-buildings)" />
 
-        {/* River / Canal */}
+        {/* Google Maps Style River / Water Body */}
         <path
-          d="M -10 320 C 120 310, 210 360, 310 340 C 410 320, 480 370, 520 360 L 520 410 C 480 420, 410 370, 310 390 C 210 410, 120 360, -10 370 Z"
-          fill="url(#river-grad)"
-          opacity="0.85"
+          d="M -10 320 C 120 310, 210 360, 310 340 C 410 320, 480 370, 520 360 L 520 415 C 480 425, 410 375, 310 395 C 210 415, 120 365, -10 375 Z"
+          fill="url(#gmap-water)"
         />
 
-        {/* City Parks & Green Zones */}
-        <rect x="230" y="40" width="80" height="70" rx="8" fill="url(#park-grad)" />
-        <text x="270" y="78" textAnchor="middle" fill="#047857" fontSize="9" fontWeight="600" opacity="0.8">
-          🌿 Memorial Park
+        {/* River Label */}
+        <text x="360" y="360" fill="#1A73E8" fontSize="8" fontWeight="600" letterSpacing="0.8" opacity="0.8">
+          RIVER HARBOR CANAL
         </text>
 
-        <rect x="30" y="190" width="65" height="90" rx="8" fill="url(#park-grad)" />
-        <text x="62" y="240" textAnchor="middle" fill="#047857" fontSize="8" fontWeight="600" opacity="0.8">
-          Botanical Grove
+        {/* Google Maps Parks & Greenery */}
+        <rect x="230" y="35" width="85" height="75" rx="10" fill="url(#gmap-park)" />
+        <text x="272" y="75" textAnchor="middle" fill="#2E7D32" fontSize="9" fontWeight="700">
+          🌲 Memorial Park
         </text>
 
-        {/* Secondary Streets & Roads */}
-        <g stroke="#FFFFFF" strokeWidth="10" strokeLinecap="round" strokeLinejoin="round" opacity="0.95">
+        <rect x="25" y="185" width="70" height="95" rx="10" fill="url(#gmap-park)" />
+        <text x="60" y="235" textAnchor="middle" fill="#2E7D32" fontSize="8" fontWeight="700">
+          🌳 City Botanical
+        </text>
+
+        {/* Minor City Streets (Google Maps Clean Light Gray Casing + White Fill) */}
+        <g stroke="#D1D5DB" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="20" y1="70" x2="480" y2="70" />
+          <line x1="20" y1="160" x2="480" y2="160" />
+          <line x1="20" y1="260" x2="480" y2="260" />
+          <line x1="20" y1="410" x2="480" y2="410" />
+
+          <line x1="80" y1="20" x2="80" y2="480" />
+          <line x1="180" y1="20" x2="180" y2="480" />
+          <line x1="290" y1="20" x2="290" y2="480" />
+          <line x1="410" y1="20" x2="410" y2="480" />
+        </g>
+        <g stroke="#FFFFFF" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round">
           <line x1="20" y1="70" x2="480" y2="70" />
           <line x1="20" y1="160" x2="480" y2="160" />
           <line x1="20" y1="260" x2="480" y2="260" />
@@ -173,47 +208,36 @@ export const MapEngine: React.FC<MapEngineProps> = ({
           <line x1="410" y1="20" x2="410" y2="480" />
         </g>
 
-        {/* Diagonal Arterial Road (Safe Transit Corridor) */}
+        {/* Major Arterial Highway / Safe Corridor (Google Maps Yellow / Gold Highway Style) */}
         <path
           d="M 50 430 L 170 380 L 260 290 L 370 190 L 450 70"
-          stroke="#FFFFFF"
-          strokeWidth="16"
+          stroke="#FCD34D"
+          strokeWidth="18"
           strokeLinecap="round"
           strokeLinejoin="round"
         />
         <path
           d="M 50 430 L 170 380 L 260 290 L 370 190 L 450 70"
-          stroke="#FEF3C7"
-          strokeWidth="11"
+          stroke="#FEF08A"
+          strokeWidth="14"
           strokeLinecap="round"
           strokeLinejoin="round"
-          opacity="0.9"
         />
 
-        {/* Road Labels */}
-        <text x="260" y="65" fill="#64748B" fontSize="8" fontWeight="600" letterSpacing="0.5">
-          GRAND BOULEVARD
-        </text>
-        <text x="210" y="255" fill="#64748B" fontSize="8" fontWeight="600" letterSpacing="0.5">
-          CENTRAL AVE (SAFE CORRIDOR)
-        </text>
-        <text x="310" y="280" fill="#64748B" fontSize="7" fontWeight="500">
-          METRO CROSSING
+        {/* Clean Street Name Badges (Google Maps Style) */}
+        <rect x="235" y="55" width="90" height="14" rx="3" fill="#FFFFFF" opacity="0.9" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.1))" />
+        <text x="280" y="65" textAnchor="middle" fill="#3C4043" fontSize="8" fontWeight="700">
+          Grand Blvd
         </text>
 
-        {/* Metro Rail Line (Dashed) */}
-        <path
-          d="M 60 480 L 160 380 L 330 290 L 440 120"
-          stroke="#475569"
-          strokeWidth="3"
-          strokeDasharray="6 4"
-          fill="none"
-          opacity="0.5"
-        />
+        <rect x="180" y="248" width="105" height="14" rx="3" fill="#FFFFFF" opacity="0.9" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.1))" />
+        <text x="232" y="258" textAnchor="middle" fill="#3C4043" fontSize="8" fontWeight="700">
+          Central Ave (Lit Corridor)
+        </text>
 
-        {/* Streetlight Nodes (Golden / Warm glow dots along safe avenues) */}
+        {/* Streetlight Nodes */}
         {showStreetlights && (
-          <g opacity="0.9">
+          <g opacity="0.85">
             {[
               { x: 90, y: 410 },
               { x: 130, y: 395 },
@@ -223,16 +247,11 @@ export const MapEngine: React.FC<MapEngineProps> = ({
               { x: 315, y: 240 },
               { x: 370, y: 190 },
               { x: 410, y: 130 },
-              { x: 440, y: 80 },
-              { x: 180, y: 160 },
-              { x: 240, y: 160 },
-              { x: 300, y: 160 },
-              { x: 360, y: 160 },
-              { x: 410, y: 260 }
+              { x: 440, y: 80 }
             ].map((st, i) => (
               <g key={`st-${i}`}>
-                <circle cx={st.x} cy={st.y} r="6" fill="#FDE68A" opacity="0.4" />
-                <circle cx={st.x} cy={st.y} r="2.2" fill="#F59E0B" />
+                <circle cx={st.x} cy={st.y} r="7" fill="#FEF08A" opacity="0.45" />
+                <circle cx={st.x} cy={st.y} r="2.5" fill="#D97706" />
               </g>
             ))}
           </g>
@@ -258,8 +277,8 @@ export const MapEngine: React.FC<MapEngineProps> = ({
                   />
                   {zone.riskLevel === 'high' && (
                     <g transform={`translate(${zone.x * 5 - 12}, ${zone.y * 5 - 12})`}>
-                      <circle cx="12" cy="12" r="12" fill="#EF4444" opacity="0.2" className="animate-ping" />
-                      <circle cx="12" cy="12" r="8" fill="#EF4444" />
+                      <circle cx="12" cy="12" r="12" fill="#EA4335" opacity="0.2" className="animate-ping" />
+                      <circle cx="12" cy="12" r="8" fill="#EA4335" />
                       <path d="M12 8v4m0 2h.01" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
                     </g>
                   )}
@@ -269,81 +288,81 @@ export const MapEngine: React.FC<MapEngineProps> = ({
           </g>
         )}
 
-        {/* Comparison Alternative Routes when in comparison mode or search */}
+        {/* Old Reroute Path (Screen 9) */}
         {rerouteMode && (
-          /* Old Route in Red/Amber Dash */
           <path
             d="M 75 400 L 125 350 L 150 275 L 225 175 L 440 75"
-            stroke="#EF4444"
+            stroke="#EA4335"
             strokeWidth="5"
             strokeDasharray="6 4"
             strokeLinecap="round"
             fill="none"
-            opacity="0.75"
+            opacity="0.7"
           />
         )}
 
-        {/* Active Route Line Polyline */}
+        {/* Active Route Line (Google Maps Route Blue & Chevrons) */}
         {activeRoute && activeRoute.pathPoints && (
           <g>
-            {/* Route Shadow/Border */}
+            {/* White route border */}
             <path
               d={pointsToSvgPath(activeRoute.pathPoints)}
               fill="none"
               stroke="#FFFFFF"
-              strokeWidth="9"
+              strokeWidth="10"
               strokeLinecap="round"
               strokeLinejoin="round"
               opacity="0.95"
             />
-            {/* Route Main Body */}
+            {/* Main navigation route line */}
             <path
               d={pointsToSvgPath(activeRoute.pathPoints)}
               fill="none"
-              stroke={activeRoute.isRecommended ? 'url(#safe-route-glow)' : activeRoute.color}
-              strokeWidth="6"
+              stroke={activeRoute.isRecommended ? 'url(#gmap-safe-corridor)' : 'url(#gmap-nav-blue)'}
+              strokeWidth="7"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            {/* Direction chevrons / sparkles along route */}
-            {activeRoute.isRecommended && (
-              <path
-                d={pointsToSvgPath(activeRoute.pathPoints)}
-                fill="none"
-                stroke="#FFFFFF"
-                strokeWidth="2"
-                strokeDasharray="8 20"
-                strokeLinecap="round"
-                opacity="0.8"
-              />
-            )}
+            {/* Google Maps style Directional Chevron Dots (>>>) */}
+            <path
+              d={pointsToSvgPath(activeRoute.pathPoints)}
+              fill="none"
+              stroke="#FFFFFF"
+              strokeWidth="2.5"
+              strokeDasharray="6 18"
+              strokeLinecap="round"
+              opacity="0.9"
+            />
           </g>
         )}
 
-        {/* Start Point (Origin Pin) */}
+        {/* Google Maps Origin Pin */}
         <g transform="translate(75, 400)">
-          <circle cx="0" cy="0" r="8" fill="#2563EB" opacity="0.3" className="animate-ping" />
-          <circle cx="0" cy="0" r="6" fill="#2563EB" />
-          <circle cx="0" cy="0" r="2.5" fill="#FFFFFF" />
-          <text x="10" y="4" fill="#1E293B" fontSize="9" fontWeight="700">
-            Start (You)
+          <circle cx="0" cy="0" r="10" fill="#1A73E8" opacity="0.2" className="animate-ping" />
+          <circle cx="0" cy="0" r="6.5" fill="#1A73E8" stroke="#FFFFFF" strokeWidth="2" />
+          <rect x="12" y="-10" width="85" height="16" rx="4" fill="#FFFFFF" opacity="0.95" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.15))" />
+          <text x="17" y="1" fill="#1A73E8" fontSize="8" fontWeight="800">
+            📍 Current Location
           </text>
         </g>
 
-        {/* Destination Point (End Pin) */}
+        {/* Google Maps Classic Red Destination Pin */}
         <g transform="translate(440, 75)">
-          <circle cx="0" cy="0" r="14" fill="#EF4444" opacity="0.2" />
+          <circle cx="0" cy="0" r="16" fill="#EA4335" opacity="0.2" />
+          {/* Red Teardrop Marker */}
           <path
-            d="M0 -14 C-7 -14 -11 -9 -11 -2 C-11 6 0 16 0 16 C0 16 11 6 11 -2 C11 -9 7 -14 0 -14 Z"
-            fill="#EF4444"
+            d="M 0 0 C -7 -10, -9 -16, -9 -20 C -9 -26, -5 -30, 0 -30 C 5 -30, 9 -26, 9 -20 C 9 -16, 7 -10, 0 0 Z"
+            fill="#EA4335"
+            filter="drop-shadow(0 2px 4px rgba(0,0,0,0.3))"
           />
-          <circle cx="0" cy="-4" r="4" fill="#FFFFFF" />
-          <text x="-32" y="-18" fill="#1E293B" fontSize="9" fontWeight="700">
+          <circle cx="0" cy="-20" r="4" fill="#FFFFFF" />
+          <rect x="-85" y="-48" width="105" height="16" rx="4" fill="#202124" opacity="0.95" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.2))" />
+          <text x="-32" y="-37" textAnchor="middle" fill="#FFFFFF" fontSize="8" fontWeight="700">
             Westwood Residence 🏁
           </text>
         </g>
 
-        {/* Emergency Help Points Markers */}
+        {/* Google Maps Style POI Icons (Help Points) */}
         {showHelpPoints &&
           MOCK_HELP_POINTS.map((hp) => {
             const px = hp.coords.x * 5;
@@ -352,7 +371,7 @@ export const MapEngine: React.FC<MapEngineProps> = ({
             const isHosp = hp.type === 'hospital';
             const isMetro = hp.type === 'metro';
 
-            const bgCol = isPolice ? '#2563EB' : isHosp ? '#EF4444' : isMetro ? '#7C3AED' : '#10B981';
+            const bgCol = isPolice ? '#1A73E8' : isHosp ? '#EA4335' : isMetro ? '#E37400' : '#34A853';
 
             return (
               <g
@@ -364,73 +383,89 @@ export const MapEngine: React.FC<MapEngineProps> = ({
                   if (onHelpPointClick) onHelpPointClick(hp);
                 }}
               >
-                <circle cx="0" cy="0" r="13" fill="#FFFFFF" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.15))" />
-                <circle cx="0" cy="0" r="11" fill={bgCol} />
+                <circle cx="0" cy="0" r="12" fill="#FFFFFF" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.18))" />
+                <circle cx="0" cy="0" r="10" fill={bgCol} />
                 {isPolice && (
-                  <path
-                    d="M-4 -3 L0 -6 L4 -3 L4 2 C4 4 0 6 0 6 C0 6 -4 4 -4 2 Z"
-                    fill="#FFFFFF"
-                  />
+                  <path d="M-3 -3 L0 -5 L3 -3 L3 2 C3 3.5 0 5 0 5 C0 5 -3 3.5 -3 2 Z" fill="#FFFFFF" />
                 )}
                 {isHosp && (
-                  <path
-                    d="M-2 -5 h4 v3 h3 v4 h-3 v3 h-4 v-3 h-3 v-4 h3 Z"
-                    fill="#FFFFFF"
-                  />
+                  <path d="M-1.5 -4 h3 v2.5 h2.5 v3 h-2.5 v2.5 h-3 v-2.5 h-2.5 v-3 h2.5 Z" fill="#FFFFFF" />
                 )}
                 {isMetro && (
-                  <circle cx="0" cy="0" r="4" fill="#FFFFFF" />
+                  <circle cx="0" cy="0" r="3.5" fill="#FFFFFF" />
                 )}
                 {!isPolice && !isHosp && !isMetro && (
-                  <circle cx="0" cy="0" r="4" fill="#FFFFFF" />
+                  <circle cx="0" cy="0" r="3.5" fill="#FFFFFF" />
                 )}
               </g>
             );
           })}
 
-        {/* Live GPS User Beacon (with moving progress & heading cone) */}
+        {/* Google Maps GPS Navigation Puck with Heading Beam */}
         {navMode && (
           <g transform={`translate(${currentGps.x * 5}, ${currentGps.y * 5})`}>
-            {/* Heading beam */}
+            {/* GPS Dynamic Beam Cone */}
             <path
-              d="M 0 0 L -24 -60 A 60 60 0 0 1 24 -60 Z"
-              fill="url(#river-grad)"
-              opacity="0.35"
+              d="M 0 0 L -30 -75 A 75 75 0 0 1 30 -75 Z"
+              fill="url(#nav-cone-beam)"
+              transform={`rotate(${currentGps.angle})`}
             />
-            {/* Outer radar pulse */}
-            <circle cx="0" cy="0" r="18" fill="#2563EB" opacity="0.25" className="animate-ping" />
-            <circle cx="0" cy="0" r="14" fill="#2563EB" opacity="0.3" />
-            <circle cx="0" cy="0" r="8" fill="#FFFFFF" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.2))" />
-            <circle cx="0" cy="0" r="5" fill="#2563EB" />
+
+            {/* GPS Pulse Ring */}
+            <circle cx="0" cy="0" r="20" fill="#4285F4" opacity="0.2" className="animate-ping" />
+            <circle cx="0" cy="0" r="14" fill="#4285F4" opacity="0.25" />
+            
+            {/* 3D Navigation Arrow Puck */}
+            <circle cx="0" cy="0" r="10" fill="#FFFFFF" filter="drop-shadow(0 3px 6px rgba(0,0,0,0.3))" />
+            <circle cx="0" cy="0" r="7" fill="#1A73E8" />
+            
+            {/* Arrow Tip */}
+            <path
+              d="M 0 -8 L 4 2 L 0 0 L -4 2 Z"
+              fill="#FFFFFF"
+              transform={`rotate(${currentGps.angle})`}
+            />
           </g>
         )}
       </svg>
 
-      {/* Floating Map Controls (Right Side) */}
-      <div className="absolute right-3 top-4 flex flex-col gap-2 z-10">
-        {/* Compass */}
+      {/* Google Maps Floating Controls (Right Side) */}
+      <div className="absolute right-3 top-3.5 flex flex-col gap-2 z-10">
+        {/* Google Maps 3D Compass */}
         <button
           id="btn-map-compass"
           aria-label="Map Compass"
           onClick={() => setZoom(1)}
-          className="w-9 h-9 rounded-full bg-white/90 backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center text-slate-700 active:scale-95 transition-transform"
+          className="w-10 h-10 rounded-full bg-white shadow-md border border-slate-200/80 flex items-center justify-center text-slate-700 active:scale-95 transition-all hover:bg-slate-50"
+          title="Reset Map Orientation"
         >
-          <Compass className="w-4 h-4 text-blue-600" />
+          <Compass className="w-5 h-5 text-rose-500" />
         </button>
 
-        {/* Heatmap Toggle */}
+        {/* Google Maps Re-Center Button */}
+        <button
+          id="btn-map-recenter"
+          aria-label="Re-Center Location"
+          onClick={() => setZoom(1)}
+          className="w-10 h-10 rounded-full bg-white shadow-md border border-slate-200/80 flex items-center justify-center text-blue-600 active:scale-95 transition-all hover:bg-slate-50"
+          title="Re-Center on My GPS Location"
+        >
+          <LocateFixed className="w-5 h-5 text-blue-600" />
+        </button>
+
+        {/* Heatmap & Safety Layers FAB */}
         <button
           id="btn-toggle-heatmap"
           aria-label="Toggle Heatmap"
           onClick={() => setHeatmapVisible(!heatmapVisible)}
-          className={`w-9 h-9 rounded-full shadow-md border flex items-center justify-center transition-all ${
+          className={`w-10 h-10 rounded-full shadow-md border flex items-center justify-center transition-all ${
             heatmapVisible
-              ? 'bg-emerald-500 text-white border-emerald-600 shadow-emerald-200'
-              : 'bg-white/90 text-slate-600 border-slate-200 backdrop-blur-md'
+              ? 'bg-[#188038] text-white border-[#137333] shadow-emerald-300/40'
+              : 'bg-white text-slate-700 border-slate-200/80'
           }`}
-          title="Toggle Safety Heatmap"
+          title="Toggle Google Maps Safety Heatmap"
         >
-          <Layers className="w-4 h-4" />
+          <Layers className="w-5 h-5" />
         </button>
 
         {/* Zoom In */}
@@ -438,9 +473,9 @@ export const MapEngine: React.FC<MapEngineProps> = ({
           id="btn-zoom-in"
           aria-label="Zoom In"
           onClick={() => setZoom((z) => Math.min(z + 0.2, 1.8))}
-          className="w-9 h-9 rounded-full bg-white/90 backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center text-slate-700 active:scale-95 transition-transform"
+          className="w-10 h-10 rounded-full bg-white shadow-md border border-slate-200/80 flex items-center justify-center text-slate-700 active:scale-95 transition-all hover:bg-slate-50"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-5 h-5" />
         </button>
 
         {/* Zoom Out */}
@@ -448,49 +483,48 @@ export const MapEngine: React.FC<MapEngineProps> = ({
           id="btn-zoom-out"
           aria-label="Zoom Out"
           onClick={() => setZoom((z) => Math.max(z - 0.2, 0.8))}
-          className="w-9 h-9 rounded-full bg-white/90 backdrop-blur-md shadow-md border border-slate-200 flex items-center justify-center text-slate-700 active:scale-95 transition-transform"
+          className="w-10 h-10 rounded-full bg-white shadow-md border border-slate-200/80 flex items-center justify-center text-slate-700 active:scale-95 transition-all hover:bg-slate-50"
         >
-          <Minus className="w-4 h-4" />
+          <Minus className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Heatmap Legend Pill (Top-Left) */}
-      {heatmapVisible && (
-        <div className="absolute left-3 top-3 z-10 flex items-center gap-2 px-2.5 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 shadow-sm text-[11px] font-medium text-slate-700">
-          <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-300"></span>
-            <span>Safe</span>
+      {/* Google Maps Floating Speedometer & Lux Badge (Bottom Left) */}
+      <div className="absolute left-3 bottom-3 z-10 flex flex-col gap-1.5">
+        <div className="px-3 py-1.5 rounded-2xl bg-white/95 backdrop-blur-md border border-slate-200/90 shadow-md flex items-center gap-2">
+          <div className="w-7 h-7 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-black text-xs">
+            4.8
           </div>
-          <span className="text-slate-300">|</span>
-          <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-            <span>Medium</span>
-          </div>
-          <span className="text-slate-300">|</span>
-          <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-            <span>High Risk</span>
+          <div>
+            <div className="text-[9px] uppercase font-bold text-slate-400">km/h</div>
+            <div className="text-[10px] font-bold text-slate-700">Walk Pace</div>
           </div>
         </div>
-      )}
+
+        {/* Safety Lux Gauge */}
+        <div className="px-2.5 py-1 rounded-xl bg-white/95 backdrop-blur-md border border-slate-200 shadow-sm flex items-center gap-1.5 text-[10px] font-bold text-emerald-800">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>98 Lux • High Light</span>
+        </div>
+      </div>
 
       {/* Help Point Selected Card Popover */}
       {selectedHp && (
-        <div className="absolute left-3 right-3 bottom-3 z-20 p-3.5 bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-blue-100 flex items-center justify-between animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="absolute left-3 right-3 bottom-14 z-20 p-3.5 bg-white rounded-2xl shadow-2xl border border-slate-200 flex items-center justify-between animate-in fade-in slide-in-from-bottom-3 duration-200">
           <div className="flex items-center gap-3">
             <div
               className={`w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-sm ${
                 selectedHp.type === 'police'
-                  ? 'bg-blue-600'
+                  ? 'bg-[#1A73E8]'
                   : selectedHp.type === 'hospital'
-                  ? 'bg-rose-500'
+                  ? 'bg-[#EA4335]'
                   : selectedHp.type === 'metro'
-                  ? 'bg-purple-600'
-                  : 'bg-emerald-500'
+                  ? 'bg-[#E37400]'
+                  : 'bg-[#34A853]'
               }`}
             >
               {selectedHp.type === 'police' && <Shield className="w-5 h-5" />}
-              {selectedHp.type === 'hospital' && <Cross className="w-5 h-5" />}
+              {selectedHp.type === 'hospital' && <Hospital className="w-5 h-5" />}
               {selectedHp.type === 'metro' && <Train className="w-5 h-5" />}
               {selectedHp.type === 'pharmacy' && <Building2 className="w-5 h-5" />}
             </div>
@@ -498,7 +532,7 @@ export const MapEngine: React.FC<MapEngineProps> = ({
               <div className="flex items-center gap-2">
                 <h4 className="text-xs font-bold text-slate-900">{selectedHp.name}</h4>
                 {selectedHp.isOpen247 && (
-                  <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <span className="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                     24/7 OPEN
                   </span>
                 )}
@@ -511,7 +545,7 @@ export const MapEngine: React.FC<MapEngineProps> = ({
           <div className="flex items-center gap-1.5">
             <a
               href={`tel:${selectedHp.phone}`}
-              className="px-2.5 py-1.5 rounded-xl bg-blue-50 text-blue-600 font-semibold text-xs border border-blue-200 hover:bg-blue-100 transition-colors"
+              className="px-3 py-1.5 rounded-xl bg-blue-50 text-[#1A73E8] font-bold text-xs border border-blue-200 hover:bg-blue-100 transition-colors"
             >
               Call
             </a>
