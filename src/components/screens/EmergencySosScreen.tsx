@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   ArrowLeft, 
   PhoneCall, 
@@ -9,6 +9,7 @@ import {
   MapPin, 
   AlertOctagon, 
   Volume2, 
+  VolumeX,
   Check, 
   BellRing,
   Radio
@@ -16,19 +17,86 @@ import {
 import { ScreenId } from '../../types';
 import { MapEngine } from '../MapEngine';
 import { MOCK_HELP_POINTS } from '../../data/mockData';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface EmergencySosScreenProps {
   onNavigate: (screen: ScreenId) => void;
 }
 
 export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNavigate }) => {
+  const { t } = useLanguage();
   const [sosTriggered, setSosTriggered] = useState(false);
   const [sirenPlaying, setSirenPlaying] = useState(false);
   const [activeActionToast, setActiveActionToast] = useState<string | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const oscRef = useRef<OscillatorNode | null>(null);
+  const gainRef = useRef<GainNode | null>(null);
+
+  // Siren Audio Synthesizer via Web Audio API
+  useEffect(() => {
+    if (sirenPlaying) {
+      try {
+        const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+        const ctx = new AudioCtx();
+        audioCtxRef.current = ctx;
+
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(800, ctx.currentTime);
+        
+        // Siren frequency modulation
+        const now = ctx.currentTime;
+        for (let i = 0; i < 30; i++) {
+          osc.frequency.linearRampToValueAtTime(1200, now + i * 0.8 + 0.4);
+          osc.frequency.linearRampToValueAtTime(800, now + i * 0.8 + 0.8);
+        }
+
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+
+        oscRef.current = osc;
+        gainRef.current = gain;
+      } catch (e) {
+        console.warn('Audio synthesis note:', e);
+      }
+    } else {
+      if (oscRef.current) {
+        try {
+          oscRef.current.stop();
+          oscRef.current.disconnect();
+        } catch {
+          // ignore
+        }
+        oscRef.current = null;
+      }
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+        audioCtxRef.current = null;
+      }
+    }
+
+    return () => {
+      if (oscRef.current) {
+        try {
+          oscRef.current.stop();
+          oscRef.current.disconnect();
+        } catch {
+          // ignore
+        }
+      }
+      if (audioCtxRef.current) {
+        audioCtxRef.current.close().catch(() => {});
+      }
+    };
+  }, [sirenPlaying]);
 
   const triggerToast = (msg: string) => {
     setActiveActionToast(msg);
-    setTimeout(() => setActiveActionToast(null), 3000);
+    setTimeout(() => setActiveActionToast(null), 3500);
   };
 
   const handleSosPress = () => {
@@ -50,18 +118,18 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
         </button>
         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-100 text-rose-800 text-xs font-black uppercase tracking-wider">
           <AlertOctagon className="w-4 h-4 text-rose-600 animate-pulse" />
-          <span>Emergency Command</span>
+          <span>{t.emergencyCommand}</span>
         </div>
         <button
           onClick={() => setSirenPlaying(!sirenPlaying)}
           className={`p-2 rounded-2xl border transition-colors ${
             sirenPlaying
               ? 'bg-rose-600 text-white border-rose-700 animate-pulse'
-              : 'bg-white text-slate-600 border-slate-200'
+              : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
           }`}
-          title="Toggle Audible Alarm Siren"
+          title={sirenPlaying ? 'Mute Siren Alarm' : 'Play Siren Alarm'}
         >
-          <Volume2 className="w-4 h-4" />
+          {sirenPlaying ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
         </button>
       </div>
 
@@ -95,7 +163,7 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
               SOS
             </span>
             <span className="text-[9px] uppercase font-extrabold text-rose-100 tracking-wider">
-              {sosTriggered ? 'ACTIVATED' : 'TAP FOR HELP'}
+              {sosTriggered ? t.sosActivated : t.tapForHelp}
             </span>
           </button>
         </div>
@@ -125,7 +193,7 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
               <PhoneCall className="w-4 h-4 text-white" />
             </div>
             <div>
-              <div className="leading-tight">Call 911</div>
+              <div className="leading-tight">{t.call911}</div>
               <div className="text-[9px] text-rose-100 font-normal">Police / Medical</div>
             </div>
           </a>
@@ -140,7 +208,7 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
               <Users className="w-4 h-4 text-white" />
             </div>
             <div>
-              <div className="leading-tight">Alert Contacts</div>
+              <div className="leading-tight">{t.alertContacts}</div>
               <div className="text-[9px] text-purple-100 font-normal">3 Guardians</div>
             </div>
           </button>
@@ -155,7 +223,7 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
               <Share2 className="w-4 h-4 text-white" />
             </div>
             <div>
-              <div className="leading-tight">Share GPS</div>
+              <div className="leading-tight">{t.shareGps}</div>
               <div className="text-[9px] text-blue-100 font-normal">Real-time link</div>
             </div>
           </button>
@@ -170,7 +238,7 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
               <Shield className="w-4 h-4 text-blue-400" />
             </div>
             <div>
-              <div className="leading-tight">Police Station</div>
+              <div className="leading-tight">{t.policeStation}</div>
               <div className="text-[9px] text-slate-300 font-normal">350 m away</div>
             </div>
           </button>
@@ -187,12 +255,12 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
               <Cross className="w-4 h-4" />
             </div>
             <div className="text-left">
-              <div className="text-xs font-bold text-slate-800">Nearest Hospital & Trauma Center</div>
+              <div className="text-xs font-bold text-slate-800">{t.nearestHospital}</div>
               <div className="text-[10px] text-slate-500">St. Jude General • 680 m • 4 min walk</div>
             </div>
           </div>
           <span className="px-2.5 py-1 rounded-xl bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200">
-            Open 24/7
+            {t.open247}
           </span>
         </button>
       </div>
@@ -202,7 +270,7 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-extrabold text-slate-700 flex items-center gap-1.5">
             <MapPin className="w-3.5 h-3.5 text-blue-600" />
-            Nearest Help Points & Verified Havens
+            {t.nearestHelpPointsTitle}
           </span>
           <span className="text-[10px] font-bold text-emerald-600">4 Active Points</span>
         </div>

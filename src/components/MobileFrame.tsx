@@ -14,6 +14,7 @@ import {
   Clock
 } from 'lucide-react';
 import { ScreenId } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 interface MobileFrameProps {
   currentScreen: ScreenId;
@@ -47,6 +48,7 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
   onTriggerAlert,
   onTriggerCheckIn
 }) => {
+  const { language, setLanguage } = useLanguage();
   const [deviceView, setDeviceView] = useState<'mobile' | 'fluid'>('mobile');
 
   return (
@@ -74,6 +76,25 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
 
           {/* Quick Simulation Triggers & View Toggle */}
           <div className="flex items-center gap-2">
+            {/* Global Language Selector */}
+            <div className="flex items-center gap-1 bg-slate-800/80 px-2 py-1 rounded-xl border border-slate-700">
+              <span className="text-xs">
+                {language === 'en' ? '🇺🇸' : language === 'hi' ? '🇮🇳' : language === 'es' ? '🇪🇸' : '🇫🇷'}
+              </span>
+              <select
+                id="header-language-select"
+                value={language}
+                onChange={(e) => setLanguage(e.target.value as any)}
+                className="bg-transparent text-[11px] font-bold text-slate-200 focus:outline-none cursor-pointer"
+                title="Select Application Language"
+              >
+                <option value="en" className="bg-slate-900 text-white">English (US)</option>
+                <option value="hi" className="bg-slate-900 text-white">हिन्दी (Hindi)</option>
+                <option value="es" className="bg-slate-900 text-white">Español</option>
+                <option value="fr" className="bg-slate-900 text-white">Français</option>
+              </select>
+            </div>
+
             <button
               onClick={onTriggerAlert}
               className="px-2.5 py-1 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer"

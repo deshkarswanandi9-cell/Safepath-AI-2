@@ -4,10 +4,10 @@ import {
   Compass, 
   AlertOctagon, 
   TrendingUp, 
-  User, 
-  Users
+  User
 } from 'lucide-react';
 import { ScreenId } from '../types';
+import { useLanguage } from '../context/LanguageContext';
 
 interface BottomNavBarProps {
   currentScreen: ScreenId;
@@ -20,6 +20,8 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
   onNavigate,
   onOpenSos
 }) => {
+  const { t } = useLanguage();
+
   // Hide bottom nav during full-screen splash or live navigation or SOS mode to maximize viewing area
   if (currentScreen === 'splash' || currentScreen === 'live_navigation') {
     return null;
@@ -38,7 +40,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
         }`}
       >
         <Home className={`w-5 h-5 ${currentScreen === 'dashboard' ? 'stroke-[2.5]' : 'stroke-[1.75]'}`} />
-        <span className="text-[10px] mt-0.5 font-bold">Home</span>
+        <span className="text-[10px] mt-0.5 font-bold">{t.homeTab}</span>
       </button>
 
       {/* Tab 2: Routes (Search / Comparison) */}
@@ -56,7 +58,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
             ? 'stroke-[2.5]'
             : 'stroke-[1.75]'
         }`} />
-        <span className="text-[10px] mt-0.5 font-bold">Routes</span>
+        <span className="text-[10px] mt-0.5 font-bold">{t.routesTab}</span>
       </button>
 
       {/* Tab 3: Central SOS Floating Action Button */}
@@ -70,7 +72,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
           <AlertOctagon className="w-6 h-6 stroke-[2.2] animate-pulse" />
         </div>
         <span className="text-[10px] font-black text-rose-600 tracking-wider uppercase mt-0.5">
-          SOS
+          {t.sosTab}
         </span>
       </button>
 
@@ -85,7 +87,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
         }`}
       >
         <TrendingUp className={`w-5 h-5 ${currentScreen === 'safety_analytics' ? 'stroke-[2.5]' : 'stroke-[1.75]'}`} />
-        <span className="text-[10px] mt-0.5 font-bold">Analytics</span>
+        <span className="text-[10px] mt-0.5 font-bold">{t.analyticsTab}</span>
       </button>
 
       {/* Tab 5: Profile / Settings */}
@@ -99,7 +101,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
         }`}
       >
         <User className={`w-5 h-5 ${currentScreen === 'profile_settings' ? 'stroke-[2.5]' : 'stroke-[1.75]'}`} />
-        <span className="text-[10px] mt-0.5 font-bold">Profile</span>
+        <span className="text-[10px] mt-0.5 font-bold">{t.profileTab}</span>
       </button>
     </div>
   );

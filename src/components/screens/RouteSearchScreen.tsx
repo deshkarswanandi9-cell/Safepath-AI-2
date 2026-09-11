@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { ScreenId } from '../../types';
 import { MapEngine } from '../MapEngine';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface RouteSearchScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -29,16 +30,21 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
   setDestination,
   onGenerateRoutes
 }) => {
+  const { t } = useLanguage();
   const [fromLoc, setFromLoc] = useState('Current Location (124 Grand Blvd)');
   const [prioritizeSafety, setPrioritizeSafety] = useState(true);
   const [avoidIsolated, setAvoidIsolated] = useState(true);
   const [preferPublicTransit, setPreferPublicTransit] = useState(true);
   const [wheelchairAccessible, setWheelchairAccessible] = useState(false);
+  const [isCalculating, setIsCalculating] = useState(false);
 
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault();
-    onGenerateRoutes();
-    onNavigate('route_comparison');
+    setIsCalculating(true);
+    setTimeout(() => {
+      onGenerateRoutes();
+      onNavigate('route_comparison');
+    }, 800);
   };
 
   return (
@@ -66,7 +72,7 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div>
-              <h2 className="text-sm font-extrabold text-slate-900">Safe Route Planner</h2>
+              <h2 className="text-sm font-extrabold text-slate-900">{t.routePlanner}</h2>
               <p className="text-[10px] text-slate-500">AI evaluates illumination & density</p>
             </div>
           </div>
@@ -79,7 +85,7 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
                 <Navigation className="w-3.5 h-3.5" />
               </div>
               <div className="flex-1">
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">From</label>
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t.fromLabel}</label>
                 <input
                   id="input-route-from"
                   type="text"
@@ -99,7 +105,7 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
                 <MapPin className="w-3.5 h-3.5" />
               </div>
               <div className="flex-1">
-                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">To</label>
+                <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">{t.toLabel}</label>
                 <input
                   id="input-route-to"
                   type="text"
@@ -138,7 +144,7 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs font-extrabold text-slate-800 flex items-center gap-1.5">
               <SlidersHorizontal className="w-3.5 h-3.5 text-purple-600" />
-              Safety Preferences & Constraints
+              {t.safetyPreferences}
             </span>
             <span className="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-full">
               SHAP Active
@@ -154,8 +160,8 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
                   <ShieldCheck className="w-3.5 h-3.5" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-emerald-950">Prioritize Safety</span>
-                  <p className="text-[9px] text-emerald-700">Weights lighting, crowd, and police presence</p>
+                  <span className="text-xs font-bold text-emerald-950">{t.prioritizeSafety}</span>
+                  <p className="text-[9px] text-emerald-700">{t.prioritizeSafetyDesc}</p>
                 </div>
               </div>
               <input
@@ -174,8 +180,8 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
                   <EyeOff className="w-3.5 h-3.5" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-slate-800">Avoid Isolated Roads</span>
-                  <p className="text-[9px] text-slate-500">Skips unlit alleys, dead ends & dark parks</p>
+                  <span className="text-xs font-bold text-slate-800">{t.avoidIsolated}</span>
+                  <p className="text-[9px] text-slate-500">{t.avoidIsolatedDesc}</p>
                 </div>
               </div>
               <input
@@ -194,8 +200,8 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
                   <Train className="w-3.5 h-3.5" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-slate-800">Prefer Public Transport</span>
-                  <p className="text-[9px] text-slate-500">Follows well-monitored metro corridors</p>
+                  <span className="text-xs font-bold text-slate-800">{t.preferPublic}</span>
+                  <p className="text-[9px] text-slate-500">{t.preferPublicDesc}</p>
                 </div>
               </div>
               <input
@@ -214,8 +220,8 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
                   <Accessibility className="w-3.5 h-3.5" />
                 </div>
                 <div>
-                  <span className="text-xs font-bold text-slate-800">Wheelchair Accessible</span>
-                  <p className="text-[9px] text-slate-500">Ramps, smooth curbs & elevator access</p>
+                  <span className="text-xs font-bold text-slate-800">{t.wheelchair}</span>
+                  <p className="text-[9px] text-slate-500">{t.wheelchairDesc}</p>
                 </div>
               </div>
               <input
@@ -232,10 +238,11 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
           <button
             id="btn-generate-routes"
             onClick={handleGenerate}
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-bold text-xs shadow-xl shadow-blue-500/25 hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+            disabled={isCalculating}
+            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-bold text-xs shadow-xl shadow-blue-500/25 hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-80"
           >
-            <Sparkles className="w-4 h-4" />
-            <span>Generate Routes with AI</span>
+            <Sparkles className={`w-4 h-4 ${isCalculating ? 'animate-spin' : ''}`} />
+            <span>{isCalculating ? t.computingRoutes : t.generateRoutesBtn}</span>
           </button>
         </div>
       </div>

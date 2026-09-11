@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ScreenId, RouteOption } from './types';
 import { MOCK_ROUTES } from './data/mockData';
+import { LanguageProvider } from './context/LanguageContext';
 import { MobileFrame } from './components/MobileFrame';
 import { SplashScreen } from './components/screens/SplashScreen';
 import { LoginScreen } from './components/screens/LoginScreen';
@@ -19,7 +20,7 @@ import { ProfileSettingsScreen } from './components/screens/ProfileSettingsScree
 import { FloatingAiAssistant } from './components/FloatingAiAssistant';
 import { BottomNavBar } from './components/BottomNavBar';
 
-export default function App() {
+function MainAppContent() {
   const [currentScreen, setCurrentScreen] = useState<ScreenId>('splash');
   const [selectedRoute, setSelectedRoute] = useState<RouteOption>(MOCK_ROUTES[2]); // Default Route C (Recommended 93%)
   const [destination, setDestination] = useState('Westwood Residence, 88 Parkview');
@@ -174,5 +175,13 @@ export default function App() {
         )}
       </div>
     </MobileFrame>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <MainAppContent />
+    </LanguageProvider>
   );
 }

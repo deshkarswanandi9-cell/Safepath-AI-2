@@ -10,12 +10,13 @@ import {
   ArrowRight, 
   Bell, 
   Sparkles, 
-  ChevronRight,
-  TrendingUp,
+  ChevronRight, 
+  TrendingUp, 
   Activity
 } from 'lucide-react';
 import { ScreenId } from '../../types';
 import { MapEngine } from '../MapEngine';
+import { useLanguage } from '../../context/LanguageContext';
 
 interface DashboardScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -23,14 +24,20 @@ interface DashboardScreenProps {
 }
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, onOpenSos }) => {
+  const { t } = useLanguage();
+
   return (
     <div className="relative min-h-[640px] h-full flex flex-col bg-[#F8FAFC] overflow-y-auto no-scrollbar pb-20">
       {/* Top Header Card */}
       <div className="p-5 pb-3 bg-white border-b border-slate-100 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-blue-600 p-0.5 shadow-md shadow-blue-500/10">
+            <div 
+              onClick={() => onNavigate('profile_settings')}
+              className="relative cursor-pointer group"
+              title="View Profile Settings"
+            >
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-blue-600 p-0.5 shadow-md shadow-blue-500/10 group-hover:scale-105 transition-transform">
                 <img
                   src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80"
                   alt="Shivani avatar"
@@ -42,12 +49,16 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
             <div>
               <div className="flex items-center gap-1.5">
                 <h1 className="text-base font-extrabold text-slate-900 tracking-tight">
-                  Good Evening, Shivani 👋
+                  {t.goodEvening}
                 </h1>
               </div>
-              <p className="text-[11px] font-medium text-slate-500 flex items-center gap-1">
+              <p 
+                onClick={() => onNavigate('trusted_contacts')}
+                className="text-[11px] font-medium text-slate-500 flex items-center gap-1 cursor-pointer hover:underline"
+                title="View Trusted Contacts"
+              >
                 <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                Safe Guardian Network: <strong className="text-emerald-700">Online</strong>
+                <strong className="text-emerald-700">{t.guardianOnline}</strong>
               </p>
             </div>
           </div>
@@ -75,11 +86,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
               <MapPin className="w-4 h-4" />
             </div>
             <span className="text-xs font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">
-              📍 Where do you want to go?
+              {t.whereToGo}
             </span>
           </div>
           <span className="px-2 py-1 rounded-xl bg-white text-[10px] font-bold text-blue-600 border border-slate-200 shadow-xs">
-            Plan Safe Route
+            {t.planSafeRoute}
           </span>
         </div>
       </div>
@@ -96,13 +107,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
         {/* Floating live map overlay label */}
         <div className="absolute top-3 left-3 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 shadow-sm flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span className="text-[11px] font-bold text-slate-800">Downtown Safe Zone (Live)</span>
+          <span className="text-[11px] font-bold text-slate-800">{t.downtownSafeZone}</span>
         </div>
         <button
           onClick={() => onNavigate('route_search')}
           className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-bold shadow-md hover:bg-blue-700 transition-colors flex items-center gap-1.5 cursor-pointer"
         >
-          <span>Expand Map</span>
+          <span>{t.expandMap}</span>
           <ArrowRight className="w-3.5 h-3.5" />
         </button>
       </div>
@@ -111,9 +122,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
       <div className="px-4 mt-5">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-            Quick Actions
+            {t.quickActions}
           </h2>
-          <span className="text-[10px] font-semibold text-blue-600">Priority AI Services</span>
+          <span className="text-[10px] font-semibold text-blue-600">{t.priorityServices}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -128,10 +139,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
             </div>
             <div>
               <div className="text-xs font-extrabold text-slate-800 group-hover:text-blue-600 transition-colors">
-                Find Safe Route
+                {t.findSafeRoute}
               </div>
               <div className="text-[10px] text-slate-500 mt-0.5">
-                AI lighting & crowd analysis
+                {t.findSafeRouteDesc}
               </div>
             </div>
           </button>
@@ -147,10 +158,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
             </div>
             <div>
               <div className="text-xs font-extrabold text-slate-800 group-hover:text-purple-600 transition-colors">
-                Share Live Location
+                {t.shareLiveLocation}
               </div>
               <div className="text-[10px] text-slate-500 mt-0.5">
-                Real-time beacon for family
+                {t.shareLiveLocationDesc}
               </div>
             </div>
           </button>
@@ -166,10 +177,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
             </div>
             <div>
               <div className="text-xs font-extrabold text-rose-800 group-hover:text-rose-900 transition-colors">
-                Emergency SOS
+                {t.emergencySos}
               </div>
               <div className="text-[10px] text-rose-600/80 mt-0.5">
-                Instant sirens & 911 dispatch
+                {t.emergencySosDesc}
               </div>
             </div>
           </button>
@@ -185,10 +196,10 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
             </div>
             <div>
               <div className="text-xs font-extrabold text-slate-800 group-hover:text-emerald-600 transition-colors">
-                Trusted Contacts
+                {t.trustedContacts}
               </div>
               <div className="text-[10px] text-slate-500 mt-0.5">
-                Mother, Friend, Sister (3 Active)
+                {t.trustedContactsDesc}
               </div>
             </div>
           </button>
@@ -204,23 +215,27 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
                 <Sparkles className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-xs font-extrabold text-slate-900">Safety Overview Card</h3>
-                <p className="text-[10px] text-slate-500">Current GPS Radius (500m)</p>
+                <h3 className="text-xs font-extrabold text-slate-900">{t.safetyOverview}</h3>
+                <p className="text-[10px] text-slate-500">{t.currentGpsRadius}</p>
               </div>
             </div>
             <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
-              Secure Zone
+              {t.secureZone}
             </span>
           </div>
 
           {/* Core Metrics Grid */}
           <div className="grid grid-cols-2 gap-2.5">
             {/* Area Safety Score: 86% */}
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/40 border border-blue-100">
-              <div className="text-[10px] font-semibold text-slate-500">Area Safety Score</div>
+            <div 
+              onClick={() => onNavigate('shap_explain')}
+              className="p-3 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/40 border border-blue-100 cursor-pointer hover:border-blue-300 hover:shadow-sm transition-all"
+              title="Click to view AI SHAP score breakdown"
+            >
+              <div className="text-[10px] font-semibold text-slate-500">{t.areaSafetyScore}</div>
               <div className="text-2xl font-black text-blue-700 mt-0.5 flex items-baseline gap-1">
                 86%
-                <span className="text-[10px] font-bold text-emerald-600">+4% vs avg</span>
+                <span className="text-[10px] font-bold text-emerald-600">+4%</span>
               </div>
               <div className="w-full bg-blue-200/50 rounded-full h-1.5 mt-2 overflow-hidden">
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-600 h-1.5 rounded-full w-[86%]"></div>
@@ -228,31 +243,43 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
             </div>
 
             {/* Street Lighting: Good */}
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/40 border border-amber-100">
-              <div className="text-[10px] font-semibold text-slate-500">Street Lighting</div>
+            <div 
+              onClick={() => onNavigate('shap_explain')}
+              className="p-3 rounded-2xl bg-gradient-to-br from-amber-50 to-orange-50/40 border border-amber-100 cursor-pointer hover:border-amber-300 hover:shadow-sm transition-all"
+              title="Click to view illumination factor"
+            >
+              <div className="text-[10px] font-semibold text-slate-500">{t.streetLighting}</div>
               <div className="text-base font-extrabold text-amber-800 mt-1 flex items-center gap-1.5">
                 <SunMedium className="w-4 h-4 text-amber-500 fill-amber-500" />
-                Good (94 Lux)
+                {t.goodLighting}
               </div>
-              <p className="text-[9px] text-slate-500 mt-1">Smart municipal LEDs active</p>
+              <p className="text-[9px] text-slate-500 mt-1">{t.smartLeds}</p>
             </div>
 
             {/* Crowd Activity: Medium */}
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-purple-50 to-violet-50/40 border border-purple-100">
-              <div className="text-[10px] font-semibold text-slate-500">Crowd Activity</div>
+            <div 
+              onClick={() => onNavigate('safety_analytics')}
+              className="p-3 rounded-2xl bg-gradient-to-br from-purple-50 to-violet-50/40 border border-purple-100 cursor-pointer hover:border-purple-300 hover:shadow-sm transition-all"
+              title="Click to view crowd activity analytics"
+            >
+              <div className="text-[10px] font-semibold text-slate-500">{t.crowdActivity}</div>
               <div className="text-base font-extrabold text-purple-800 mt-1 flex items-center gap-1.5">
                 <Activity className="w-4 h-4 text-purple-500" />
-                Medium
+                {t.mediumActivity}
               </div>
-              <p className="text-[9px] text-slate-500 mt-1">Open shops & transit footfall</p>
+              <p className="text-[9px] text-slate-500 mt-1">{t.openShops}</p>
             </div>
 
             {/* Nearby Help Points: 5 */}
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/40 border border-emerald-100">
-              <div className="text-[10px] font-semibold text-slate-500">Nearby Help Points</div>
+            <div 
+              onClick={onOpenSos}
+              className="p-3 rounded-2xl bg-gradient-to-br from-emerald-50 to-teal-50/40 border border-emerald-100 cursor-pointer hover:border-emerald-300 hover:shadow-sm transition-all"
+              title="Click to view nearby emergency help points"
+            >
+              <div className="text-[10px] font-semibold text-slate-500">{t.nearbyHelpPoints}</div>
               <div className="text-base font-extrabold text-emerald-800 mt-1 flex items-center gap-1.5">
                 <Shield className="w-4 h-4 text-emerald-600" />
-                5 Available
+                {t.helpPointsAvailable}
               </div>
               <p className="text-[9px] text-slate-500 mt-1">Police, Metro & 24/7 Booth</p>
             </div>
@@ -264,7 +291,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
           >
             <span className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-              View Deep AI Explainability (SHAP Analysis)
+              {t.viewShapExplain}
             </span>
             <ChevronRight className="w-4 h-4 text-slate-400" />
           </button>
