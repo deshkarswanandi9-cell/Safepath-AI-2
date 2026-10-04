@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { 
   Bot, 
   X, 
-  Send, 
-  CornerDownLeft,
-  Sparkles
+  Send
 } from 'lucide-react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
+import { drawerVariants, TRANSITIONS } from '../utils/motion';
 
 interface Message {
   sender: 'ai' | 'user';
@@ -16,6 +16,7 @@ interface Message {
 export const FloatingAiAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState('');
+  const shouldReduceMotion = useReducedMotion();
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
@@ -70,108 +71,126 @@ export const FloatingAiAssistant: React.FC = () => {
   return (
     <>
       {/* Floating Trigger Button (Absolute inside phone preview) */}
-      {!isOpen && (
-        <button
-          id="btn-floating-ai-copilot"
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className="absolute bottom-16 right-3.5 z-40 p-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black shadow-lg border border-neutral-700 dark:border-neutral-300 hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
-          title="Open AI Assistant"
-          aria-label="Open SafeRoute AI Assistant"
-        >
-          <Bot className="w-4 h-4" />
-          <span className="text-[10px] font-black uppercase tracking-wider pr-0.5">AI</span>
-        </button>
-      )}
+      <AnimatePresence>
+        {!isOpen && (
+          <motion.button
+            key="btn-floating-trigger"
+            id="btn-floating-ai-copilot"
+            type="button"
+            onClick={() => setIsOpen(true)}
+            initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
+            animate={shouldReduceMotion ? false : { opacity: 1, scale: 1 }}
+            exit={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
+            transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.fast}
+            whileHover={shouldReduceMotion ? undefined : { scale: 1.05 }}
+            whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
+            className="absolute bottom-16 right-3.5 z-40 p-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black shadow-lg border border-neutral-700 dark:border-neutral-300 transition-colors cursor-pointer flex items-center gap-1.5"
+            title="Open AI Assistant"
+            aria-label="Open SafeRoute AI Assistant"
+          >
+            <Bot className="w-4 h-4" />
+            <span className="text-[10px] font-black uppercase tracking-wider pr-0.5">AI</span>
+          </motion.button>
+        )}
+      </AnimatePresence>
 
       {/* Floating Chat Drawer / Popover (Strictly contained within device) */}
-      {isOpen && (
-        <div className="absolute inset-x-2 bottom-14 z-50 rounded-2xl bg-white dark:bg-black text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-2xl flex flex-col overflow-hidden h-[380px] max-h-[80%] transition-colors">
-          {/* Header */}
-          <div className="p-3 bg-neutral-100 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-bold">
-                <Bot className="w-3.5 h-3.5" />
-              </div>
-              <div>
-                <h4 className="text-xs font-black text-black dark:text-white">SafeRoute Copilot</h4>
-                <p className="text-[9px] text-neutral-500 dark:text-neutral-400">Telemetry Active</p>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="p-1 rounded-md text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors"
-              aria-label="Close Assistant"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Messages Thread */}
-          <div className="flex-1 min-h-0 p-3 overflow-y-auto space-y-2 text-xs no-scrollbar">
-            {messages.map((m, i) => (
-              <div
-                key={i}
-                className={`flex gap-1.5 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {m.sender === 'ai' && (
-                  <div className="w-5 h-5 rounded bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0 text-[9px] font-black mt-0.5">
-                    AI
-                  </div>
-                )}
-                <div
-                  className={`max-w-[85%] p-2.5 rounded-xl text-xs ${
-                    m.sender === 'user'
-                      ? 'bg-black text-white dark:bg-white dark:text-black font-semibold rounded-tr-xs'
-                      : 'bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white border border-neutral-200 dark:border-neutral-800 rounded-tl-xs font-medium'
-                  }`}
-                >
-                  <p className="leading-relaxed">{m.text}</p>
-                  <span className={`block text-[8px] mt-1 ${m.sender === 'user' ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-400'}`}>
-                    {m.time}
-                  </span>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            key="ai-assistant-drawer"
+            variants={shouldReduceMotion ? undefined : drawerVariants}
+            initial={shouldReduceMotion ? false : "initial"}
+            animate={shouldReduceMotion ? false : "animate"}
+            exit={shouldReduceMotion ? false : "exit"}
+            className="absolute inset-x-2 bottom-14 z-50 rounded-2xl bg-white dark:bg-black text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-2xl flex flex-col overflow-hidden h-[380px] max-h-[80%] transition-colors"
+          >
+            {/* Header */}
+            <div className="p-3 bg-neutral-100 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-bold">
+                  <Bot className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black text-black dark:text-white">SafeRoute Copilot</h4>
+                  <p className="text-[9px] text-neutral-500 dark:text-neutral-400">Telemetry Active</p>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {/* Quick Prompts */}
-          <div className="px-2.5 py-1.5 flex gap-1 overflow-x-auto no-scrollbar border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950">
-            {quickPrompts.map((chip, idx) => (
               <button
-                key={idx}
                 type="button"
-                onClick={() => handleSend(chip)}
-                className="px-2 py-0.5 rounded-md bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 text-[9px] font-bold whitespace-nowrap border border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white transition-colors shrink-0"
+                onClick={() => setIsOpen(false)}
+                className="p-1 rounded-md text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+                aria-label="Close Assistant"
               >
-                {chip}
+                <X className="w-4 h-4" />
               </button>
-            ))}
-          </div>
+            </div>
 
-          {/* Input Box */}
-          <div className="p-2 bg-neutral-100 dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 flex items-center gap-1.5">
-            <input
-              type="text"
-              value={inputVal}
-              onChange={(e) => setInputVal(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-              placeholder="Ask safety assistant..."
-              className="flex-1 px-2.5 py-1.5 rounded-lg bg-white dark:bg-black text-black dark:text-white border border-neutral-300 dark:border-neutral-700 text-xs font-semibold focus:outline-none focus:border-black dark:focus:border-white"
-            />
-            <button
-              type="button"
-              onClick={() => handleSend()}
-              className="p-2 rounded-lg bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition-opacity"
-              aria-label="Send Message"
-            >
-              <Send className="w-3.5 h-3.5" />
-            </button>
-          </div>
-        </div>
-      )}
+            {/* Messages Thread */}
+            <div className="flex-1 min-h-0 p-3 overflow-y-auto space-y-2 text-xs no-scrollbar">
+              {messages.map((m, i) => (
+                <div
+                  key={i}
+                  className={`flex gap-1.5 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {m.sender === 'ai' && (
+                    <div className="w-5 h-5 rounded bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0 text-[9px] font-black mt-0.5">
+                      AI
+                    </div>
+                  )}
+                  <div
+                    className={`max-w-[85%] p-2.5 rounded-xl text-xs ${
+                      m.sender === 'user'
+                        ? 'bg-black text-white dark:bg-white dark:text-black font-semibold rounded-tr-xs'
+                        : 'bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white border border-neutral-200 dark:border-neutral-800 rounded-tl-xs font-medium'
+                    }`}
+                  >
+                    <p className="leading-relaxed">{m.text}</p>
+                    <span className={`block text-[8px] mt-1 ${m.sender === 'user' ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-400'}`}>
+                      {m.time}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Quick Prompts */}
+            <div className="px-2.5 py-1.5 flex gap-1 overflow-x-auto no-scrollbar border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950">
+              {quickPrompts.map((chip, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => handleSend(chip)}
+                  className="px-2 py-0.5 rounded-md bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 text-[9px] font-bold whitespace-nowrap border border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white transition-colors shrink-0 cursor-pointer"
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
+
+            {/* Input Box */}
+            <div className="p-2 bg-neutral-100 dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 flex items-center gap-1.5">
+              <input
+                type="text"
+                value={inputVal}
+                onChange={(e) => setInputVal(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+                placeholder="Ask safety assistant..."
+                className="flex-1 px-2.5 py-1.5 rounded-lg bg-white dark:bg-black text-black dark:text-white border border-neutral-300 dark:border-neutral-700 text-xs font-semibold focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+              />
+              <button
+                type="button"
+                onClick={() => handleSend()}
+                className="p-2 rounded-lg bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition-opacity cursor-pointer"
+                aria-label="Send Message"
+              >
+                <Send className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

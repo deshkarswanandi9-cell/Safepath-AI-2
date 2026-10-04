@@ -19,6 +19,8 @@ import { SupportedLanguage } from '../../data/translations';
 import { Card } from '../ui/Card';
 import { Switch } from '../ui/Switch';
 import { Button } from '../ui/Button';
+import { motion, useReducedMotion } from 'motion/react';
+import { TRANSITIONS } from '../../utils/motion';
 
 interface ProfileSettingsScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -31,6 +33,7 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
 }) => {
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme, toggleTheme } = useTheme();
+  const shouldReduceMotion = useReducedMotion();
   const [pushNotifications, setPushNotifications] = useState(true);
   const [anonymizeGps, setAnonymizeGps] = useState(false);
   const [autoSosThreshold, setAutoSosThreshold] = useState('30 Seconds');
@@ -112,35 +115,45 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               <div 
                 role="radiogroup" 
                 aria-label="Theme Selection"
-                className="inline-flex items-center p-0.5 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 text-xs font-bold"
+                className="relative inline-flex items-center p-0.5 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 text-xs font-bold"
               >
                 <button
                   type="button"
                   role="radio"
                   aria-checked={theme === 'light'}
                   onClick={() => setTheme('light')}
-                  className={`px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                    theme === 'light'
-                      ? 'bg-white text-black shadow-xs font-black'
-                      : 'text-neutral-500 hover:text-black dark:hover:text-white'
-                  }`}
+                  className="relative px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
                 >
-                  <Sun className="w-3.5 h-3.5 text-amber-500" />
-                  <span>Light</span>
+                  {theme === 'light' && (
+                    <motion.span
+                      layoutId="profile-theme-indicator"
+                      transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.indicatorSpring}
+                      className="absolute inset-0 rounded-md bg-white shadow-xs z-0"
+                    />
+                  )}
+                  <span className={`relative z-10 flex items-center gap-1.5 ${theme === 'light' ? 'text-black font-black' : 'text-neutral-500 hover:text-black dark:hover:text-white'}`}>
+                    <Sun className="w-3.5 h-3.5 text-amber-500" />
+                    <span>Light</span>
+                  </span>
                 </button>
                 <button
                   type="button"
                   role="radio"
                   aria-checked={theme === 'dark'}
                   onClick={() => setTheme('dark')}
-                  className={`px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
-                    theme === 'dark'
-                      ? 'bg-black text-white shadow-xs font-black border border-neutral-800'
-                      : 'text-neutral-500 hover:text-black dark:hover:text-white'
-                  }`}
+                  className="relative px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 cursor-pointer transition-colors"
                 >
-                  <Moon className="w-3.5 h-3.5 text-neutral-300" />
-                  <span>Dark</span>
+                  {theme === 'dark' && (
+                    <motion.span
+                      layoutId="profile-theme-indicator"
+                      transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.indicatorSpring}
+                      className="absolute inset-0 rounded-md bg-black shadow-xs z-0"
+                    />
+                  )}
+                  <span className={`relative z-10 flex items-center gap-1.5 ${theme === 'dark' ? 'text-white font-black' : 'text-neutral-500 hover:text-black dark:hover:text-white'}`}>
+                    <Moon className="w-3.5 h-3.5 text-neutral-300" />
+                    <span>Dark</span>
+                  </span>
                 </button>
               </div>
             </div>

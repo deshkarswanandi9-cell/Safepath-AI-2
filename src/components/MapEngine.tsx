@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import { 
   Shield, 
   MapPin, 
@@ -61,6 +62,7 @@ export const MapEngine: React.FC<MapEngineProps> = ({
   const [zoom, setZoom] = useState<number>(1);
   const [heatmapVisible, setHeatmapVisible] = useState<boolean>(showHeatmap);
   const [selectedHp, setSelectedHp] = useState<EmergencyHelpPoint | null>(null);
+  const shouldReduceMotion = useReducedMotion();
 
   // Compute interpolated GPS position along active route
   const getGpsPosition = () => {
@@ -365,9 +367,9 @@ export const MapEngine: React.FC<MapEngineProps> = ({
 
         {/* Active Route Line (Google Maps Route Blue & Chevrons) */}
         {activeRoute && activeRoute.pathPoints && (
-          <g>
+          <g key={activeRoute.id}>
             {/* White route border */}
-            <path
+            <motion.path
               d={pointsToSvgPath(activeRoute.pathPoints)}
               fill="none"
               stroke="#FFFFFF"
@@ -375,15 +377,21 @@ export const MapEngine: React.FC<MapEngineProps> = ({
               strokeLinecap="round"
               strokeLinejoin="round"
               opacity="0.95"
+              initial={shouldReduceMotion ? false : { pathLength: 0.15, opacity: 0.5 }}
+              animate={shouldReduceMotion ? false : { pathLength: 1, opacity: 0.95 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             />
             {/* Main navigation route line */}
-            <path
+            <motion.path
               d={pointsToSvgPath(activeRoute.pathPoints)}
               fill="none"
               stroke={activeRoute.isRecommended ? 'url(#gmap-safe-corridor)' : 'url(#gmap-nav-blue)'}
               strokeWidth="7"
               strokeLinecap="round"
               strokeLinejoin="round"
+              initial={shouldReduceMotion ? false : { pathLength: 0.15, opacity: 0.5 }}
+              animate={shouldReduceMotion ? false : { pathLength: 1, opacity: 1 }}
+              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
             />
             {/* Google Maps style Directional Chevron Dots (>>>) */}
             <path

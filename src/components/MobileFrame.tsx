@@ -17,9 +17,11 @@ import {
   Check,
   X
 } from 'lucide-react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { ScreenId } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { TRANSITIONS, popoverVariants } from '../utils/motion';
 
 interface MobileFrameProps {
   currentScreen: ScreenId;
@@ -84,6 +86,7 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
   const [deviceView, setDeviceView] = useState<'mobile' | 'fluid'>('mobile');
   const [isScreenMenuOpen, setIsScreenMenuOpen] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
+  const shouldReduceMotion = useReducedMotion();
   
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
@@ -184,11 +187,11 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
 
             {/* Right: Global Toolbar Actions */}
             <div className="flex items-center gap-1.5 sm:gap-2">
-              {/* 1. Theme Selector: [ ☀ Light | ☾ Dark ] */}
+              {/* 1. Theme Selector: [ ☀ Light | ☾ Dark ] with Shared Motion Indicator */}
               <div 
                 role="radiogroup" 
                 aria-label="Theme Selection"
-                className="inline-flex items-center p-0.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 transition-colors"
+                className="relative inline-flex items-center p-0.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 transition-colors"
               >
                 <button
                   type="button"
@@ -196,31 +199,42 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
                   id="header-theme-light"
                   aria-checked={theme === 'light'}
                   onClick={() => setTheme('light')}
-                  className={`px-2 py-1 rounded-md text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white ${
-                    theme === 'light'
-                      ? 'bg-white text-black shadow-xs font-black'
-                      : 'text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white font-medium'
-                  }`}
+                  className="relative px-2 py-1 rounded-md text-[11px] font-bold flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white transition-colors"
                   title="Switch to Light Theme"
                 >
-                  <Sun className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Light</span>
+                  {theme === 'light' && (
+                    <motion.span
+                      layoutId="active-theme-indicator"
+                      transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.indicatorSpring}
+                      className="absolute inset-0 rounded-md bg-white shadow-xs z-0"
+                    />
+                  )}
+                  <span className={`relative z-10 flex items-center gap-1.5 ${theme === 'light' ? 'text-black font-black' : 'text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white font-medium'}`}>
+                    <Sun className="w-3.5 h-3.5 text-amber-500" />
+                    <span className="hidden sm:inline">Light</span>
+                  </span>
                 </button>
+
                 <button
                   type="button"
                   role="radio"
                   id="header-theme-dark"
                   aria-checked={theme === 'dark'}
                   onClick={() => setTheme('dark')}
-                  className={`px-2 py-1 rounded-md text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white ${
-                    theme === 'dark'
-                      ? 'bg-black text-white shadow-xs font-black'
-                      : 'text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white font-medium'
-                  }`}
+                  className="relative px-2 py-1 rounded-md text-[11px] font-bold flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white transition-colors"
                   title="Switch to Dark Theme"
                 >
-                  <Moon className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Dark</span>
+                  {theme === 'dark' && (
+                    <motion.span
+                      layoutId="active-theme-indicator"
+                      transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.indicatorSpring}
+                      className="absolute inset-0 rounded-md bg-black shadow-xs z-0"
+                    />
+                  )}
+                  <span className={`relative z-10 flex items-center gap-1.5 ${theme === 'dark' ? 'text-white font-black' : 'text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white font-medium'}`}>
+                    <Moon className="w-3.5 h-3.5 text-neutral-300" />
+                    <span className="hidden sm:inline">Dark</span>
+                  </span>
                 </button>
               </div>
 
@@ -242,34 +256,38 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
               </div>
 
               {/* 3. Safety Incident Alert Action */}
-              <button
+              <motion.button
                 type="button"
                 id="header-btn-trigger-alert"
                 onClick={onTriggerAlert}
+                whileHover={shouldReduceMotion ? undefined : { scale: 1.02 }}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
                 className="px-2 sm:px-2.5 py-1 rounded-lg bg-neutral-100 hover:bg-red-50 dark:bg-neutral-900 dark:hover:bg-red-950/30 border border-neutral-300 hover:border-red-300 dark:border-neutral-800 dark:hover:border-red-900 text-red-600 dark:text-red-400 text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-red-500"
                 title="Simulate Screen 8 Safety Incident Alert"
               >
                 <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
                 <span className="hidden sm:inline">Alert</span>
-              </button>
+              </motion.button>
 
               {/* 4. Safety Check-In Action */}
-              <button
+              <motion.button
                 type="button"
                 id="header-btn-trigger-checkin"
                 onClick={onTriggerCheckIn}
+                whileHover={shouldReduceMotion ? undefined : { scale: 1.02 }}
+                whileTap={shouldReduceMotion ? undefined : { scale: 0.97 }}
                 className="px-2 sm:px-2.5 py-1 rounded-lg bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-900 dark:hover:bg-neutral-800 border border-neutral-300 dark:border-neutral-800 text-black dark:text-white text-[11px] font-bold flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white"
                 title="Simulate Screen 10 Safety Check-In"
               >
                 <Clock className="w-3.5 h-3.5 text-neutral-500 dark:text-neutral-400 shrink-0" />
                 <span className="hidden sm:inline">Check-In</span>
-              </button>
+              </motion.button>
 
-              {/* 5. Preview Mode Selector: [ Phone | Fluid ] */}
+              {/* 5. Preview Mode Selector: [ Phone | Fluid ] with Shared Motion Indicator */}
               <div 
                 role="radiogroup" 
                 aria-label="Device Viewport Mode"
-                className="inline-flex items-center p-0.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 transition-colors"
+                className="relative inline-flex items-center p-0.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 transition-colors"
               >
                 <button
                   type="button"
@@ -277,31 +295,42 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
                   id="header-view-phone"
                   aria-checked={deviceView === 'mobile'}
                   onClick={() => setDeviceView('mobile')}
-                  className={`px-2 py-1 rounded-md text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white ${
-                    deviceView === 'mobile'
-                      ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs font-black'
-                      : 'text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white font-medium'
-                  }`}
+                  className="relative px-2 py-1 rounded-md text-[11px] font-bold flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white transition-colors"
                   title="Phone Device Frame Preview"
                 >
-                  <Smartphone className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Phone</span>
+                  {deviceView === 'mobile' && (
+                    <motion.span
+                      layoutId="active-preview-indicator"
+                      transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.indicatorSpring}
+                      className="absolute inset-0 rounded-md bg-black text-white dark:bg-white dark:text-black shadow-xs z-0"
+                    />
+                  )}
+                  <span className={`relative z-10 flex items-center gap-1.5 ${deviceView === 'mobile' ? 'text-white dark:text-black font-black' : 'text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white font-medium'}`}>
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Phone</span>
+                  </span>
                 </button>
+
                 <button
                   type="button"
                   role="radio"
                   id="header-view-fluid"
                   aria-checked={deviceView === 'fluid'}
                   onClick={() => setDeviceView('fluid')}
-                  className={`px-2 py-1 rounded-md text-[11px] font-bold flex items-center gap-1.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white ${
-                    deviceView === 'fluid'
-                      ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs font-black'
-                      : 'text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white font-medium'
-                  }`}
+                  className="relative px-2 py-1 rounded-md text-[11px] font-bold flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-black dark:focus-visible:ring-white transition-colors"
                   title="Fluid Responsive Preview"
                 >
-                  <Maximize2 className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Fluid</span>
+                  {deviceView === 'fluid' && (
+                    <motion.span
+                      layoutId="active-preview-indicator"
+                      transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.indicatorSpring}
+                      className="absolute inset-0 rounded-md bg-black text-white dark:bg-white dark:text-black shadow-xs z-0"
+                    />
+                  )}
+                  <span className={`relative z-10 flex items-center gap-1.5 ${deviceView === 'fluid' ? 'text-white dark:text-black font-black' : 'text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white font-medium'}`}>
+                    <Maximize2 className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Fluid</span>
+                  </span>
                 </button>
               </div>
             </div>
@@ -335,97 +364,103 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
                   <ChevronDown className={`w-3.5 h-3.5 text-neutral-500 transition-transform duration-150 ${isScreenMenuOpen ? 'rotate-180' : ''}`} />
                 </button>
 
-                {/* Popover Menu with Search & Structured 4 Groups */}
-                {isScreenMenuOpen && (
-                  <div
-                    ref={menuRef}
-                    role="menu"
-                    aria-label="All Prototype Screens"
-                    className="absolute left-0 top-full mt-1.5 w-80 sm:w-96 max-h-[75vh] rounded-xl bg-white dark:bg-neutral-950 text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-2xl p-2 z-50 flex flex-col overflow-hidden transition-colors"
-                  >
-                    {/* Menu Header with Search Filter */}
-                    <div className="pb-2 border-b border-neutral-200 dark:border-neutral-800 flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
-                        <input
-                          ref={searchInputRef}
-                          type="text"
-                          value={searchFilter}
-                          onChange={(e) => setSearchFilter(e.target.value)}
-                          placeholder="Search 19 screens..."
-                          className="w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 rounded-lg pl-8 pr-7 py-1 text-xs text-black dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-black dark:focus:border-white transition-colors"
-                        />
-                        {searchFilter && (
-                          <button
-                            type="button"
-                            onClick={() => setSearchFilter('')}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-black dark:hover:text-white"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
+                {/* Popover Menu with Animated Entrance / Exit */}
+                <AnimatePresence>
+                  {isScreenMenuOpen && (
+                    <motion.div
+                      ref={menuRef}
+                      role="menu"
+                      aria-label="All Prototype Screens"
+                      variants={shouldReduceMotion ? undefined : popoverVariants}
+                      initial={shouldReduceMotion ? false : "initial"}
+                      animate={shouldReduceMotion ? false : "animate"}
+                      exit={shouldReduceMotion ? false : "exit"}
+                      className="absolute left-0 top-full mt-1.5 w-80 sm:w-96 max-h-[75vh] rounded-xl bg-white dark:bg-neutral-950 text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-2xl p-2 z-50 flex flex-col overflow-hidden transition-colors origin-top-left"
+                    >
+                      {/* Menu Header with Search Filter */}
+                      <div className="pb-2 border-b border-neutral-200 dark:border-neutral-800 flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                          <input
+                            ref={searchInputRef}
+                            type="text"
+                            value={searchFilter}
+                            onChange={(e) => setSearchFilter(e.target.value)}
+                            placeholder="Search 19 screens..."
+                            className="w-full bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 rounded-lg pl-8 pr-7 py-1 text-xs text-black dark:text-white placeholder:text-neutral-400 focus:outline-none focus:border-black dark:focus:border-white transition-colors"
+                          />
+                          {searchFilter && (
+                            <button
+                              type="button"
+                              onClick={() => setSearchFilter('')}
+                              className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-black dark:hover:text-white"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Grouped Screens Scroll Area */}
+                      <div className="flex-1 overflow-y-auto py-1 space-y-2 no-scrollbar max-h-[58vh]">
+                        {SCREEN_GROUPS.map((group) => {
+                          const screensInGroup = filteredScreens.filter((s) => s.group === group);
+                          if (screensInGroup.length === 0) return null;
+
+                          return (
+                            <div key={group} className="space-y-0.5">
+                              <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400 sticky top-0 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-xs">
+                                {group}
+                              </div>
+                              <div className="space-y-0.5">
+                                {screensInGroup.map((s) => {
+                                  const isActive = currentScreen === s.id;
+                                  return (
+                                    <button
+                                      key={s.id}
+                                      id={`btn-jump-${s.id}`}
+                                      type="button"
+                                      role="menuitem"
+                                      onClick={() => {
+                                        onSelectScreen(s.id);
+                                        setIsScreenMenuOpen(false);
+                                      }}
+                                      className={`w-full px-2 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between gap-2 transition-colors cursor-pointer text-left ${
+                                        isActive
+                                          ? 'bg-black text-white dark:bg-white dark:text-black font-bold'
+                                          : 'hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-800 dark:text-neutral-200'
+                                      }`}
+                                    >
+                                      <div className="flex items-center gap-2 truncate">
+                                        <span className={`w-5 h-5 rounded text-[10px] font-mono flex items-center justify-center shrink-0 font-bold ${
+                                          isActive
+                                            ? 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black'
+                                            : 'bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400'
+                                        }`}>
+                                          {String(s.num).padStart(2, '0')}
+                                        </span>
+                                        <span className="truncate">{s.label}</span>
+                                      </div>
+                                      {isActive && (
+                                        <Check className="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
+                                      )}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        {filteredScreens.length === 0 && (
+                          <div className="py-6 text-center text-xs text-neutral-500">
+                            No screens matching "{searchFilter}"
+                          </div>
                         )}
                       </div>
-                    </div>
-
-                    {/* Grouped Screens Scroll Area */}
-                    <div className="flex-1 overflow-y-auto py-1 space-y-2 no-scrollbar max-h-[58vh]">
-                      {SCREEN_GROUPS.map((group) => {
-                        const screensInGroup = filteredScreens.filter((s) => s.group === group);
-                        if (screensInGroup.length === 0) return null;
-
-                        return (
-                          <div key={group} className="space-y-0.5">
-                            <div className="px-2 py-1 text-[10px] font-black uppercase tracking-wider text-neutral-500 dark:text-neutral-400 sticky top-0 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-xs">
-                              {group}
-                            </div>
-                            <div className="space-y-0.5">
-                              {screensInGroup.map((s) => {
-                                const isActive = currentScreen === s.id;
-                                return (
-                                  <button
-                                    key={s.id}
-                                    id={`btn-jump-${s.id}`}
-                                    type="button"
-                                    role="menuitem"
-                                    onClick={() => {
-                                      onSelectScreen(s.id);
-                                      setIsScreenMenuOpen(false);
-                                    }}
-                                    className={`w-full px-2 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between gap-2 transition-colors cursor-pointer text-left ${
-                                      isActive
-                                        ? 'bg-black text-white dark:bg-white dark:text-black font-bold'
-                                        : 'hover:bg-neutral-100 dark:hover:bg-neutral-900 text-neutral-800 dark:text-neutral-200'
-                                    }`}
-                                  >
-                                    <div className="flex items-center gap-2 truncate">
-                                      <span className={`w-5 h-5 rounded text-[10px] font-mono flex items-center justify-center shrink-0 font-bold ${
-                                        isActive
-                                          ? 'bg-neutral-800 text-white dark:bg-neutral-200 dark:text-black'
-                                          : 'bg-neutral-100 dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400'
-                                      }`}>
-                                        {String(s.num).padStart(2, '0')}
-                                      </span>
-                                      <span className="truncate">{s.label}</span>
-                                    </div>
-                                    {isActive && (
-                                      <Check className="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
-                                    )}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })}
-
-                      {filteredScreens.length === 0 && (
-                        <div className="py-6 text-center text-xs text-neutral-500">
-                          No screens matching "{searchFilter}"
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
 
@@ -435,11 +470,13 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
                 {String(currentIndex + 1).padStart(2, '0')} / {String(SCREENS_LIST.length).padStart(2, '0')}
               </span>
 
-              <button
+              <motion.button
                 type="button"
                 id="header-btn-prev-screen"
                 onClick={handlePrevScreen}
                 disabled={currentIndex <= 0}
+                whileHover={shouldReduceMotion || currentIndex <= 0 ? undefined : { scale: 1.02 }}
+                whileTap={shouldReduceMotion || currentIndex <= 0 ? undefined : { scale: 0.96 }}
                 aria-label="Previous screen"
                 className={`px-2 py-1 rounded-lg border text-xs font-bold flex items-center gap-1 transition-colors ${
                   currentIndex <= 0
@@ -450,13 +487,15 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Prev</span>
-              </button>
+              </motion.button>
 
-              <button
+              <motion.button
                 type="button"
                 id="header-btn-next-screen"
                 onClick={handleNextScreen}
                 disabled={currentIndex >= SCREENS_LIST.length - 1}
+                whileHover={shouldReduceMotion || currentIndex >= SCREENS_LIST.length - 1 ? undefined : { scale: 1.02 }}
+                whileTap={shouldReduceMotion || currentIndex >= SCREENS_LIST.length - 1 ? undefined : { scale: 0.96 }}
                 aria-label="Next screen"
                 className={`px-2 py-1 rounded-lg border text-xs font-bold flex items-center gap-1 transition-colors ${
                   currentIndex >= SCREENS_LIST.length - 1
@@ -467,58 +506,82 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
               >
                 <span className="hidden sm:inline">Next</span>
                 <ChevronRight className="w-3.5 h-3.5" />
-              </button>
+              </motion.button>
             </div>
           </div>
         </div>
       </header>
 
       {/* ========================================================================= */}
-      {/* MAIN PREVIEW CONTAINER (Responsive Fit Without Scrolling)                  */}
+      {/* MAIN PREVIEW CONTAINER (Seamless Geometric Transition Between Modes)        */}
       {/* ========================================================================= */}
       <main className="flex-1 min-h-0 w-full flex items-center justify-center p-2 sm:p-3 overflow-hidden relative bg-white dark:bg-black transition-colors duration-150">
-        {deviceView === 'mobile' ? (
-          /* Mobile Device Frame — Proportional Aspect Ratio Sizing */
-          <div className="relative h-full max-h-[min(812px,100%)] aspect-[390/812] max-w-[min(400px,94vw)] rounded-[44px] bg-neutral-100 dark:bg-neutral-950 border border-neutral-300 dark:border-neutral-800 p-2 shadow-xl dark:shadow-2xl flex flex-col overflow-hidden shrink-0 transition-all duration-200">
-            {/* Inner Phone Screen */}
-            <div className="relative w-full h-full rounded-[36px] overflow-hidden flex flex-col bg-white dark:bg-black text-black dark:text-white transition-colors">
-              {/* iOS Status Bar */}
-              <div className="h-8 px-5 flex items-center justify-between text-[11px] font-bold select-none shrink-0 z-30 border-b border-neutral-200/60 dark:border-neutral-800/60 bg-white/95 dark:bg-black/95 transition-colors">
-                <span className="font-extrabold tracking-tight">9:41</span>
+        <motion.div
+          layout
+          transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.shellSpring}
+          className={`relative h-full flex flex-col overflow-hidden shrink-0 transition-colors shadow-xl dark:shadow-2xl border ${
+            deviceView === 'mobile'
+              ? 'max-h-[min(812px,100%)] aspect-[390/812] max-w-[min(400px,94vw)] rounded-[44px] bg-neutral-100 dark:bg-neutral-950 border-neutral-300 dark:border-neutral-800 p-2'
+              : 'w-full max-w-3xl max-h-[min(820px,100%)] rounded-2xl bg-white dark:bg-black border-neutral-300 dark:border-neutral-800 p-0'
+          }`}
+        >
+          {/* Inner Screen Container (Maintains content continuity & prevents unmounting) */}
+          <div
+            className={`relative w-full h-full overflow-hidden flex flex-col bg-white dark:bg-black text-black dark:text-white transition-colors ${
+              deviceView === 'mobile' ? 'rounded-[36px]' : 'rounded-2xl'
+            }`}
+          >
+            {/* iOS Status Bar (Fluidly transitions with device shell) */}
+            <AnimatePresence initial={false}>
+              {deviceView === 'mobile' && (
+                <motion.div
+                  key="phone-status-bar"
+                  initial={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
+                  animate={shouldReduceMotion ? false : { opacity: 1, height: 32 }}
+                  exit={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
+                  transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.fast}
+                  className="h-8 px-5 flex items-center justify-between text-[11px] font-bold select-none shrink-0 z-30 border-b border-neutral-200/60 dark:border-neutral-800/60 bg-white/95 dark:bg-black/95 transition-colors overflow-hidden"
+                >
+                  <span className="font-extrabold tracking-tight">9:41</span>
 
-                {/* Dynamic Island */}
-                <div className="w-22 h-4.5 rounded-full bg-black dark:bg-neutral-900 flex items-center justify-between px-2 gap-1 border border-neutral-800 dark:border-neutral-700/50">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  <span className="text-[8px] font-black text-white tracking-wider">SAFE</span>
-                  <Shield className="w-2.5 h-2.5 text-white" />
-                </div>
+                  {/* Dynamic Island */}
+                  <div className="w-22 h-4.5 rounded-full bg-black dark:bg-neutral-900 flex items-center justify-between px-2 gap-1 border border-neutral-800 dark:border-neutral-700/50">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                    <span className="text-[8px] font-black text-white tracking-wider">SAFE</span>
+                    <Shield className="w-2.5 h-2.5 text-white" />
+                  </div>
 
-                <div className="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
-                  <Signal className="w-3 h-3" />
-                  <Wifi className="w-3 h-3" />
-                  <Battery className="w-3.5 h-3.5" />
-                </div>
-              </div>
+                  <div className="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
+                    <Signal className="w-3 h-3" />
+                    <Wifi className="w-3 h-3" />
+                    <Battery className="w-3.5 h-3.5" />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
-              {/* App Viewport Container */}
-              <div className="flex-1 min-h-0 relative overflow-hidden flex flex-col">
-                {children}
-              </div>
-
-              {/* iOS Home Bar Indicator */}
-              <div className="h-3 flex items-center justify-center shrink-0 z-30 bg-white/95 dark:bg-black/95 transition-colors">
-                <div className="w-28 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700" />
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* Fluid / Tablet Application Preview */
-          <div className="w-full max-w-3xl h-full max-h-[min(820px,100%)] rounded-2xl bg-white dark:bg-black text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-xl dark:shadow-2xl overflow-hidden flex flex-col relative transition-colors">
-            <div className="flex-1 min-h-0 relative overflow-hidden flex flex-col max-w-xl mx-auto w-full">
+            {/* App Viewport Container */}
+            <div className={`flex-1 min-h-0 relative overflow-hidden flex flex-col ${deviceView === 'fluid' ? 'max-w-xl mx-auto w-full' : 'w-full'}`}>
               {children}
             </div>
+
+            {/* iOS Home Bar Indicator (Fluidly transitions with device shell) */}
+            <AnimatePresence initial={false}>
+              {deviceView === 'mobile' && (
+                <motion.div
+                  key="phone-home-indicator"
+                  initial={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
+                  animate={shouldReduceMotion ? false : { opacity: 1, height: 12 }}
+                  exit={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
+                  transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.fast}
+                  className="h-3 flex items-center justify-center shrink-0 z-30 bg-white/95 dark:bg-black/95 transition-colors overflow-hidden"
+                >
+                  <div className="w-28 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700" />
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        )}
+        </motion.div>
       </main>
     </div>
   );
