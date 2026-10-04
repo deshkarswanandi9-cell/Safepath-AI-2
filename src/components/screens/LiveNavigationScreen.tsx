@@ -12,7 +12,9 @@ import {
   AlertOctagon,
   CornerUpRight, 
   CornerUpLeft,
-  ArrowUp
+  ArrowUp,
+  Layers,
+  LocateFixed
 } from 'lucide-react';
 import { ScreenId, RouteOption } from '../../types';
 import { NAV_STEPS } from '../../data/mockData';
@@ -41,6 +43,8 @@ export const LiveNavigationScreen: React.FC<LiveNavigationScreenProps> = ({
   const [progress, setProgress] = useState(25);
   const [isSimulating, setIsSimulating] = useState(true);
   const [soundMode, setSoundMode] = useState<'on' | 'mute'>('on');
+  const [showHeatmap, setShowHeatmap] = useState(true);
+  const [recenteredToast, setRecenteredToast] = useState(false);
 
   // Auto progression simulation
   useEffect(() => {
@@ -60,6 +64,11 @@ export const LiveNavigationScreen: React.FC<LiveNavigationScreenProps> = ({
     return () => clearInterval(timer);
   }, [isSimulating]);
 
+  const handleRecenter = () => {
+    setRecenteredToast(true);
+    setTimeout(() => setRecenteredToast(false), 1500);
+  };
+
   const activeStep = NAV_STEPS[currentStepIdx] || NAV_STEPS[0];
   const nextStep = NAV_STEPS[currentStepIdx + 1] || null;
 
@@ -70,7 +79,7 @@ export const LiveNavigationScreen: React.FC<LiveNavigationScreenProps> = ({
         <MapEngine
           activeRoute={selectedRoute}
           heightClass="h-full"
-          showHeatmap={true}
+          showHeatmap={showHeatmap}
           showHelpPoints={true}
           showStreetlights={true}
           interactive={true}
@@ -78,6 +87,14 @@ export const LiveNavigationScreen: React.FC<LiveNavigationScreenProps> = ({
           userProgress={progress}
         />
       </div>
+
+      {/* Recenter Toast Feedback */}
+      {recenteredToast && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 px-3 py-1.5 rounded-full bg-black/90 dark:bg-white/90 text-white dark:text-black text-[11px] font-bold shadow-lg flex items-center gap-1.5 pointer-events-none transition-all">
+          <LocateFixed className="w-3.5 h-3.5 text-emerald-400 dark:text-emerald-600" />
+          <span>Centered on GPS position</span>
+        </div>
+      )}
 
       {/* Top Floating Turn-by-Turn Guidance Header */}
       <div className="relative z-20 p-3 pt-2">
@@ -120,50 +137,76 @@ export const LiveNavigationScreen: React.FC<LiveNavigationScreenProps> = ({
         </div>
       </div>
 
-      {/* Side Quick Action Controls */}
-      <div className="absolute right-3 top-20 z-20 flex flex-col gap-1.5">
-        {/* Sound toggle */}
+      {/* Unified Side Quick Action Rail */}
+      <div className="absolute right-3 top-22 z-20 flex flex-col gap-1.5">
+        {/* Recenter on GPS */}
+        <button
+          type="button"
+          onClick={handleRecenter}
+          className="w-8 h-8 rounded-xl bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-md hover:border-black dark:hover:border-white transition-colors cursor-pointer flex items-center justify-center"
+          title="Recenter on Location"
+          aria-label="Recenter GPS Position"
+        >
+          <LocateFixed className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+        </button>
+
+        {/* Safety Heatmap & Corridor Layer Toggle */}
+        <button
+          type="button"
+          onClick={() => setShowHeatmap(!showHeatmap)}
+          className={`w-8 h-8 rounded-xl border shadow-md transition-colors cursor-pointer flex items-center justify-center ${
+            showHeatmap
+              ? 'bg-black text-white dark:bg-white dark:text-black border-black dark:border-white'
+              : 'bg-white/95 dark:bg-black/95 text-neutral-400 border-neutral-300 dark:border-neutral-800'
+          }`}
+          title={showHeatmap ? 'Hide Safety Heatmap' : 'Show Safety Heatmap'}
+          aria-label="Toggle Safety Heatmap Overlay"
+        >
+          <Layers className="w-4 h-4" />
+        </button>
+
+        {/* Sound Toggle */}
         <button
           type="button"
           onClick={() => setSoundMode(soundMode === 'on' ? 'mute' : 'on')}
-          className="p-2 rounded-xl bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-md hover:border-black dark:hover:border-white transition-colors cursor-pointer"
+          className="w-8 h-8 rounded-xl bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-md hover:border-black dark:hover:border-white transition-colors cursor-pointer flex items-center justify-center"
           title={soundMode === 'on' ? 'Mute Audio' : 'Unmute Audio'}
           aria-label="Toggle Navigation Audio"
         >
           {soundMode === 'on' ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4 text-neutral-400" />}
         </button>
 
-        {/* Pause / Resume simulation */}
+        {/* Pause / Resume Simulation */}
         <button
           type="button"
           onClick={() => setIsSimulating(!isSimulating)}
-          className="p-2 rounded-xl bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-md hover:border-black dark:hover:border-white transition-colors cursor-pointer"
+          className="w-8 h-8 rounded-xl bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-md hover:border-black dark:hover:border-white transition-colors cursor-pointer flex items-center justify-center"
           title={isSimulating ? 'Pause GPS Simulation' : 'Resume GPS Simulation'}
           aria-label="Play or Pause GPS Simulation"
         >
           {isSimulating ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
         </button>
 
-        {/* Simulate Alert */}
-        <button
-          type="button"
-          onClick={onTriggerAlert}
-          className="p-2 rounded-xl bg-white/95 dark:bg-black/95 text-red-600 dark:text-red-400 border border-neutral-300 dark:border-neutral-800 shadow-md hover:border-red-500 transition-colors cursor-pointer"
-          title="Simulate Safety Alert"
-          aria-label="Simulate Safety Alert"
-        >
-          <AlertTriangle className="w-4 h-4" />
-        </button>
-
-        {/* Simulate Check-In */}
+        {/* 30s Check-In Simulation */}
         <button
           type="button"
           onClick={onTriggerCheckIn}
-          className="p-2 rounded-xl bg-white/95 dark:bg-black/95 text-amber-600 dark:text-amber-400 border border-neutral-300 dark:border-neutral-800 shadow-md hover:border-amber-500 transition-colors cursor-pointer"
+          className="w-8 h-8 rounded-xl bg-white/95 dark:bg-black/95 text-amber-600 dark:text-amber-400 border border-neutral-300 dark:border-neutral-800 shadow-md hover:border-amber-500 transition-colors cursor-pointer flex items-center justify-center"
           title="Trigger 30s Check-In"
           aria-label="Trigger 30s Safety Check-In"
         >
           <Clock className="w-4 h-4" />
+        </button>
+
+        {/* Simulate Safety Alert */}
+        <button
+          type="button"
+          onClick={onTriggerAlert}
+          className="w-8 h-8 rounded-xl bg-white/95 dark:bg-black/95 text-red-600 dark:text-red-400 border border-neutral-300 dark:border-neutral-800 shadow-md hover:border-red-500 transition-colors cursor-pointer flex items-center justify-center"
+          title="Simulate Safety Alert"
+          aria-label="Simulate Safety Alert"
+        >
+          <AlertTriangle className="w-4 h-4" />
         </button>
       </div>
 

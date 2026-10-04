@@ -93,6 +93,8 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = ({ curren
             className={`absolute z-40 p-2 sm:p-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black shadow-lg border border-neutral-700 dark:border-neutral-300 transition-all cursor-pointer flex items-center gap-1.5 ${
               currentScreen === 'splash'
                 ? 'top-10 right-3.5'
+                : currentScreen === 'live_navigation'
+                ? 'top-22 left-3'
                 : 'bottom-16 right-3.5'
             }`}
             title="Open AI Assistant"
@@ -114,7 +116,7 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = ({ curren
             animate={shouldReduceMotion ? false : "animate"}
             exit={shouldReduceMotion ? false : "exit"}
             className={`absolute inset-x-2 ${
-              currentScreen === 'splash' ? 'bottom-2.5' : 'bottom-14'
+              currentScreen === 'splash' || currentScreen === 'live_navigation' ? 'bottom-2.5' : 'bottom-14'
             } z-50 rounded-2xl bg-white dark:bg-black text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-2xl flex flex-col overflow-hidden h-[380px] max-h-[82%] transition-colors`}
           >
             {/* Header */}
