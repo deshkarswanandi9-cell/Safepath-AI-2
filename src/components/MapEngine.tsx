@@ -30,6 +30,9 @@ interface MapEngineProps {
   showHeatmap?: boolean;
   showHelpPoints?: boolean;
   showStreetlights?: boolean;
+  showPublicGatherings?: boolean;
+  showBarricades?: boolean;
+  showMedicalCorridor?: boolean;
   interactive?: boolean;
   heightClass?: string;
   userProgress?: number; // 0 to 100 for navigation progression
@@ -45,6 +48,9 @@ export const MapEngine: React.FC<MapEngineProps> = ({
   showHeatmap = true,
   showHelpPoints = true,
   showStreetlights = true,
+  showPublicGatherings = true,
+  showBarricades = true,
+  showMedicalCorridor = true,
   interactive = true,
   heightClass = 'h-full min-h-[380px]',
   userProgress = 25,
@@ -285,6 +291,62 @@ export const MapEngine: React.FC<MapEngineProps> = ({
                 </g>
               );
             })}
+          </g>
+        )}
+
+        {/* Public Gathering & Protest Assembly Zone Overlay */}
+        {showPublicGatherings && (
+          <g>
+            {/* Jantar Mantar / Janpath Gathering Area */}
+            <circle cx="240" cy="260" r="45" fill="#F59E0B" opacity="0.18" />
+            <circle cx="240" cy="260" r="30" fill="#F59E0B" opacity="0.25" className="animate-pulse" />
+            <g transform="translate(240, 260)">
+              <circle cx="0" cy="0" r="14" fill="#D97706" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.2))" />
+              <text x="0" y="4" textAnchor="middle" fill="#FFFFFF" fontSize="9" fontWeight="bold">👥</text>
+              <rect x="-65" y="-30" width="130" height="15" rx="4" fill="#78350F" opacity="0.9" />
+              <text x="0" y="-20" textAnchor="middle" fill="#FEF3C7" fontSize="7.5" fontWeight="bold">
+                Peaceful Civic Assembly
+              </text>
+            </g>
+          </g>
+        )}
+
+        {/* Emergency Medical Green Corridor Line (RML Access) */}
+        {showMedicalCorridor && (
+          <g>
+            <path
+              d="M 90 410 L 140 370 L 180 320 L 130 450"
+              fill="none"
+              stroke="#06B6D4"
+              strokeWidth="6"
+              strokeDasharray="4 2"
+              strokeLinecap="round"
+              opacity="0.85"
+            />
+            <g transform="translate(140, 370)">
+              <circle cx="0" cy="0" r="10" fill="#0891B2" />
+              <text x="0" y="3.5" textAnchor="middle" fill="#FFFFFF" fontSize="8" fontWeight="bold">🏥</text>
+              <rect x="12" y="-8" width="105" height="14" rx="3" fill="#155E75" opacity="0.95" />
+              <text x="64" y="2" textAnchor="middle" fill="#ECFEFF" fontSize="7" fontWeight="bold">
+                Medical Green Corridor
+              </text>
+            </g>
+          </g>
+        )}
+
+        {/* Police Barricades & Traffic Diversions */}
+        {showBarricades && (
+          <g>
+            {/* Ashoka Rd Barricade */}
+            <g transform="translate(275, 190)">
+              <circle cx="0" cy="0" r="12" fill="#EA4335" opacity="0.2" className="animate-ping" />
+              <circle cx="0" cy="0" r="10" fill="#DC2626" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.25))" />
+              <text x="0" y="3.5" textAnchor="middle" fill="#FFFFFF" fontSize="8" fontWeight="bold">🚧</text>
+              <rect x="12" y="-8" width="95" height="14" rx="3" fill="#991B1B" opacity="0.95" />
+              <text x="59" y="2" textAnchor="middle" fill="#FEE2E2" fontSize="7" fontWeight="bold">
+                Road Diversion
+              </text>
+            </g>
           </g>
         )}
 

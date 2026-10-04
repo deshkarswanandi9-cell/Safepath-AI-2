@@ -118,8 +118,39 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
         </button>
       </div>
 
+      {/* Public Gathering & Transit Disruption Live Intelligence Card */}
+      <div className="px-4 mt-4">
+        <div 
+          onClick={() => onNavigate('public_gathering_hub')}
+          className="p-3.5 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-md border border-indigo-800/40 cursor-pointer hover:border-amber-400/60 transition-all relative overflow-hidden group"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 shrink-0">
+                <Users className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                  <h3 className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors">
+                    Public Gathering & Disruption Hub
+                  </h3>
+                </div>
+                <p className="text-[10px] text-slate-300 mt-0.5">
+                  Live Delhi metro gate advisories, crowd surge forecaster & bypass routes
+                </p>
+              </div>
+            </div>
+
+            <span className="p-1.5 rounded-xl bg-white/10 group-hover:bg-amber-400 group-hover:text-slate-950 text-white transition-all shrink-0">
+              <ChevronRight className="w-4 h-4" />
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Quick Action Buttons */}
-      <div className="px-4 mt-5">
+      <div className="px-4 mt-4">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
             {t.quickActions}

@@ -39,6 +39,7 @@ const SCREENS_LIST: { id: ScreenId; num: number; label: string }[] = [
   { id: 'trusted_contacts', num: 12, label: 'Contacts' },
   { id: 'safety_analytics', num: 13, label: 'Analytics' },
   { id: 'profile_settings', num: 14, label: 'Profile' },
+  { id: 'public_gathering_hub', num: 15, label: '📢 Gathering Hub' },
 ];
 
 export const MobileFrame: React.FC<MobileFrameProps> = ({

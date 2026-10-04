@@ -15,7 +15,9 @@ import {
   Route,
   CheckCircle2,
   Clock,
-  ChevronRight
+  ChevronRight,
+  Users,
+  Hospital
 } from 'lucide-react';
 import { ScreenId, RouteOption } from '../../types';
 import { MOCK_ROUTES } from '../../data/mockData';
@@ -42,6 +44,8 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
   const [avoidIsolated, setAvoidIsolated] = useState(true);
   const [preferPublicTransit, setPreferPublicTransit] = useState(true);
   const [wheelchairAccessible, setWheelchairAccessible] = useState(false);
+  const [publicGatheringMode, setPublicGatheringMode] = useState(true);
+  const [medicalCorridorPriority, setMedicalCorridorPriority] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
 
   const handleGenerate = (e?: React.FormEvent) => {
@@ -322,6 +326,46 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
                 checked={wheelchairAccessible}
                 onChange={(e) => setWheelchairAccessible(e.target.checked)}
                 className="w-4 h-4 rounded text-blue-600 accent-blue-600 cursor-pointer"
+              />
+            </label>
+
+            {/* Option 5: Public Gathering & Protest Aware Mode */}
+            <label className="flex items-center justify-between p-2 rounded-2xl bg-amber-50/70 border border-amber-200/80 cursor-pointer hover:bg-amber-50 transition-colors">
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-6 rounded-lg bg-amber-500 text-white flex items-center justify-center">
+                  <Users className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-amber-950">Public Gathering & Protest Aware</span>
+                  <p className="text-[9px] text-amber-700">Avoid active bottlenecks, barricades & congested metro gates</p>
+                </div>
+              </div>
+              <input
+                id="chk-gathering-aware"
+                type="checkbox"
+                checked={publicGatheringMode}
+                onChange={(e) => setPublicGatheringMode(e.target.checked)}
+                className="w-4 h-4 rounded text-amber-600 accent-amber-600 cursor-pointer"
+              />
+            </label>
+
+            {/* Option 6: Emergency Medical Access Priority */}
+            <label className="flex items-center justify-between p-2 rounded-2xl bg-cyan-50/70 border border-cyan-200/80 cursor-pointer hover:bg-cyan-50 transition-colors">
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-6 rounded-lg bg-cyan-600 text-white flex items-center justify-center">
+                  <Hospital className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <span className="text-xs font-bold text-cyan-950">Prioritize Medical Corridors</span>
+                  <p className="text-[9px] text-cyan-700">Guide along green hospital & first-aid ambulance lanes</p>
+                </div>
+              </div>
+              <input
+                id="chk-medical-corridor"
+                type="checkbox"
+                checked={medicalCorridorPriority}
+                onChange={(e) => setMedicalCorridorPriority(e.target.checked)}
+                className="w-4 h-4 rounded text-cyan-600 accent-cyan-600 cursor-pointer"
               />
             </label>
           </div>

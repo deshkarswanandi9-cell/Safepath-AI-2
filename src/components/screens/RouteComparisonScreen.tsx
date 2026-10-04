@@ -103,11 +103,18 @@ export const RouteComparisonScreen: React.FC<RouteComparisonScreenProps> = ({
                   : 'bg-white/80 border-slate-200 hover:border-slate-300 shadow-sm'
               }`}
             >
-              {/* Recommended Badge */}
+              {/* Recommended / Bypass Badge */}
               {isRec && (
                 <div className="absolute -top-2.5 right-4 px-3 py-0.5 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600 text-white text-[10px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">
                   <ShieldCheck className="w-3 h-3" />
                   Recommended Safe Route
+                </div>
+              )}
+
+              {r.protestBypass && (
+                <div className="absolute -top-2.5 right-4 px-3 py-0.5 rounded-full bg-gradient-to-r from-cyan-600 to-blue-600 text-white text-[10px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">
+                  <ShieldCheck className="w-3 h-3" />
+                  Gathering & Medical Bypass
                 </div>
               )}
 

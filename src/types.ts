@@ -12,7 +12,8 @@ export type ScreenId =
   | 'emergency_sos'     // Screen 11
   | 'trusted_contacts'  // Screen 12
   | 'safety_analytics'  // Screen 13
-  | 'profile_settings'; // Screen 14
+  | 'profile_settings'  // Screen 14
+  | 'public_gathering_hub'; // Screen 15 (Public Gathering & Disruption Hub)
 
 export interface RouteOption {
   id: string;
@@ -26,6 +27,9 @@ export interface RouteOption {
   riskFactors?: string[];
   lightingScore: number; // 0-100
   crowdDensity: 'Low' | 'Medium' | 'High';
+  crowdSurgeRisk?: 'Low' | 'Moderate' | 'High' | 'Critical';
+  protestBypass?: boolean;
+  medicalCorridorAccess?: boolean;
   policeCoverage: boolean;
   metroNearby: boolean;
   pathPoints: { x: number; y: number }[];
@@ -77,3 +81,75 @@ export interface NavStep {
   safetyNote: string;
   lightingStatus: 'High' | 'Good' | 'Moderate';
 }
+
+// -------------------------------------------------------------
+// Public Gathering, Transit Disruption & Predictive Safety Types
+// -------------------------------------------------------------
+
+export interface PublicGatheringIncident {
+  id: string;
+  title: string;
+  category: 'protest_rally' | 'road_blockage' | 'metro_disruption' | 'crowd_surge' | 'medical_corridor' | 'safe_exit';
+  locationName: string;
+  description: string;
+  severity: 'low' | 'moderate' | 'high' | 'critical';
+  coords: { x: number; y: number };
+  radius?: number;
+  verificationStatus: 'verified_official' | 'corroborated' | 'unverified';
+  corroborationCount: number;
+  reportedAt: string;
+  expiresInMinutes: number;
+  source: string;
+}
+
+export interface TransitDisruption {
+  id: string;
+  stationName: string;
+  line: string;
+  lineColor: string;
+  affectedGates: string[];
+  status: 'Open' | 'Partial Closure' | 'Advisory' | 'Station Closed';
+  advisoryNote: string;
+  recommendedAlternative: string;
+  extraWalkMins: number;
+  coords: { x: number; y: number };
+}
+
+export interface CrowdSurgePrediction {
+  id: string;
+  areaName: string;
+  horizonMinutes: number; // 15 or 30 min
+  currentDensity: number; // 0-100%
+  forecastedDensity: number; // 0-100%
+  surgeRisk: 'Low' | 'Moderate' | 'High' | 'Critical';
+  bottleneckLocation: string;
+  confidenceScore: number; // 0-100%
+  contributingFactors: {
+    factor: string;
+    impact: 'increase' | 'decrease';
+    weight: number;
+  }[];
+}
+
+export interface SafeEvacuationExit {
+  id: string;
+  name: string;
+  type: 'metro_open_gate' | 'wide_avenue' | 'emergency_shelter' | 'medical_access';
+  distance: string;
+  eta: string;
+  crowdCongestion: 'Clear' | 'Moderate' | 'Heavy';
+  coords: { x: number; y: number };
+  status: 'Open & Unobstructed' | 'Caution' | 'Congested';
+}
+
+export interface CommunityReport {
+  id: string;
+  title: string;
+  category: 'road_block' | 'lighting' | 'crowding' | 'police_advisory' | 'medical';
+  location: string;
+  timestamp: string;
+  corroborations: number;
+  status: 'verified_official' | 'corroborated' | 'unverified';
+  userAvatar?: string;
+}
+

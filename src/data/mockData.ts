@@ -64,6 +64,7 @@ export const MOCK_ROUTES: RouteOption[] = [
     ],
     lightingScore: 96,
     crowdDensity: 'High',
+    crowdSurgeRisk: 'Moderate',
     policeCoverage: true,
     metroNearby: true,
     color: '#10B981',
@@ -75,6 +76,40 @@ export const MOCK_ROUTES: RouteOption[] = [
       { x: 68, y: 60 },
       { x: 75, y: 40 },
       { x: 85, y: 25 },
+      { x: 88, y: 15 }
+    ]
+  },
+  {
+    id: 'route_d',
+    name: 'ROUTE D (GATHERING BYPASS)',
+    distance: '5.8 km',
+    time: '19 min',
+    safetyScore: 97,
+    isRecommended: false,
+    tagline: 'Protest Bypass & Medical Corridor',
+    reasons: [
+      '100% Avoids Barricaded Corridors',
+      'Direct Green Medical Lane Access',
+      'Open Janpath Violet Line Station',
+      'Continuous 100-Lux Municipal Lighting'
+    ],
+    riskFactors: ['Slightly longer distance (+500m)'],
+    lightingScore: 99,
+    crowdDensity: 'Low',
+    crowdSurgeRisk: 'Low',
+    protestBypass: true,
+    medicalCorridorAccess: true,
+    policeCoverage: true,
+    metroNearby: true,
+    color: '#06B6D4',
+    pathPoints: [
+      { x: 15, y: 80 },
+      { x: 20, y: 85 },
+      { x: 28, y: 78 },
+      { x: 36, y: 88 },
+      { x: 60, y: 82 },
+      { x: 80, y: 65 },
+      { x: 85, y: 40 },
       { x: 88, y: 15 }
     ]
   }
@@ -263,3 +298,210 @@ export const ANALYTICS_DATA = {
     { factor: 'Alleyway Cuts', percentage: 12, color: '#8B5CF6' }
   ]
 };
+
+// -------------------------------------------------------------
+// Public Gathering, Transit Disruption & Predictive Safety Mocks
+// -------------------------------------------------------------
+
+export const MOCK_GATHERING_INCIDENTS: import('../types').PublicGatheringIncident[] = [
+  {
+    id: 'pg-1',
+    title: 'Peaceful Citizens Assembly & March',
+    category: 'protest_rally',
+    locationName: 'Jantar Mantar / Janpath Rd Corridor',
+    description: 'Civic gathering in progress. Road width partially restricted between Gate 1 and 3. Heavy pedestrian density, civil police marshals on site.',
+    severity: 'moderate',
+    coords: { x: 48, y: 52 },
+    radius: 18,
+    verificationStatus: 'verified_official',
+    corroborationCount: 42,
+    reportedAt: '12 mins ago',
+    expiresInMinutes: 45,
+    source: 'Delhi Traffic Police Advisory & Multi-Source Confirmation'
+  },
+  {
+    id: 'pg-2',
+    title: 'Precautionary Police Barricade & Diversion',
+    category: 'road_blockage',
+    locationName: 'Ashoka Road & Patel Chowk Intersection',
+    description: 'Traffic diversion implemented for VIP convoy and transit safety. Pedestrian sidewalk remains accessible on west curb only.',
+    severity: 'high',
+    coords: { x: 55, y: 38 },
+    radius: 12,
+    verificationStatus: 'verified_official',
+    corroborationCount: 28,
+    reportedAt: '5 mins ago',
+    expiresInMinutes: 30,
+    source: 'Official Municipal Traffic Control'
+  },
+  {
+    id: 'pg-3',
+    title: 'Emergency Medical Green Corridor (RML Access)',
+    category: 'medical_corridor',
+    locationName: 'Baba Kharak Singh Marg to RML Hospital',
+    description: 'Designated priority ambulance and emergency pedestrian lane. Fully unobstructed, bright 100-lux corridor.',
+    severity: 'low',
+    coords: { x: 28, y: 65 },
+    radius: 15,
+    verificationStatus: 'verified_official',
+    corroborationCount: 56,
+    reportedAt: '2 mins ago',
+    expiresInMinutes: 90,
+    source: 'City Emergency Medical Services'
+  }
+];
+
+export const MOCK_TRANSIT_DISRUPTIONS: import('../types').TransitDisruption[] = [
+  {
+    id: 'td-1',
+    stationName: 'Rajiv Chowk Metro (Yellow/Blue Line)',
+    line: 'Interchange Station',
+    lineColor: '#EAB308',
+    affectedGates: ['Gate 2 (Closed)', 'Gate 3 (Exit Only)', 'Gate 6 (Open & Monitored)'],
+    status: 'Partial Closure',
+    advisoryNote: 'Gate 2 closed due to perimeter crowd management. Use Gate 6 via Radial Road 3 for safe, unhindered entry.',
+    recommendedAlternative: 'Barakhamba Road Station (450m East)',
+    extraWalkMins: 4,
+    coords: { x: 45, y: 48 }
+  },
+  {
+    id: 'td-2',
+    stationName: 'Patel Chowk Metro (Yellow Line)',
+    line: 'Yellow Line',
+    lineColor: '#EAB308',
+    affectedGates: ['Gate 1 (Temporary Security Hold)', 'Gate 2 (Open)'],
+    status: 'Advisory',
+    advisoryNote: 'Increased passenger screening times. Please allow 5-7 extra minutes.',
+    recommendedAlternative: 'Central Secretariat Station (600m South)',
+    extraWalkMins: 6,
+    coords: { x: 58, y: 32 }
+  },
+  {
+    id: 'td-3',
+    stationName: 'Janpath Metro Station (Violet Line)',
+    line: 'Violet Line',
+    lineColor: '#8B5CF6',
+    affectedGates: ['All Gates Fully Operational'],
+    status: 'Open',
+    advisoryNote: 'Designated low-congestion evacuation transit hub with dedicated women helpdesk.',
+    recommendedAlternative: 'Station is clear - recommended transit choice',
+    extraWalkMins: 0,
+    coords: { x: 38, y: 72 }
+  }
+];
+
+export const MOCK_CROWD_PREDICTIONS: import('../types').CrowdSurgePrediction[] = [
+  {
+    id: 'csp-1',
+    areaName: 'Janpath & Radial 2 Junction',
+    horizonMinutes: 20,
+    currentDensity: 64,
+    forecastedDensity: 88,
+    surgeRisk: 'High',
+    bottleneckLocation: 'Radial 2 Metro Subway Underpass',
+    confidenceScore: 92,
+    contributingFactors: [
+      { factor: 'Dispersal from public gathering concluding at 18:30', impact: 'increase', weight: 45 },
+      { factor: 'Evening peak transit commute wave', impact: 'increase', weight: 30 },
+      { factor: 'Active municipal marshals directing side alleys', impact: 'decrease', weight: -12 }
+    ]
+  },
+  {
+    id: 'csp-2',
+    areaName: 'Baba Kharak Singh Outer Ring',
+    horizonMinutes: 20,
+    currentDensity: 32,
+    forecastedDensity: 38,
+    surgeRisk: 'Low',
+    bottleneckLocation: 'None - Wide 6-lane avenue with unobstructed sidewalks',
+    confidenceScore: 96,
+    contributingFactors: [
+      { factor: 'Designated Medical & Evacuation Corridor', impact: 'decrease', weight: -35 },
+      { factor: 'Evenly distributed commercial activity', impact: 'decrease', weight: -20 },
+      { factor: 'Continuous police surveillance and clear signals', impact: 'decrease', weight: -15 }
+    ]
+  }
+];
+
+export const MOCK_SAFE_EXITS: import('../types').SafeEvacuationExit[] = [
+  {
+    id: 'se-1',
+    name: 'Outer Ring Radial 4 - Clear Evacuation Ave',
+    type: 'wide_avenue',
+    distance: '320 m',
+    eta: '3 min',
+    crowdCongestion: 'Clear',
+    coords: { x: 22, y: 82 },
+    status: 'Open & Unobstructed'
+  },
+  {
+    id: 'se-2',
+    name: 'Janpath Metro Gate 4 Concourse',
+    type: 'metro_open_gate',
+    distance: '480 m',
+    eta: '5 min',
+    crowdCongestion: 'Moderate',
+    coords: { x: 36, y: 75 },
+    status: 'Open & Unobstructed'
+  },
+  {
+    id: 'se-3',
+    name: 'YMCA Emergency Civilian Safe Haven',
+    type: 'emergency_shelter',
+    distance: '620 m',
+    eta: '7 min',
+    crowdCongestion: 'Clear',
+    coords: { x: 62, y: 68 },
+    status: 'Open & Unobstructed'
+  },
+  {
+    id: 'se-4',
+    name: 'RML Hospital Emergency Direct Ramp',
+    type: 'medical_access',
+    distance: '850 m',
+    eta: '9 min',
+    crowdCongestion: 'Clear',
+    coords: { x: 18, y: 90 },
+    status: 'Open & Unobstructed'
+  }
+];
+
+export const MOCK_COMMUNITY_REPORTS: import('../types').CommunityReport[] = [
+  {
+    id: 'cr-1',
+    title: 'Ashoka Rd pedestrian crossing barricaded by traffic police',
+    category: 'road_block',
+    location: 'Ashoka Rd & Radial 1',
+    timestamp: '4 mins ago',
+    corroborations: 34,
+    status: 'verified_official'
+  },
+  {
+    id: 'cr-2',
+    title: 'Rajiv Chowk Gate 2 queue buildup due to bag check hold',
+    category: 'crowding',
+    location: 'Rajiv Chowk Inner Circle',
+    timestamp: '9 mins ago',
+    corroborations: 19,
+    status: 'corroborated'
+  },
+  {
+    id: 'cr-3',
+    title: 'Medical assistance kiosk active with Red Cross volunteers',
+    category: 'medical',
+    location: 'Tolstoy Marg Plaza',
+    timestamp: '15 mins ago',
+    corroborations: 26,
+    status: 'verified_official'
+  },
+  {
+    id: 'cr-4',
+    title: 'Streetlights fully active along Baba Kharak Singh corridor',
+    category: 'lighting',
+    location: 'Baba Kharak Singh Marg',
+    timestamp: '22 mins ago',
+    corroborations: 12,
+    status: 'corroborated'
+  }
+];
+

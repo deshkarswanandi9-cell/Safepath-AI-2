@@ -17,6 +17,7 @@ import { EmergencySosScreen } from './components/screens/EmergencySosScreen';
 import { TrustedContactsScreen } from './components/screens/TrustedContactsScreen';
 import { SafetyAnalyticsScreen } from './components/screens/SafetyAnalyticsScreen';
 import { ProfileSettingsScreen } from './components/screens/ProfileSettingsScreen';
+import { PublicGatheringHubScreen } from './components/screens/PublicGatheringHubScreen';
 import { FloatingAiAssistant } from './components/FloatingAiAssistant';
 import { BottomNavBar } from './components/BottomNavBar';
 
@@ -148,6 +149,13 @@ function MainAppContent() {
             <ProfileSettingsScreen
               onNavigate={handleNavigate}
               onLogout={() => setCurrentScreen('login')}
+            />
+          )}
+
+          {currentScreen === 'public_gathering_hub' && (
+            <PublicGatheringHubScreen
+              onNavigate={handleNavigate}
+              onSelectRoute={setSelectedRoute}
             />
           )}
         </div>
