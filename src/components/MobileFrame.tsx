@@ -91,6 +91,40 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerButtonRef = useRef<HTMLButtonElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mainRef = useRef<HTMLElement>(null);
+
+  const [containerHeight, setContainerHeight] = useState<number>(() => 
+    typeof window !== 'undefined' ? Math.max(480, window.innerHeight - 90) : 844
+  );
+
+  useEffect(() => {
+    const updateSize = () => {
+      if (mainRef.current) {
+        const rect = mainRef.current.getBoundingClientRect();
+        const computed = window.getComputedStyle(mainRef.current);
+        const padY = (parseFloat(computed.paddingTop) || 0) + (parseFloat(computed.paddingBottom) || 0);
+        const usableH = rect.height - padY;
+        if (usableH > 100) {
+          setContainerHeight(usableH);
+        }
+      }
+    };
+
+    updateSize();
+    const observer = new ResizeObserver(updateSize);
+    if (mainRef.current) observer.observe(mainRef.current);
+    window.addEventListener('resize', updateSize);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateSize);
+    };
+  }, []);
+
+  // Compute realistic smartphone proportions constrained strictly by aspect ratio 390 / 844
+  const maxPhoneHeight = Math.min(844, containerHeight);
+  const phoneHeight = Math.max(300, Math.floor(maxPhoneHeight));
+  const phoneWidth = Math.round(phoneHeight * (390 / 844));
+  const fluidHeight = Math.max(300, Math.floor(Math.min(820, containerHeight)));
 
   // Current screen lookup
   const currentIndex = SCREENS_LIST.findIndex((s) => s.id === currentScreen);
@@ -513,75 +547,89 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
       </header>
 
       {/* ========================================================================= */}
-      {/* MAIN PREVIEW CONTAINER (Seamless Geometric Transition Between Modes)        */}
+      {/* MAIN PREVIEW CONTAINER (Outer Frame Animation Only — Zero Content Scale)   */}
       {/* ========================================================================= */}
-      <main className="flex-1 min-h-0 w-full flex items-center justify-center p-2 sm:p-3 overflow-hidden relative bg-white dark:bg-black transition-colors duration-150">
-        <motion.div
-          layout
-          transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.shellSpring}
-          className={`relative h-full flex flex-col overflow-hidden shrink-0 transition-colors shadow-xl dark:shadow-2xl border ${
+      <main 
+        ref={mainRef}
+        className="flex-1 min-h-0 w-full flex items-center justify-center p-2 sm:p-3 overflow-hidden relative bg-white dark:bg-black transition-colors duration-150"
+      >
+        {/* Outer Frame: Pure layout geometry transition (width, height, max-width, radius, padding).
+            NO transform: scale, NO layout prop, NO spring bounce. Inner UI never scales or boings. */}
+        <div
+          className={`relative flex flex-col overflow-hidden shrink-0 shadow-xl dark:shadow-2xl border ${
             deviceView === 'mobile'
-              ? 'max-h-[min(812px,100%)] aspect-[390/812] max-w-[min(400px,94vw)] rounded-[44px] bg-neutral-100 dark:bg-neutral-950 border-neutral-300 dark:border-neutral-800 p-2'
-              : 'w-full max-w-3xl max-h-[min(820px,100%)] rounded-2xl bg-white dark:bg-black border-neutral-300 dark:border-neutral-800 p-0'
+              ? 'rounded-[44px] bg-neutral-100 dark:bg-neutral-950 border-neutral-300 dark:border-neutral-800 p-2'
+              : 'w-full max-w-3xl rounded-2xl bg-white dark:bg-black border-neutral-300 dark:border-neutral-800 p-0'
           }`}
+          style={{
+            width: deviceView === 'mobile' ? `${phoneWidth}px` : '100%',
+            height: deviceView === 'mobile' ? `${phoneHeight}px` : `${fluidHeight}px`,
+            maxWidth: deviceView === 'mobile' ? 'min(390px, 94vw)' : '48rem',
+            maxHeight: '100%',
+            aspectRatio: deviceView === 'mobile' ? '390 / 844' : 'auto',
+            transition: shouldReduceMotion
+              ? 'none'
+              : 'width 350ms cubic-bezier(0.16, 1, 0.3, 1), height 350ms cubic-bezier(0.16, 1, 0.3, 1), max-width 350ms cubic-bezier(0.16, 1, 0.3, 1), border-radius 350ms cubic-bezier(0.16, 1, 0.3, 1), padding 350ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease, border-color 150ms ease'
+          }}
         >
-          {/* Inner Screen Container (Maintains content continuity & prevents unmounting) */}
+          {/* Inner Screen Container */}
           <div
-            className={`relative w-full h-full overflow-hidden flex flex-col bg-white dark:bg-black text-black dark:text-white transition-colors ${
+            className={`relative w-full h-full overflow-hidden flex flex-col bg-white dark:bg-black text-black dark:text-white ${
               deviceView === 'mobile' ? 'rounded-[36px]' : 'rounded-2xl'
             }`}
+            style={{
+              transition: shouldReduceMotion
+                ? 'none'
+                : 'border-radius 350ms cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
           >
-            {/* iOS Status Bar (Fluidly transitions with device shell) */}
-            <AnimatePresence initial={false}>
-              {deviceView === 'mobile' && (
-                <motion.div
-                  key="phone-status-bar"
-                  initial={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
-                  animate={shouldReduceMotion ? false : { opacity: 1, height: 32 }}
-                  exit={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
-                  transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.fast}
-                  className="h-8 px-5 flex items-center justify-between text-[11px] font-bold select-none shrink-0 z-30 border-b border-neutral-200/60 dark:border-neutral-800/60 bg-white/95 dark:bg-black/95 transition-colors overflow-hidden"
-                >
-                  <span className="font-extrabold tracking-tight">9:41</span>
+            {/* iOS Status Bar (Device Chrome: Clean height/opacity transition without scaling content) */}
+            <div
+              className={`h-8 px-3.5 sm:px-5 flex items-center justify-between text-[11px] font-bold select-none shrink-0 z-30 border-b border-neutral-200/60 dark:border-neutral-800/60 bg-white/95 dark:bg-black/95 overflow-hidden ${
+                deviceView === 'mobile' ? 'opacity-100' : 'h-0 opacity-0 pointer-events-none border-b-0 py-0'
+              }`}
+              style={{
+                transition: shouldReduceMotion
+                  ? 'none'
+                  : 'height 250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 250ms cubic-bezier(0.16, 1, 0.3, 1), padding 250ms cubic-bezier(0.16, 1, 0.3, 1)'
+              }}
+            >
+              <span className="font-extrabold tracking-tight">9:41</span>
 
-                  {/* Dynamic Island */}
-                  <div className="w-22 h-4.5 rounded-full bg-black dark:bg-neutral-900 flex items-center justify-between px-2 gap-1 border border-neutral-800 dark:border-neutral-700/50">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                    <span className="text-[8px] font-black text-white tracking-wider">SAFE</span>
-                    <Shield className="w-2.5 h-2.5 text-white" />
-                  </div>
+              {/* Dynamic Island */}
+              <div className="w-20 sm:w-22 h-4.5 rounded-full bg-black dark:bg-neutral-900 flex items-center justify-between px-2 gap-1 border border-neutral-800 dark:border-neutral-700/50">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                <span className="text-[8px] font-black text-white tracking-wider">SAFE</span>
+                <Shield className="w-2.5 h-2.5 text-white" />
+              </div>
 
-                  <div className="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
-                    <Signal className="w-3 h-3" />
-                    <Wifi className="w-3 h-3" />
-                    <Battery className="w-3.5 h-3.5" />
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
+              <div className="flex items-center gap-1.5 text-neutral-600 dark:text-neutral-400">
+                <Signal className="w-3 h-3" />
+                <Wifi className="w-3 h-3" />
+                <Battery className="w-3.5 h-3.5" />
+              </div>
+            </div>
 
-            {/* App Viewport Container */}
+            {/* App Viewport Container (Renders children with stable CSS layout - never scaled or distorted) */}
             <div className={`flex-1 min-h-0 relative overflow-hidden flex flex-col ${deviceView === 'fluid' ? 'max-w-xl mx-auto w-full' : 'w-full'}`}>
               {children}
             </div>
 
-            {/* iOS Home Bar Indicator (Fluidly transitions with device shell) */}
-            <AnimatePresence initial={false}>
-              {deviceView === 'mobile' && (
-                <motion.div
-                  key="phone-home-indicator"
-                  initial={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
-                  animate={shouldReduceMotion ? false : { opacity: 1, height: 12 }}
-                  exit={shouldReduceMotion ? false : { opacity: 0, height: 0 }}
-                  transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.fast}
-                  className="h-3 flex items-center justify-center shrink-0 z-30 bg-white/95 dark:bg-black/95 transition-colors overflow-hidden"
-                >
-                  <div className="w-28 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700" />
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* iOS Home Bar Indicator (Device Chrome: Clean height/opacity transition without scaling content) */}
+            <div
+              className={`h-3 flex items-center justify-center shrink-0 z-30 bg-white/95 dark:bg-black/95 overflow-hidden ${
+                deviceView === 'mobile' ? 'opacity-100' : 'h-0 opacity-0 pointer-events-none'
+              }`}
+              style={{
+                transition: shouldReduceMotion
+                  ? 'none'
+                  : 'height 250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 250ms cubic-bezier(0.16, 1, 0.3, 1)'
+              }}
+            >
+              <div className="w-24 sm:w-28 h-1 rounded-full bg-neutral-300 dark:bg-neutral-700" />
+            </div>
           </div>
-        </motion.div>
+        </div>
       </main>
     </div>
   );

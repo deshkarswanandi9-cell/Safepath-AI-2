@@ -97,3 +97,31 @@
 .dark .focus-ring {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
 }
+
+/* Outer preview frame geometry transition (Zero content scale) */
+.preview-shell-transition {
+  transition-property: max-width, border-radius, padding, background-color, border-color;
+  transition-duration: 350ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.preview-inner-transition {
+  transition-property: border-radius;
+  transition-duration: 350ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.preview-chrome-transition {
+  transition-property: height, opacity, padding, margin;
+  transition-duration: 250ms;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preview-shell-transition,
+  .preview-inner-transition,
+  .preview-chrome-transition {
+    transition: none !important;
+  }
+}
+

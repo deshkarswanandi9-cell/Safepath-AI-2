@@ -86,20 +86,20 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
           className="w-full mt-2.5 p-2.5 rounded-xl border border-neutral-300 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-900 hover:border-black dark:hover:border-white transition-colors flex items-center justify-between group cursor-pointer text-left"
           aria-label="Search Safe Route"
         >
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <div className="w-7 h-7 rounded-lg bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0">
               <MapPin className="w-4 h-4" />
             </div>
-            <div>
-              <span className="text-xs font-bold text-black dark:text-white block">
+            <div className="min-w-0 flex-1">
+              <span className="text-xs font-bold text-black dark:text-white block truncate">
                 {t.whereToGo}
               </span>
-              <span className="text-[10px] text-neutral-500 dark:text-neutral-400">
+              <span className="text-[10px] text-neutral-500 dark:text-neutral-400 block truncate">
                 Safe lighting, metro status & crowd bypass
               </span>
             </div>
           </div>
-          <span className="px-2.5 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black text-[10px] font-black flex items-center gap-1">
+          <span className="px-2 py-1 rounded-lg bg-black text-white dark:bg-white dark:text-black text-[10px] font-black flex items-center gap-1 shrink-0 ml-1">
             <span>{t.planSafeRoute}</span>
             <ArrowRight className="w-3 h-3" />
           </span>
@@ -109,21 +109,21 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
       {/* Safety Score Card & Status */}
       <div className="px-4 mt-3">
         <Card variant="default" padding="md" className="shadow-xs">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
+          <div className="flex items-center justify-between gap-2">
+            <div className="space-y-1 min-w-0 flex-1 pr-1">
               <Badge variant="safe" size="sm">
                 <ShieldCheck className="w-3 h-3" />
                 <span>Verified Safe Perimeter</span>
               </Badge>
-              <h2 className="text-base font-black text-black dark:text-white tracking-tight">
+              <h2 className="text-base font-black text-black dark:text-white tracking-tight break-words">
                 Downtown Central (Sector 4)
               </h2>
-              <div className="text-[11px] text-neutral-500 dark:text-neutral-400 flex items-center gap-2 font-medium">
-                <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-bold">
+              <div className="text-[11px] text-neutral-500 dark:text-neutral-400 flex items-center gap-2 font-medium flex-wrap">
+                <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-bold shrink-0">
                   <SunMedium className="w-3.5 h-3.5" /> 98% Lux
                 </span>
                 <span>•</span>
-                <span className="flex items-center gap-1 text-neutral-700 dark:text-neutral-300 font-semibold">
+                <span className="flex items-center gap-1 text-neutral-700 dark:text-neutral-300 font-semibold shrink-0">
                   <Radio className="w-3 h-3 text-emerald-500" /> 12 Sensors Live
                 </span>
               </div>

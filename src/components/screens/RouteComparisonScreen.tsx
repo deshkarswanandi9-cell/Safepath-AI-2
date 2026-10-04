@@ -106,32 +106,31 @@ export const RouteComparisonScreen: React.FC<RouteComparisonScreenProps> = ({
                   : 'bg-white dark:bg-black border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600'
               }`}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center ${
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <div className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center shrink-0 ${
                     isSelected ? 'border-black dark:border-white bg-black dark:bg-white' : 'border-neutral-400'
                   }`}>
                     {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white dark:bg-black" />}
                   </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <h3 className="text-xs font-black text-black dark:text-white">{r.name}</h3>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <h3 className="text-xs font-black text-black dark:text-white truncate">{r.name}</h3>
                       {isRec && (
-                        <span className="px-1.5 py-0.2 bg-black text-white dark:bg-white dark:text-black text-[8px] font-black rounded">
+                        <span className="px-1.5 py-0.2 bg-black text-white dark:bg-white dark:text-black text-[8px] font-black rounded shrink-0">
                           RECOMMENDED
                         </span>
                       )}
                     </div>
-                    <div className="text-[10px] text-neutral-500 flex items-center gap-1.5 mt-0.5">
-                      <Clock className="w-3 h-3" />
-                      <span>{r.time} ({r.distance})</span>
+                    <div className="text-[10px] text-neutral-500 flex items-center gap-1.5 mt-0.5 flex-wrap">
+                      <span className="flex items-center gap-1 shrink-0"><Clock className="w-3 h-3" /> {r.time} ({r.distance})</span>
                       <span>•</span>
-                      <span>{r.tagline}</span>
+                      <span className="truncate">{r.tagline}</span>
                     </div>
                   </div>
                 </div>
 
-                <Badge variant={badgeVariant} size="md">
+                <Badge variant={badgeVariant} size="md" className="shrink-0">
                   {r.safetyScore}%
                 </Badge>
               </div>
