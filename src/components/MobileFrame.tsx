@@ -191,24 +191,24 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
           /* Mobile Device Bezel (iPhone 16 Pro Titanium Style) */
           <div className="relative w-full max-w-[405px] h-[835px] rounded-[54px] bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 p-[11px] shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.18),0_0_40px_0_rgba(37,99,235,0.2)] ring-1 ring-slate-700/60 flex flex-col transition-all duration-300">
             {/* Inner Phone Frame Accent Rim */}
-            <div className="relative w-full h-full rounded-[44px] bg-[#F8FAFC] text-slate-900 overflow-hidden flex flex-col shadow-2xl ring-1 ring-black/40">
+            <div className="relative w-full h-full rounded-[44px] bg-[#0b101b] text-slate-100 overflow-hidden flex flex-col shadow-2xl ring-1 ring-black/40">
               {/* iOS Status Bar with Sleek Dynamic Island */}
-              <div className="h-11 bg-white/90 backdrop-blur-md px-6 flex items-center justify-between text-xs font-bold text-slate-900 select-none shrink-0 z-30 border-b border-slate-100">
+              <div className="h-11 bg-slate-950/95 backdrop-blur-md px-6 flex items-center justify-between text-xs font-bold text-slate-100 select-none shrink-0 z-30 border-b border-white/10">
                 <span className="font-extrabold text-[13px] tracking-tight">9:41</span>
 
                 {/* Dynamic Island with Live Pulse */}
-                <div className="w-26 h-5.5 rounded-full bg-black flex items-center justify-between px-2.5 gap-1.5 shadow-md border border-white/10">
+                <div className="w-26 h-5 rounded-full bg-black flex items-center justify-between px-2.5 gap-1.5 shadow-md border border-white/15">
                   <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                    <span className="text-[9px] font-bold text-emerald-400">SAFE</span>
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span className="text-[9px] font-black text-emerald-400">SAFE</span>
                   </div>
-                  <Shield className="w-2.5 h-2.5 text-blue-400" />
+                  <Shield className="w-2.5 h-2.5 text-cyan-400" />
                 </div>
 
-                <div className="flex items-center gap-1.5 text-slate-800">
+                <div className="flex items-center gap-1.5 text-slate-300">
                   <Signal className="w-3.5 h-3.5" />
                   <Wifi className="w-3.5 h-3.5" />
-                  <Battery className="w-4 h-4 text-emerald-600" />
+                  <Battery className="w-4 h-4 text-emerald-400" />
                 </div>
               </div>
 
@@ -218,14 +218,14 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
               </div>
 
               {/* iOS Home Bar Indicator */}
-              <div className="h-4 bg-white/90 backdrop-blur-md flex items-center justify-center shrink-0 z-30">
-                <div className="w-32 h-1 rounded-full bg-slate-300" />
+              <div className="h-4 bg-slate-950/95 flex items-center justify-center shrink-0 z-30">
+                <div className="w-32 h-1 rounded-full bg-slate-700" />
               </div>
             </div>
           </div>
         ) : (
           /* Fluid / Fullscreen View Container */
-          <div className="w-full max-w-4xl h-[800px] rounded-3xl bg-[#F8FAFC] text-slate-900 shadow-2xl border border-slate-700/80 overflow-hidden flex flex-col relative ring-1 ring-white/10">
+          <div className="w-full max-w-4xl h-[800px] rounded-3xl bg-[#0b101b] text-slate-100 shadow-2xl border border-white/10 overflow-hidden flex flex-col relative ring-1 ring-white/5">
             <div className="flex-1 relative overflow-hidden flex flex-col">
               {children}
             </div>
