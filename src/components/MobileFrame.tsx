@@ -176,20 +176,28 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
         </div>
       </header>
 
-      {/* Main Preview Container */}
-      <main className="flex-1 w-full flex items-center justify-center p-2 sm:p-6 my-auto">
-        {deviceView === 'mobile' ? (
-          /* Mobile Device Bezel (iPhone 16 Pro Style) */
-          <div className="relative w-full max-w-[400px] h-[820px] rounded-[52px] bg-slate-950 p-3 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.15)] ring-1 ring-slate-800 flex flex-col">
-            {/* Screen Glass Container */}
-            <div className="relative w-full h-full rounded-[42px] bg-[#F8FAFC] text-slate-900 overflow-hidden flex flex-col shadow-inner">
-              {/* iOS Status Bar */}
-              <div className="h-11 bg-white/90 backdrop-blur-md px-6 flex items-center justify-between text-xs font-bold text-slate-900 select-none shrink-0 z-30 border-b border-slate-100">
-                <span>9:41</span>
+      {/* Main Preview Container with Ambient Backdrop Lighting */}
+      <main className="flex-1 w-full flex items-center justify-center p-2 sm:p-6 my-auto relative">
+        {/* Ambient Glowing Background Orbs */}
+        <div className="absolute w-[500px] h-[500px] bg-blue-600/15 rounded-full blur-3xl pointer-events-none -translate-x-32 -translate-y-20 animate-pulse"></div>
+        <div className="absolute w-[450px] h-[450px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none translate-x-32 translate-y-20 animate-pulse"></div>
+        <div className="absolute w-[350px] h-[350px] bg-emerald-500/10 rounded-full blur-3xl pointer-events-none translate-y-32"></div>
 
-                {/* Dynamic Island */}
-                <div className="w-24 h-5 rounded-full bg-black flex items-center justify-end px-2 gap-1.5 shadow-sm">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        {deviceView === 'mobile' ? (
+          /* Mobile Device Bezel (iPhone 16 Pro Titanium Style) */
+          <div className="relative w-full max-w-[405px] h-[835px] rounded-[54px] bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950 p-[11px] shadow-[0_30px_90px_-20px_rgba(0,0,0,0.85),0_0_0_1px_rgba(255,255,255,0.18),0_0_40px_0_rgba(37,99,235,0.2)] ring-1 ring-slate-700/60 flex flex-col transition-all duration-300">
+            {/* Inner Phone Frame Accent Rim */}
+            <div className="relative w-full h-full rounded-[44px] bg-[#F8FAFC] text-slate-900 overflow-hidden flex flex-col shadow-2xl ring-1 ring-black/40">
+              {/* iOS Status Bar with Sleek Dynamic Island */}
+              <div className="h-11 bg-white/90 backdrop-blur-md px-6 flex items-center justify-between text-xs font-bold text-slate-900 select-none shrink-0 z-30 border-b border-slate-100">
+                <span className="font-extrabold text-[13px] tracking-tight">9:41</span>
+
+                {/* Dynamic Island with Live Pulse */}
+                <div className="w-26 h-5.5 rounded-full bg-black flex items-center justify-between px-2.5 gap-1.5 shadow-md border border-white/10">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span className="text-[9px] font-bold text-emerald-400">SAFE</span>
+                  </div>
                   <Shield className="w-2.5 h-2.5 text-blue-400" />
                 </div>
 
@@ -213,7 +221,7 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
           </div>
         ) : (
           /* Fluid / Fullscreen View Container */
-          <div className="w-full max-w-4xl h-[780px] rounded-3xl bg-[#F8FAFC] text-slate-900 shadow-2xl border border-slate-800 overflow-hidden flex flex-col relative">
+          <div className="w-full max-w-4xl h-[800px] rounded-3xl bg-[#F8FAFC] text-slate-900 shadow-2xl border border-slate-700/80 overflow-hidden flex flex-col relative ring-1 ring-white/10">
             <div className="flex-1 relative overflow-hidden flex flex-col">
               {children}
             </div>

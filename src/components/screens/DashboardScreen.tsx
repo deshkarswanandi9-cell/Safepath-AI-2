@@ -28,8 +28,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
 
   return (
     <div className="relative min-h-[640px] h-full flex flex-col bg-[#F8FAFC] overflow-y-auto no-scrollbar pb-28">
-      {/* Top Header Card */}
-      <div className="p-5 pb-3 bg-white border-b border-slate-100 shadow-sm">
+      {/* Top Header Card with Dynamic Ambiance */}
+      <div className="p-5 pb-3.5 bg-white/95 backdrop-blur-xl border-b border-slate-200/80 shadow-xs">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div 
@@ -37,14 +37,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
               className="relative cursor-pointer group"
               title="View Profile Settings"
             >
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-purple-600 to-blue-600 p-0.5 shadow-md shadow-blue-500/10 group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 p-0.5 shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
                 <img
                   src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80"
                   alt="Shivani avatar"
                   className="w-full h-full object-cover rounded-[14px]"
                 />
               </div>
-              <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+              <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-500 border-2 border-white rounded-full shadow-xs"></span>
             </div>
             <div>
               <div className="flex items-center gap-1.5">
@@ -54,11 +54,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
               </div>
               <p 
                 onClick={() => onNavigate('trusted_contacts')}
-                className="text-[11px] font-medium text-slate-500 flex items-center gap-1 cursor-pointer hover:underline"
+                className="text-[11px] font-semibold text-slate-500 flex items-center gap-1.5 cursor-pointer hover:text-emerald-700 transition"
                 title="View Trusted Contacts"
               >
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                <strong className="text-emerald-700">{t.guardianOnline}</strong>
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <strong className="text-emerald-700 font-bold">{t.guardianOnline}</strong>
               </p>
             </div>
           </div>
@@ -67,11 +70,11 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
             <button
               id="btn-dash-bell"
               onClick={() => onNavigate('safety_alert')}
-              className="relative p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+              className="relative p-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all hover:scale-105 active:scale-95 shadow-xs"
               title="Recent Alerts"
             >
               <Bell className="w-4 h-4" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-rose-500"></span>
+              <span className="absolute top-1.5 right-1.5 w-2.5 h-2.5 rounded-full bg-rose-500 border-2 border-white"></span>
             </button>
           </div>
         </div>
@@ -79,24 +82,24 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
         {/* Search Bar: 📍 Where do you want to go? */}
         <div
           onClick={() => onNavigate('route_search')}
-          className="mt-4 p-3 px-4 rounded-2xl bg-[#F1F5F9] hover:bg-[#E2E8F0]/70 cursor-pointer border border-slate-200 transition-all flex items-center justify-between group shadow-inner"
+          className="mt-4 p-3 px-4 rounded-2xl bg-gradient-to-r from-slate-100 via-slate-50 to-blue-50/50 hover:from-blue-50/80 hover:to-indigo-50/80 cursor-pointer border border-slate-200/90 transition-all flex items-center justify-between group shadow-sm hover:shadow-md hover:border-blue-300"
         >
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/25 group-hover:scale-110 transition-transform">
               <MapPin className="w-4 h-4" />
             </div>
-            <span className="text-xs font-semibold text-slate-600 group-hover:text-slate-900 transition-colors">
+            <span className="text-xs font-bold text-slate-700 group-hover:text-slate-950 transition-colors">
               {t.whereToGo}
             </span>
           </div>
-          <span className="px-2 py-1 rounded-xl bg-white text-[10px] font-bold text-blue-600 border border-slate-200 shadow-xs">
-            {t.planSafeRoute}
+          <span className="px-2.5 py-1 rounded-xl bg-white text-[10px] font-extrabold text-blue-600 border border-slate-200/80 shadow-xs group-hover:bg-blue-600 group-hover:text-white transition-colors">
+            {t.planSafeRoute} →
           </span>
         </div>
       </div>
 
       {/* Map Preview: Live City Map with interactive overlay */}
-      <div className="relative mx-4 mt-4 rounded-3xl overflow-hidden shadow-lg border border-slate-200">
+      <div className="relative mx-4 mt-4 rounded-3xl overflow-hidden shadow-lg border border-slate-200/90 group">
         <MapEngine
           heightClass="h-48"
           showHeatmap={true}
@@ -105,13 +108,13 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
           interactive={false}
         />
         {/* Floating live map overlay label */}
-        <div className="absolute top-3 left-3 px-3 py-1.5 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 shadow-sm flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span className="text-[11px] font-bold text-slate-800">{t.downtownSafeZone}</span>
+        <div className="absolute top-3 left-3 px-3 py-1.5 rounded-full bg-slate-900/85 backdrop-blur-md border border-white/20 shadow-md flex items-center gap-2 text-white">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span className="text-[11px] font-extrabold text-emerald-300">{t.downtownSafeZone}</span>
         </div>
         <button
           onClick={() => onNavigate('route_search')}
-          className="absolute bottom-3 right-3 px-3 py-1.5 rounded-full bg-blue-600 text-white text-[11px] font-bold shadow-md hover:bg-blue-700 transition-colors flex items-center gap-1.5 cursor-pointer"
+          className="absolute bottom-3 right-3 px-3.5 py-1.5 rounded-full bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-extrabold shadow-lg shadow-blue-600/30 transition-all flex items-center gap-1.5 cursor-pointer active:scale-95"
         >
           <span>{t.expandMap}</span>
           <ArrowRight className="w-3.5 h-3.5" />
@@ -122,27 +125,33 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
       <div className="px-4 mt-4">
         <div 
           onClick={() => onNavigate('public_gathering_hub')}
-          className="p-3.5 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-md border border-indigo-800/40 cursor-pointer hover:border-amber-400/60 transition-all relative overflow-hidden group"
+          className="p-4 rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 text-white shadow-xl shadow-slate-950/20 border border-amber-500/30 cursor-pointer hover:border-amber-400 hover:shadow-amber-500/10 transition-all relative overflow-hidden group active:scale-[0.99]"
         >
+          {/* Subtle Ambient Shimmer */}
+          <div className="absolute right-0 top-0 translate-x-6 -translate-y-6 w-32 h-32 bg-amber-500/10 rounded-full blur-2xl pointer-events-none"></div>
+
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-400/30 flex items-center justify-center text-amber-400 shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-400 shrink-0 shadow-inner group-hover:scale-105 transition-transform">
                 <Users className="w-5 h-5" />
               </div>
               <div>
-                <div className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-                  <h3 className="text-xs font-bold text-white group-hover:text-amber-300 transition-colors">
+                <div className="flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
+                  </span>
+                  <h3 className="text-xs font-black text-white group-hover:text-amber-300 transition-colors tracking-tight">
                     Public Gathering & Disruption Hub
                   </h3>
                 </div>
-                <p className="text-[10px] text-slate-300 mt-0.5">
+                <p className="text-[10px] text-slate-300 mt-0.5 leading-snug">
                   Live Delhi metro gate advisories, crowd surge forecaster & bypass routes
                 </p>
               </div>
             </div>
 
-            <span className="p-1.5 rounded-xl bg-white/10 group-hover:bg-amber-400 group-hover:text-slate-950 text-white transition-all shrink-0">
+            <span className="p-2 rounded-xl bg-white/10 group-hover:bg-amber-400 group-hover:text-slate-950 text-white transition-all shrink-0 ml-2">
               <ChevronRight className="w-4 h-4" />
             </span>
           </div>
@@ -155,7 +164,7 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
           <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
             {t.quickActions}
           </h2>
-          <span className="text-[10px] font-semibold text-blue-600">{t.priorityServices}</span>
+          <span className="text-[10px] font-extrabold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">{t.priorityServices}</span>
         </div>
 
         <div className="grid grid-cols-2 gap-3">

@@ -35,9 +35,10 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = () => {
 
   const quickPrompts = [
     'Explain my 93% SHAP score',
+    'Is Rajiv Chowk Gate 2 open?',
     'Is Grand Blvd safe right now?',
     'Where is the nearest 24/7 help booth?',
-    'Assess crowd density on Route C'
+    'Why is Route D 97% safe?'
   ];
 
   const handleSend = (textToSend?: string) => {
@@ -55,17 +56,21 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = () => {
 
     // Generate intelligent AI contextual response
     setTimeout(() => {
-      let reply = 'I have evaluated live sensors in your 500m vicinity. Current status is 92% safe with all municipal smart lights reporting 98% lux.';
+      let reply = 'I have evaluated live sensors and police feeds in your 500m vicinity. Current status is 92% safe with all municipal smart lights reporting 98% lux.';
       const lower = query.toLowerCase();
 
-      if (lower.includes('shap') || lower.includes('explain')) {
+      if (lower.includes('gate') || lower.includes('metro') || lower.includes('rajiv chowk')) {
+        reply = 'Rajiv Chowk Gate 2 is currently closed for perimeter crowd control. Please use Gate 6 via Radial Road 3, or Janpath Station which is 100% operational.';
+      } else if (lower.includes('route d') || lower.includes('bypass') || lower.includes('97%')) {
+        reply = 'Route D achieves a 97% safety index because it navigates along Baba Kharak Singh Marg, 100% avoids police barricades on Ashoka Rd, and gives direct access to the Emergency Medical Green Corridor.';
+      } else if (lower.includes('shap') || lower.includes('explain')) {
         reply = 'Your 93% safety score is primarily boosted by Street Lighting (+35 pts) and High Crowd Activity (+22 pts). Recent minor alley disputes deducted 12 pts, which Route C bypasses completely.';
       } else if (lower.includes('grand blvd') || lower.includes('5th')) {
         reply = 'Grand Boulevard is currently in a designated Safe Corridor: 94 lux lighting, active open storefronts, and a police patrol station 350m ahead.';
       } else if (lower.includes('help booth') || lower.includes('refuge') || lower.includes('nearest')) {
         reply = 'Nearest verified refuge is Guardian 24/7 Pharmacy & Help Booth at 210 meters (1 min walk). Division 4 Police Station is at 350 meters.';
-      } else if (lower.includes('crowd') || lower.includes('density')) {
-        reply = 'Route C maintains High pedestrian activity due to Central Metro line footfall and late-night commercial dining corridors.';
+      } else if (lower.includes('crowd') || lower.includes('density') || lower.includes('surge')) {
+        reply = 'Predicted crowd density along Janpath may reach 88% in the next 20 minutes due to event dispersal. We recommend switching to Route D for a clear, chokepoint-free commute.';
       }
 
       const aiMsg: Message = {
@@ -74,7 +79,7 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = () => {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, aiMsg]);
-    }, 600);
+    }, 500);
   };
 
   return (
@@ -84,16 +89,19 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = () => {
         <button
           id="btn-floating-ai-copilot"
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 right-4 z-40 p-3 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-xl shadow-blue-600/30 flex items-center gap-2 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-white/40 group"
+          className="fixed bottom-20 right-4 z-40 p-3 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-[0_10px_25px_rgba(37,99,235,0.45)] flex items-center gap-2 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-white/40 group glow-blue"
           title="SafeRoute AI Assistant"
         >
-          <div className="relative">
+          {/* Animated Glow Halo */}
+          <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 opacity-60 blur-xs group-hover:opacity-100 transition duration-300"></div>
+
+          <div className="relative flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-amber-300 animate-spin" style={{ animationDuration: '6s' }} />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border border-white"></span>
+            <span className="text-xs font-black tracking-wide pr-1 hidden sm:inline">
+              AI Copilot
+            </span>
+            <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-slate-900 animate-pulse"></span>
           </div>
-          <span className="text-xs font-black tracking-wide pr-1 hidden sm:inline">
-            AI Copilot
-          </span>
         </button>
       )}
 
