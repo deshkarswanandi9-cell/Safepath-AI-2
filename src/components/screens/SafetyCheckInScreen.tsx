@@ -4,13 +4,12 @@ import {
   AlertOctagon, 
   Clock, 
   CheckCircle2, 
-  Send, 
-  Users, 
-  BellRing,
-  Sparkles,
-  ArrowLeft
+  BellRing, 
+  ArrowLeft 
 } from 'lucide-react';
 import { ScreenId } from '../../types';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
 
 interface SafetyCheckInScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -46,134 +45,135 @@ export const SafetyCheckInScreen: React.FC<SafetyCheckInScreenProps> = ({
     setTimeout(() => {
       onSafe();
       onNavigate('live_navigation');
-    }, 1200);
+    }, 1000);
   };
 
-  // SVG circular progress calculation
   const totalSeconds = 30;
   const strokeDashoffset = (1 - secondsRemaining / totalSeconds) * 283;
 
   return (
-    <div className="relative min-h-[640px] h-full flex flex-col justify-between p-6 bg-gradient-to-b from-white via-slate-50 to-[#EFF6FF] overflow-hidden">
+    <div className="relative h-full flex flex-col justify-between p-5 bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-hidden">
       {/* Top Header */}
-      <div className="pt-2 flex items-center justify-between">
+      <div className="pt-1 flex items-center justify-between">
         <button
+          type="button"
           onClick={() => onNavigate('live_navigation')}
-          className="p-2 rounded-2xl bg-white shadow-sm border border-slate-200 text-slate-700 hover:text-slate-900 transition-colors"
+          className="p-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+          aria-label="Back to Navigation"
         >
           <ArrowLeft className="w-4 h-4" />
         </button>
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold">
-          <Clock className="w-3.5 h-3.5 text-blue-600" />
-          <span>Scheduled Check-In</span>
-        </div>
-        <div className="w-8" />
+        <span className="px-2.5 py-0.5 rounded-md bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-[10px] font-black text-black dark:text-white">
+          Scheduled Safety Check-In
+        </span>
+        <div className="w-7" />
       </div>
 
-      {/* Main Content Area */}
-      <div className="flex-1 flex flex-col items-center justify-center text-center my-4">
+      {/* Main Area */}
+      <div className="flex-1 flex flex-col items-center justify-center text-center my-3">
         {confirmedSafe ? (
-          <div className="flex flex-col items-center animate-in zoom-in-95 duration-200">
-            <div className="w-20 h-20 rounded-full bg-emerald-100 border-4 border-emerald-500 text-emerald-600 flex items-center justify-center shadow-xl shadow-emerald-500/20 mb-4">
-              <CheckCircle2 className="w-12 h-12" />
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full bg-emerald-500/10 border-2 border-emerald-500 text-emerald-600 dark:text-emerald-400 flex items-center justify-center mb-3">
+              <CheckCircle2 className="w-9 h-9" />
             </div>
-            <h2 className="text-xl font-black text-slate-900">Status Recorded: Safe!</h2>
-            <p className="text-xs text-slate-500 mt-1 max-w-xs">
-              Thank you Shivani. Navigation will resume seamlessly.
+            <h2 className="text-lg font-black text-black dark:text-white">Status Recorded: Safe!</h2>
+            <p className="text-xs text-neutral-500 mt-1 max-w-xs">
+              Resuming active navigation route...
             </p>
           </div>
         ) : timerExpired ? (
-          <div className="flex flex-col items-center animate-in zoom-in-95 duration-200">
-            <div className="w-20 h-20 rounded-full bg-rose-100 border-4 border-rose-500 text-rose-600 flex items-center justify-center shadow-xl shadow-rose-500/20 mb-4 animate-bounce">
-              <BellRing className="w-12 h-12" />
+          <div className="flex flex-col items-center">
+            <div className="w-16 h-16 rounded-full bg-red-500/10 border-2 border-red-500 text-red-600 dark:text-red-400 flex items-center justify-center mb-3">
+              <BellRing className="w-9 h-9 animate-pulse" />
             </div>
-            <h2 className="text-xl font-black text-rose-700">Timer Expired!</h2>
-            <p className="text-xs text-rose-600 mt-1 max-w-xs font-semibold">
-              Automatically dispatched live alert & coordinates to Mother, Friend, and Sister.
+            <h2 className="text-lg font-black text-red-600 dark:text-red-400">Timer Expired</h2>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 max-w-xs font-semibold">
+              Emergency coordinates dispatched to Mother, Friend, and Sister.
             </p>
           </div>
         ) : (
           <>
-            {/* Title: Are you safe? */}
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-xl font-black text-black dark:text-white tracking-tight">
               Are you safe?
             </h1>
-            <p className="text-xs text-slate-500 mt-1 max-w-xs">
-              Periodic automated check-in while travelling through night corridor.
+            <p className="text-xs text-neutral-500 mt-0.5 max-w-xs">
+              Confirm your status within 30 seconds or an automatic alert will dispatch.
             </p>
 
-            {/* Circular Countdown Timer Graphic: 30 Seconds Remaining */}
-            <div className="relative my-7 flex items-center justify-center">
-              <svg className="w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
-                {/* Background Track */}
+            {/* Circular Countdown Timer */}
+            <div className="relative w-40 h-40 my-6 flex items-center justify-center">
+              <svg className="w-40 h-40 -rotate-90">
                 <circle
-                  cx="50"
-                  cy="50"
+                  cx="80"
+                  cy="80"
                   r="45"
-                  stroke="#E2E8F0"
-                  strokeWidth="7"
+                  className="stroke-neutral-200 dark:stroke-neutral-800"
+                  strokeWidth="6"
                   fill="transparent"
                 />
-                {/* Animated Gradient Progress */}
                 <circle
-                  cx="50"
-                  cy="50"
+                  cx="80"
+                  cy="80"
                   r="45"
-                  stroke={secondsRemaining <= 10 ? '#EF4444' : '#2563EB'}
-                  strokeWidth="7"
+                  className={`transition-all duration-1000 ease-linear ${
+                    secondsRemaining <= 10
+                      ? 'stroke-red-500'
+                      : 'stroke-black dark:stroke-white'
+                  }`}
+                  strokeWidth="6"
                   strokeDasharray="283"
                   strokeDashoffset={strokeDashoffset}
                   strokeLinecap="round"
                   fill="transparent"
-                  className="transition-all duration-1000 ease-linear"
                 />
               </svg>
-
-              <div className="absolute flex flex-col items-center justify-center">
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                 <span className={`text-4xl font-black tracking-tight ${
-                  secondsRemaining <= 10 ? 'text-rose-600 animate-pulse' : 'text-slate-900'
+                  secondsRemaining <= 10 ? 'text-red-600 dark:text-red-400' : 'text-black dark:text-white'
                 }`}>
                   {secondsRemaining}s
                 </span>
-                <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider mt-0.5">
+                <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider mt-0.5">
                   Remaining
                 </span>
               </div>
             </div>
 
-            {/* Expiry Warning Policy */}
-            <div className="p-3 rounded-2xl bg-amber-50/80 border border-amber-200 text-left max-w-xs text-[11px] text-amber-900 flex items-start gap-2.5">
-              <Users className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-              <div>
-                <span className="font-bold">Guardian Fail-Safe:</span> If timer expires without confirmation, SafeRoute AI automatically notifies your 3 trusted contacts with live audio & GPS tracking.
-              </div>
-            </div>
+            <Card variant="subtle" padding="sm" className="max-w-xs text-center">
+              <p className="text-[10px] text-neutral-500">
+                Telemetry and coordinates are monitored continuously along your route.
+              </p>
+            </Card>
           </>
         )}
       </div>
 
-      {/* Buttons (Prompt Requirements) */}
-      <div className="space-y-3 pb-2 z-10">
-        {/* ✅ I'm Safe */}
-        <button
-          id="btn-checkin-im-safe"
-          onClick={handleSafeClick}
-          className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 via-teal-600 to-emerald-600 text-white font-black text-sm shadow-xl shadow-emerald-500/25 hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <CheckCircle2 className="w-5 h-5" />
-          <span>✅ I'm Safe</span>
-        </button>
+      {/* Action Buttons */}
+      {!confirmedSafe && (
+        <div className="space-y-2 pb-1">
+          <Button
+            id="btn-checkin-safe"
+            variant="primary"
+            size="lg"
+            fullWidth
+            onClick={handleSafeClick}
+            icon={<CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+          >
+            I am Safe — Continue Journey
+          </Button>
 
-        {/* 🚨 Need Help */}
-        <button
-          id="btn-checkin-need-help"
-          onClick={onNeedHelp}
-          className="w-full py-3.5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-sm shadow-xl shadow-rose-600/30 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
-        >
-          <AlertOctagon className="w-5 h-5" />
-          <span>🚨 Need Help</span>
-        </button>
-      </div>
+          <Button
+            id="btn-checkin-help"
+            variant="danger"
+            size="md"
+            fullWidth
+            onClick={onNeedHelp}
+            icon={<AlertOctagon className="w-4 h-4" />}
+          >
+            I Need Emergency Assistance
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ScreenId, RouteOption } from './types';
 import { MOCK_ROUTES } from './data/mockData';
 import { LanguageProvider } from './context/LanguageContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { MobileFrame } from './components/MobileFrame';
 import { SplashScreen } from './components/screens/SplashScreen';
 import { LoginScreen } from './components/screens/LoginScreen';
@@ -58,7 +59,6 @@ function MainAppContent() {
   // Confirm rerouting from Alert or Reroute screen
   const handleConfirmReroute = () => {
     setShowAlertModal(false);
-    // Switch to optimal rerouted route C
     setSelectedRoute(MOCK_ROUTES[2]);
     setCurrentScreen('live_navigation');
   };
@@ -70,9 +70,9 @@ function MainAppContent() {
       onTriggerAlert={handleTriggerAlert}
       onTriggerCheckIn={handleTriggerCheckIn}
     >
-      <div className="relative w-full h-full flex flex-col overflow-hidden bg-[#F8FAFC]">
-        {/* Active Screen Rendering */}
-        <div className="flex-1 relative overflow-hidden flex flex-col">
+      <div className="relative w-full h-full flex flex-col overflow-hidden bg-white dark:bg-black text-black dark:text-white transition-colors">
+        {/* Active Screen Rendering - Flex item that fits available space */}
+        <div className="flex-1 min-h-0 relative overflow-hidden flex flex-col">
           {currentScreen === 'splash' && (
             <SplashScreen onNavigate={handleNavigate} />
           )}
@@ -190,7 +190,7 @@ function MainAppContent() {
           )}
         </div>
 
-        {/* Global Modal: Screen 8 Safety Alert Warning */}
+        {/* Global Modal: Screen 8 Safety Alert Warning bounded inside phone container */}
         <SafetyAlertModal
           isOpen={showAlertModal}
           onClose={() => setShowAlertModal(false)}
@@ -200,7 +200,7 @@ function MainAppContent() {
           }}
         />
 
-        {/* Bottom Persistent Navigation Bar (5 tabs) */}
+        {/* Bottom Persistent Navigation Bar in natural flex order */}
         <BottomNavBar
           currentScreen={currentScreen}
           onNavigate={handleNavigate}
@@ -218,8 +218,10 @@ function MainAppContent() {
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <MainAppContent />
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <MainAppContent />
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }

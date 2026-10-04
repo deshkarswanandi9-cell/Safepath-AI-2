@@ -1,25 +1,22 @@
 import React, { useState } from 'react';
 import { 
   Car, 
-  ShieldCheck, 
   MapPin, 
   AlertTriangle, 
   Share2, 
   AlertOctagon, 
-  Navigation, 
-  Clock, 
   ChevronLeft, 
   CheckCircle2, 
   Radio, 
-  Phone, 
-  UserCheck, 
-  Zap,
   RotateCcw,
-  Sparkles
+  ShieldCheck
 } from 'lucide-react';
 import { ScreenId, TransitCompanionTrip } from '../../types';
 import { MOCK_TRANSIT_COMPANION_DEFAULT, MOCK_ROUTES } from '../../data/mockData';
 import { MapEngine } from '../MapEngine';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
 
 interface TransportCompanionScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -53,238 +50,148 @@ export const TransportCompanionScreen: React.FC<TransportCompanionScreenProps> =
 
   const handleShareTrip = () => {
     setSharedToast(true);
-    setTimeout(() => setSharedToast(false), 3000);
+    setTimeout(() => setSharedToast(false), 2500);
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#F8FAFC] overflow-y-auto no-scrollbar pb-28 select-none">
-      {/* Top Header */}
-      <div className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-xl text-white px-4 pt-3 pb-3.5 border-b border-slate-800 shadow-md">
-        <div className="flex items-center justify-between">
+    <div className="relative h-full flex flex-col justify-between bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar p-4 pb-6">
+      <div>
+        {/* Header */}
+        <div className="pt-1 flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <button 
+            <button
+              type="button"
               onClick={() => onNavigate('dashboard')}
-              className="p-1.5 -ml-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+              className="p-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+              aria-label="Back to Dashboard"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
-                </span>
-                <h1 className="text-sm font-black tracking-tight text-white flex items-center gap-1">
-                  Safe Public Transport Companion
-                </h1>
-              </div>
-              <p className="text-[10px] text-slate-400">
-                Live Cab, Auto, Bus & Metro Journey Deviation Monitor
-              </p>
+              <h1 className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
+                Transit Companion
+              </h1>
+              <p className="text-[10px] text-neutral-500">Cab & public transport deviation monitor</p>
             </div>
           </div>
-
-          <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-blue-500/20 text-blue-300 border border-blue-500/30">
-            Live Telemetry Active
-          </span>
-        </div>
-      </div>
-
-      {/* Embedded Map Section with Active Route & Car Pin */}
-      <div className="relative w-full h-[220px] bg-slate-200 border-b border-slate-300">
-        <MapEngine
-          activeRoute={MOCK_ROUTES[2]}
-          selectedRouteId="route_c"
-          showHelpPoints={true}
-          heightClass="h-full"
-          userProgress={45}
-          navMode={true}
-        />
-
-        {/* Live Ride Status Pill Overlay */}
-        <div className="absolute top-2 left-2 z-20 bg-slate-900/90 backdrop-blur-md text-white px-3 py-1.5 rounded-xl text-[10px] font-bold flex items-center gap-2 border border-slate-700 shadow-lg">
-          <Car className="w-3.5 h-3.5 text-blue-400" />
-          <span>{trip.vehiclePlate}</span>
+          <Badge variant="safe" size="sm">
+            Telemetry Active
+          </Badge>
         </div>
 
-        {/* Deviation Warning Overlay Badge */}
-        {deviationAlert && (
-          <div className="absolute top-2 right-2 z-20 bg-rose-600 text-white px-3 py-1.5 rounded-xl text-[10px] font-black flex items-center gap-1.5 shadow-lg animate-bounce">
-            <AlertTriangle className="w-3.5 h-3.5" />
-            <span>280m Route Deviation!</span>
-          </div>
-        )}
-      </div>
-
-      {/* Main Content Area */}
-      <div className="p-4 space-y-3.5">
+        {/* Toast */}
         {sharedToast && (
-          <div className="p-3 rounded-2xl bg-emerald-600 text-white shadow-lg flex items-center justify-between animate-pulse">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4" />
-              <span className="text-xs font-bold">Vehicle plate & live GPS shared with all trusted contacts</span>
-            </div>
+          <div className="mb-2.5 p-2 rounded-xl bg-black text-white dark:bg-white dark:text-black text-xs font-bold shadow-md flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
+            <span>Live cab coordinates shared with 3 registered guardians</span>
           </div>
         )}
 
-        {/* Active Deviation Warning Modal Card */}
+        {/* Map Preview */}
+        <div className="relative h-44 rounded-xl overflow-hidden border border-neutral-300 dark:border-neutral-800 mb-3 shadow-xs">
+          <MapEngine
+            activeRoute={MOCK_ROUTES[2]}
+            selectedRouteId="route_c"
+            showHelpPoints={true}
+            heightClass="h-full"
+            userProgress={45}
+            interactive={false}
+          />
+          <div className="absolute top-2 left-2 px-2 py-0.5 rounded-md bg-white/95 dark:bg-black/95 border border-neutral-200 dark:border-neutral-800 text-[10px] font-bold text-black dark:text-white">
+            Vehicle GPS Locked: {trip.vehiclePlate}
+          </div>
+        </div>
+
+        {/* Active Deviation or Stop Warning Banners */}
         {deviationAlert && (
-          <div className="p-4 rounded-3xl bg-rose-50 border-2 border-rose-400 shadow-xl space-y-3 animate-pulse">
-            <div className="flex items-start gap-2.5">
-              <div className="p-2 bg-rose-600 text-white rounded-2xl shrink-0">
-                <AlertTriangle className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-xs font-black text-rose-950 uppercase tracking-tight">
-                  Unexpected Route Deviation Detected
-                </h3>
-                <p className="text-[11px] text-rose-800 mt-0.5 leading-relaxed">
-                  Your cab has steered <strong>280 meters away</strong> from the approved route into an unlit residential alley.
-                </p>
-              </div>
+          <div className="mb-2.5 p-2.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-600 dark:text-red-400 text-xs font-bold flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-red-500" />
+              <span>Route Deviation Alert: +{trip.routeDeviationMeters}m off trajectory</span>
             </div>
-
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <button
-                onClick={onOpenSos}
-                className="py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md shadow-rose-600/30 transition active:scale-95"
-              >
-                <AlertOctagon className="w-4 h-4" />
-                Trigger SOS (112)
-              </button>
-
-              <button
-                onClick={() => setDeviationAlert(false)}
-                className="py-2.5 px-3 rounded-xl bg-white border border-rose-300 text-rose-800 font-bold text-xs flex items-center justify-center gap-1 transition active:scale-95"
-              >
-                I Am Safe (Dismiss)
-              </button>
-            </div>
+            <button
+              onClick={onOpenSos}
+              className="px-2 py-0.5 rounded bg-red-600 text-white text-[10px] font-black cursor-pointer"
+            >
+              SOS
+            </button>
           </div>
         )}
 
-        {/* Active Prolonged Stop Warning Card */}
         {unusualStopAlert && (
-          <div className="p-4 rounded-3xl bg-amber-50 border-2 border-amber-400 shadow-xl space-y-3">
-            <div className="flex items-start gap-2.5">
-              <div className="p-2 bg-amber-600 text-white rounded-2xl shrink-0">
-                <Clock className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="text-xs font-black text-amber-950 uppercase tracking-tight">
-                  Prolonged Stationary Stop (3+ mins)
-                </h3>
-                <p className="text-[11px] text-amber-800 mt-0.5 leading-relaxed">
-                  Vehicle has remained stationary for 185s in an isolated zone without traffic congestion.
-                </p>
-              </div>
+          <div className="mb-2.5 p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs font-bold flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-500" />
+              <span>Prolonged Stop: Stationary {trip.unusualStopSeconds}s</span>
             </div>
-
-            <div className="flex gap-2">
-              <button
-                onClick={onOpenSos}
-                className="flex-1 py-2 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs flex items-center justify-center gap-1.5 shadow-md transition"
-              >
-                Escalate Alert
-              </button>
-              <button
-                onClick={() => setUnusualStopAlert(false)}
-                className="flex-1 py-2 px-3 rounded-xl bg-white border border-amber-300 text-amber-900 font-bold text-xs"
-              >
-                Driver Fueling (Safe)
-              </button>
-            </div>
+            <button
+              onClick={onOpenSos}
+              className="px-2 py-0.5 rounded bg-amber-500 text-black text-[10px] font-black cursor-pointer"
+            >
+              Report
+            </button>
           </div>
         )}
 
-        {/* Driver & Ride Details Card */}
-        <div className="p-4 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3">
+        {/* Ride Details Card */}
+        <Card variant="default" padding="sm" className="mb-3 space-y-2">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center shadow-md shadow-blue-500/20">
-                <Car className="w-6 h-6" />
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center text-black dark:text-white">
+                <Car className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-xs font-black text-slate-900">{trip.vehiclePlate}</h3>
-                <p className="text-[11px] text-slate-600 font-semibold">{trip.driverName}</p>
+                <h3 className="text-xs font-black text-black dark:text-white">{trip.vehiclePlate}</h3>
+                <p className="text-[10px] text-neutral-500">{trip.driverName} • ★ {trip.driverRating}</p>
               </div>
             </div>
 
-            <span className="px-2.5 py-1 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              Verified Ride
-            </span>
+            <Badge variant="subtle" size="sm">
+              ETA: {trip.destinationEta}
+            </Badge>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 py-2 border-t border-slate-100 text-center text-xs">
-            <div>
-              <div className="text-[10px] text-slate-400 font-semibold">ETA</div>
-              <div className="font-extrabold text-slate-900">{trip.destinationEta}</div>
-            </div>
-            <div>
-              <div className="text-[10px] text-slate-400 font-semibold">Off-Route</div>
-              <div className={`font-extrabold ${deviationAlert ? 'text-rose-600' : 'text-emerald-600'}`}>
-                {trip.routeDeviationMeters}m
-              </div>
-            </div>
-            <div>
-              <div className="text-[10px] text-slate-400 font-semibold">Guardians</div>
-              <div className="font-extrabold text-emerald-600">Sync 100%</div>
-            </div>
+          <div className="grid grid-cols-2 gap-1.5 pt-2 border-t border-neutral-200 dark:border-neutral-800 text-[10px]">
+            <Button variant="secondary" size="sm" onClick={handleShareTrip} icon={<Share2 className="w-3 h-3" />}>
+              Share Ride
+            </Button>
+            <Button variant="danger" size="sm" onClick={onOpenSos} icon={<AlertOctagon className="w-3 h-3" />}>
+              Trigger SOS
+            </Button>
           </div>
+        </Card>
 
-          {/* Quick Action Buttons */}
-          <div className="grid grid-cols-2 gap-2 pt-1">
+        {/* Test Simulation Controls */}
+        <Card variant="subtle" padding="sm" className="space-y-2">
+          <span className="text-[10px] font-black uppercase tracking-wider text-neutral-400 block">
+            Ride Simulation Triggers
+          </span>
+          <div className="grid grid-cols-3 gap-1.5">
             <button
-              onClick={handleShareTrip}
-              className="py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition active:scale-95"
-            >
-              <Share2 className="w-3.5 h-3.5 text-blue-400" />
-              Share Live Ride
-            </button>
-
-            <button
-              onClick={() => onNavigate('safe_haven_network')}
-              className="py-2.5 px-3 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center gap-1.5 transition active:scale-95"
-            >
-              <MapPin className="w-3.5 h-3.5" />
-              Nearest Safe Havens
-            </button>
-          </div>
-        </div>
-
-        {/* Simulation Sandbox Triggers */}
-        <div className="p-4 rounded-3xl bg-slate-900 text-white space-y-2.5 shadow-lg border border-slate-800">
-          <div className="flex items-center justify-between">
-            <h4 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-amber-400" />
-              Ride Anomaly Simulator
-            </h4>
-            <button 
-              onClick={handleResetTrip}
-              className="text-[10px] text-slate-400 hover:text-white flex items-center gap-1"
-            >
-              <RotateCcw className="w-3 h-3" />
-              Reset
-            </button>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <button
+              type="button"
               onClick={handleSimulateDeviation}
-              className="py-2 px-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-[11px] font-bold border border-rose-500/30 transition text-left"
+              className="py-1 px-1.5 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-[9px] font-bold text-black dark:text-white hover:border-black dark:hover:border-white transition-colors cursor-pointer text-center"
             >
-              ⚠️ Test Route Deviation
+              +280m Deviation
             </button>
 
             <button
+              type="button"
               onClick={handleSimulateStop}
-              className="py-2 px-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[11px] font-bold border border-amber-500/30 transition text-left"
+              className="py-1 px-1.5 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-[9px] font-bold text-black dark:text-white hover:border-black dark:hover:border-white transition-colors cursor-pointer text-center"
             >
-              ⏱️ Test 3-Min Stop Alarm
+              +3m Stop Alert
+            </button>
+
+            <button
+              type="button"
+              onClick={handleResetTrip}
+              className="py-1 px-1.5 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-[9px] font-bold text-black dark:text-white hover:border-black dark:hover:border-white transition-colors cursor-pointer text-center"
+            >
+              Reset Trip
             </button>
           </div>
-        </div>
+        </Card>
       </div>
     </div>
   );

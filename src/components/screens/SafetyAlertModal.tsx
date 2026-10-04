@@ -1,6 +1,6 @@
 import React from 'react';
-import { AlertTriangle, ShieldCheck, ArrowRight, X, Sparkles, MapPin, Radio } from 'lucide-react';
-import { ScreenId } from '../../types';
+import { AlertTriangle, X, Radio, ArrowRight } from 'lucide-react';
+import { Button } from '../ui/Button';
 
 interface SafetyAlertModalProps {
   isOpen: boolean;
@@ -16,78 +16,78 @@ export const SafetyAlertModal: React.FC<SafetyAlertModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="relative w-full max-w-sm rounded-[28px] bg-white p-6 shadow-2xl border border-rose-100 animate-in zoom-in-95 duration-200 overflow-hidden">
-        {/* Glow accent */}
-        <div className="absolute -top-12 -right-12 w-36 h-36 rounded-full bg-rose-500/15 blur-2xl pointer-events-none" />
-
-        {/* Warning Icon Badge */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="relative">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 via-rose-500 to-red-600 p-0.5 shadow-lg shadow-rose-500/30 flex items-center justify-center">
-              <div className="w-full h-full rounded-[14px] bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <AlertTriangle className="w-8 h-8 text-white drop-shadow-md animate-bounce" />
-              </div>
+    <div 
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="alert-dialog-title"
+      className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs select-none"
+    >
+      <div className="relative w-full max-w-xs rounded-2xl bg-white dark:bg-black text-black dark:text-white p-5 border border-neutral-300 dark:border-neutral-800 shadow-2xl overflow-hidden transition-colors">
+        {/* Top Header */}
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/30 flex items-center justify-center">
+              <AlertTriangle className="w-4.5 h-4.5 stroke-[2.2]" />
+            </div>
+            <div>
+              <h3 id="alert-dialog-title" className="text-sm font-black tracking-tight text-black dark:text-white">
+                Safety Incident Alert
+              </h3>
+              <span className="text-[9px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">
+                High Priority
+              </span>
             </div>
           </div>
           <button
             id="btn-alert-close"
+            type="button"
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-slate-600 transition-colors"
+            aria-label="Close Alert"
+            className="p-1 rounded-md text-neutral-400 hover:text-black dark:hover:text-white transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Title */}
-        <div className="flex items-center gap-2">
-          <h3 className="text-lg font-black text-slate-900 tracking-tight">
-            ⚠️ Safety Warning
-          </h3>
-          <span className="px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 text-[10px] font-black uppercase tracking-wider">
-            High Priority
-          </span>
-        </div>
-
-        {/* Message (Exact prompt text) */}
-        <p className="text-xs text-slate-600 mt-2 leading-relaxed">
-          “Route conditions have changed due to a recently reported incident nearby.”
+        {/* Message */}
+        <p className="text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed font-medium">
+          Route conditions have changed due to a recently reported civic incident nearby.
         </p>
 
-        {/* Incident telemetry details card */}
-        <div className="mt-3.5 p-3 rounded-2xl bg-rose-50/70 border border-rose-100 text-[11px] text-rose-900 space-y-1.5">
-          <div className="flex items-center justify-between font-bold">
-            <span className="flex items-center gap-1">
-              <Radio className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
-              Reported: Suspicious Gathering
+        {/* Telemetry Details */}
+        <div className="mt-3 p-2.5 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 text-[11px] space-y-1">
+          <div className="flex items-center justify-between font-bold text-black dark:text-white">
+            <span className="flex items-center gap-1.5">
+              <Radio className="w-3 h-3 text-red-500" />
+              <span>Reported: Unscheduled Blockade</span>
             </span>
-            <span className="text-[10px] text-rose-600">3 min ago</span>
+            <span className="text-[10px] text-neutral-500">3 min ago</span>
           </div>
-          <p className="text-slate-600 text-[10px]">
-            Location: Elm Street crossing • 220 meters ahead of current trajectory.
+          <p className="text-[10px] text-neutral-500 dark:text-neutral-400">
+            Location: Elm Street crossing • 220m ahead of current trajectory.
           </p>
         </div>
 
-        {/* Action Buttons (Prompt Requirements) */}
-        <div className="mt-5 space-y-2.5">
-          {/* Recalculate Safer Route */}
-          <button
+        {/* Action Buttons */}
+        <div className="mt-4 space-y-2">
+          <Button
             id="btn-alert-recalculate"
+            variant="primary"
+            fullWidth
             onClick={onRecalculate}
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-extrabold text-xs shadow-xl shadow-blue-500/25 hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+            icon={<ArrowRight className="w-3.5 h-3.5" />}
           >
-            <Sparkles className="w-4 h-4" />
-            <span>Recalculate Safer Route</span>
-          </button>
+            Recalculate Safer Route
+          </Button>
 
-          {/* Continue Route */}
-          <button
+          <Button
             id="btn-alert-continue"
+            variant="outline"
+            fullWidth
             onClick={onClose}
-            className="w-full py-3 rounded-2xl bg-white hover:bg-slate-50 text-slate-600 border border-slate-200 font-bold text-xs transition-colors"
           >
             Continue Route Anyway
-          </button>
+          </Button>
         </div>
       </div>
     </div>

@@ -1,20 +1,11 @@
 import React, { useState } from 'react';
 import { 
-  Sparkles, 
+  Bot, 
   X, 
   Send, 
-  ShieldCheck, 
-  SunMedium, 
-  Users, 
-  MapPin, 
-  Bot, 
   CornerDownLeft,
-  Volume2
+  Sparkles
 } from 'lucide-react';
-
-interface FloatingAiAssistantProps {
-  onSelectPrompt?: (prompt: string) => void;
-}
 
 interface Message {
   sender: 'ai' | 'user';
@@ -22,23 +13,22 @@ interface Message {
   time: string;
 }
 
-export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = () => {
+export const FloatingAiAssistant: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState('');
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      text: 'Hi Shivani! I am your SafeRoute AI Copilot. I constantly monitor street lighting, verified CCTV corridors, crowd density, and police help points. How can I guide you tonight?',
+      text: 'Hi Shivani! I am your SafeRoute AI Assistant. I monitor street lighting lux levels, crowd density, and verified safe corridors. How can I assist you?',
       time: 'Just now'
     }
   ]);
 
   const quickPrompts = [
     'Explain my 93% SHAP score',
-    'Is Rajiv Chowk Gate 2 open?',
     'Is Grand Blvd safe right now?',
-    'Where is the nearest 24/7 help booth?',
-    'Why is Route D 97% safe?'
+    'Nearest 24/7 safe haven?',
+    'Why is Route D recommended?'
   ];
 
   const handleSend = (textToSend?: string) => {
@@ -54,23 +44,18 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = () => {
     setMessages((prev) => [...prev, userMsg]);
     setInputVal('');
 
-    // Generate intelligent AI contextual response
     setTimeout(() => {
-      let reply = 'I have evaluated live sensors and police feeds in your 500m vicinity. Current status is 92% safe with all municipal smart lights reporting 98% lux.';
+      let reply = 'Sensors in your 500m vicinity report 92% safety score with 98% municipal street illumination active.';
       const lower = query.toLowerCase();
 
-      if (lower.includes('gate') || lower.includes('metro') || lower.includes('rajiv chowk')) {
-        reply = 'Rajiv Chowk Gate 2 is currently closed for perimeter crowd control. Please use Gate 6 via Radial Road 3, or Janpath Station which is 100% operational.';
-      } else if (lower.includes('route d') || lower.includes('bypass') || lower.includes('97%')) {
-        reply = 'Route D achieves a 97% safety index because it navigates along Baba Kharak Singh Marg, 100% avoids police barricades on Ashoka Rd, and gives direct access to the Emergency Medical Green Corridor.';
-      } else if (lower.includes('shap') || lower.includes('explain')) {
-        reply = 'Your 93% safety score is primarily boosted by Street Lighting (+35 pts) and High Crowd Activity (+22 pts). Recent minor alley disputes deducted 12 pts, which Route C bypasses completely.';
-      } else if (lower.includes('grand blvd') || lower.includes('5th')) {
-        reply = 'Grand Boulevard is currently in a designated Safe Corridor: 94 lux lighting, active open storefronts, and a police patrol station 350m ahead.';
-      } else if (lower.includes('help booth') || lower.includes('refuge') || lower.includes('nearest')) {
-        reply = 'Nearest verified refuge is Guardian 24/7 Pharmacy & Help Booth at 210 meters (1 min walk). Division 4 Police Station is at 350 meters.';
-      } else if (lower.includes('crowd') || lower.includes('density') || lower.includes('surge')) {
-        reply = 'Predicted crowd density along Janpath may reach 88% in the next 20 minutes due to event dispersal. We recommend switching to Route D for a clear, chokepoint-free commute.';
+      if (lower.includes('route d') || lower.includes('97%')) {
+        reply = 'Route D achieves a 97% safety index by following Baba Kharak Singh Marg, avoiding civic gatherings on Ashoka Rd, and keeping within 100m of the Emergency Green Corridor.';
+      } else if (lower.includes('shap') || lower.includes('score')) {
+        reply = 'Your 93% safety score is positively supported by Municipal Lighting (+35 pts) and High Pedestrian Activity (+22 pts).';
+      } else if (lower.includes('grand blvd')) {
+        reply = 'Grand Boulevard is currently a designated Safe Corridor: 94 lux lighting, open storefronts, and a police patrol station 350m ahead.';
+      } else if (lower.includes('haven') || lower.includes('refuge') || lower.includes('pharmacy')) {
+        reply = 'Nearest verified safe refuge is Guardian 24/7 Pharmacy at 210 meters (1 min walk). Division 4 Police Kiosk is at 350 meters.';
       }
 
       const aiMsg: Message = {
@@ -79,79 +64,72 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = () => {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages((prev) => [...prev, aiMsg]);
-    }, 500);
+    }, 450);
   };
 
   return (
     <>
-      {/* Floating Trigger Button */}
+      {/* Floating Trigger Button (Absolute inside phone preview) */}
       {!isOpen && (
         <button
           id="btn-floating-ai-copilot"
+          type="button"
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-20 right-4 z-40 p-3 rounded-full bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white shadow-[0_10px_25px_rgba(37,99,235,0.45)] flex items-center gap-2 hover:scale-105 active:scale-95 transition-all cursor-pointer border border-white/40 group glow-blue"
-          title="SafeRoute AI Assistant"
+          className="absolute bottom-16 right-3.5 z-40 p-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black shadow-lg border border-neutral-700 dark:border-neutral-300 hover:scale-105 active:scale-95 transition-all cursor-pointer flex items-center gap-1.5"
+          title="Open AI Assistant"
+          aria-label="Open SafeRoute AI Assistant"
         >
-          {/* Animated Glow Halo */}
-          <div className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 opacity-60 blur-xs group-hover:opacity-100 transition duration-300"></div>
-
-          <div className="relative flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-300 animate-spin" style={{ animationDuration: '6s' }} />
-            <span className="text-xs font-black tracking-wide pr-1 hidden sm:inline">
-              AI Copilot
-            </span>
-            <span className="w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-slate-900 animate-pulse"></span>
-          </div>
+          <Bot className="w-4 h-4" />
+          <span className="text-[10px] font-black uppercase tracking-wider pr-0.5">AI</span>
         </button>
       )}
 
-      {/* Floating Chat Drawer / Popover */}
+      {/* Floating Chat Drawer / Popover (Strictly contained within device) */}
       {isOpen && (
-        <div className="fixed inset-x-4 bottom-20 z-50 max-w-sm mx-auto rounded-[28px] bg-white/95 backdrop-blur-xl shadow-2xl border border-blue-100 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-200 h-[430px]">
+        <div className="absolute inset-x-2 bottom-14 z-50 rounded-2xl bg-white dark:bg-black text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-2xl flex flex-col overflow-hidden h-[380px] max-h-[80%] transition-colors">
           {/* Header */}
-          <div className="p-3.5 px-4 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-amber-300" />
+          <div className="p-3 bg-neutral-100 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-lg bg-black text-white dark:bg-white dark:text-black flex items-center justify-center font-bold">
+                <Bot className="w-3.5 h-3.5" />
               </div>
               <div>
-                <h4 className="text-xs font-black">SafeRoute AI Copilot</h4>
-                <p className="text-[9px] text-blue-100 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Telemetry Stream Active
-                </p>
+                <h4 className="text-xs font-black text-black dark:text-white">SafeRoute Copilot</h4>
+                <p className="text-[9px] text-neutral-500 dark:text-neutral-400">Telemetry Active</p>
               </div>
             </div>
 
             <button
+              type="button"
               onClick={() => setIsOpen(false)}
-              className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              className="p-1 rounded-md text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors"
+              aria-label="Close Assistant"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Messages Area */}
-          <div className="flex-1 p-3.5 overflow-y-auto space-y-2.5 text-xs no-scrollbar">
+          {/* Messages Thread */}
+          <div className="flex-1 min-h-0 p-3 overflow-y-auto space-y-2 text-xs no-scrollbar">
             {messages.map((m, i) => (
               <div
                 key={i}
-                className={`flex gap-2 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                className={`flex gap-1.5 ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {m.sender === 'ai' && (
-                  <div className="w-6 h-6 rounded-lg bg-blue-600 text-white flex items-center justify-center shrink-0 text-[10px] font-bold mt-1">
+                  <div className="w-5 h-5 rounded bg-black text-white dark:bg-white dark:text-black flex items-center justify-center shrink-0 text-[9px] font-black mt-0.5">
                     AI
                   </div>
                 )}
                 <div
-                  className={`max-w-[82%] p-3 rounded-2xl ${
+                  className={`max-w-[85%] p-2.5 rounded-xl text-xs ${
                     m.sender === 'user'
-                      ? 'bg-blue-600 text-white font-medium rounded-tr-xs'
-                      : 'bg-slate-100 text-slate-800 font-medium rounded-tl-xs border border-slate-200/60'
+                      ? 'bg-black text-white dark:bg-white dark:text-black font-semibold rounded-tr-xs'
+                      : 'bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white border border-neutral-200 dark:border-neutral-800 rounded-tl-xs font-medium'
                   }`}
                 >
                   <p className="leading-relaxed">{m.text}</p>
-                  <span className={`block text-[9px] mt-1 ${m.sender === 'user' ? 'text-blue-200' : 'text-slate-400'}`}>
+                  <span className={`block text-[8px] mt-1 ${m.sender === 'user' ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-400'}`}>
                     {m.time}
                   </span>
                 </div>
@@ -159,13 +137,14 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = () => {
             ))}
           </div>
 
-          {/* Quick Prompt Chips */}
-          <div className="px-3 pb-2 flex gap-1.5 overflow-x-auto no-scrollbar">
+          {/* Quick Prompts */}
+          <div className="px-2.5 py-1.5 flex gap-1 overflow-x-auto no-scrollbar border-t border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950">
             {quickPrompts.map((chip, idx) => (
               <button
                 key={idx}
+                type="button"
                 onClick={() => handleSend(chip)}
-                className="px-2.5 py-1 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-700 text-[10px] font-bold whitespace-nowrap border border-blue-200 transition-colors shrink-0"
+                className="px-2 py-0.5 rounded-md bg-white dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 text-[9px] font-bold whitespace-nowrap border border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white transition-colors shrink-0"
               >
                 {chip}
               </button>
@@ -173,20 +152,22 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = () => {
           </div>
 
           {/* Input Box */}
-          <div className="p-2.5 bg-slate-50 border-t border-slate-200 flex items-center gap-2">
+          <div className="p-2 bg-neutral-100 dark:bg-neutral-900 border-t border-neutral-200 dark:border-neutral-800 flex items-center gap-1.5">
             <input
               type="text"
               value={inputVal}
               onChange={(e) => setInputVal(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSend()}
               placeholder="Ask safety assistant..."
-              className="flex-1 px-3 py-2 rounded-xl bg-white border border-slate-200 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-2.5 py-1.5 rounded-lg bg-white dark:bg-black text-black dark:text-white border border-neutral-300 dark:border-neutral-700 text-xs font-semibold focus:outline-none focus:border-black dark:focus:border-white"
             />
             <button
+              type="button"
               onClick={() => handleSend()}
-              className="p-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition-colors"
+              className="p-2 rounded-lg bg-black text-white dark:bg-white dark:text-black hover:opacity-90 transition-opacity"
+              aria-label="Send Message"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

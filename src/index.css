@@ -1,94 +1,56 @@
 @import "tailwindcss";
 
 @layer base {
-  body {
+  :root {
+    --bg-app: #FFFFFF;
+    --surface-card: #FFFFFF;
+    --surface-subtle: #F4F4F5;
+    --text-primary: #000000;
+    --text-secondary: #52525B;
+    --text-muted: #71717A;
+    --border-main: #E4E4E7;
+    --border-subtle: #F4F4F5;
+    --btn-primary-bg: #000000;
+    --btn-primary-text: #FFFFFF;
+    --btn-secondary-bg: #F4F4F5;
+    --btn-secondary-text: #000000;
+    --status-safe: #10B981;
+    --status-caution: #F59E0B;
+    --status-emergency: #EF4444;
+  }
+
+  .dark {
+    --bg-app: #000000;
+    --surface-card: #000000;
+    --surface-subtle: #121212;
+    --text-primary: #FFFFFF;
+    --text-secondary: #A1A1AA;
+    --text-muted: #71717A;
+    --border-main: #27272A;
+    --border-subtle: #18181B;
+    --btn-primary-bg: #FFFFFF;
+    --btn-primary-text: #000000;
+    --btn-secondary-bg: #18181B;
+    --btn-secondary-text: #FFFFFF;
+    --status-safe: #10B981;
+    --status-caution: #F59E0B;
+    --status-emergency: #EF4444;
+  }
+
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #09090B;
+    color: #F4F4F5;
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: #0f172a;
-    background: radial-gradient(circle at 50% 20%, #0f172a 0%, #070b14 100%);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
   }
 }
 
-/* Luxury Glassmorphism & Surface Tokens */
-.glass-surface {
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.6) inset;
-}
-
-.glass-surface-dark {
-  background: rgba(15, 23, 42, 0.82);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-}
-
-.glass-surface-card {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.88));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-}
-
-/* Glow Shadows & Neon Accents */
-.glow-blue {
-  box-shadow: 0 0 35px -5px rgba(37, 99, 235, 0.45);
-}
-
-.glow-emerald {
-  box-shadow: 0 0 35px -5px rgba(16, 185, 129, 0.45);
-}
-
-.glow-rose {
-  box-shadow: 0 0 40px -2px rgba(225, 29, 72, 0.55);
-}
-
-.glow-amber {
-  box-shadow: 0 0 35px -5px rgba(245, 158, 11, 0.45);
-}
-
-.glow-cyan {
-  box-shadow: 0 0 35px -5px rgba(6, 182, 212, 0.45);
-}
-
-.glow-purple {
-  box-shadow: 0 0 35px -5px rgba(168, 85, 247, 0.45);
-}
-
-/* Ambient Radial Mesh Gradient */
-.bg-mesh-dark {
-  background: 
-    radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.18) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(147, 51, 234, 0.15) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(6, 182, 212, 0.12) 0px, transparent 50%),
-    #0a0f1d;
-}
-
-.bg-mesh-light {
-  background: 
-    radial-gradient(at 0% 0%, rgba(219, 234, 254, 0.7) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(243, 232, 255, 0.6) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(224, 242, 254, 0.5) 0px, transparent 50%),
-    #f8fafc;
-}
-
-/* Animated Shimmer Line */
-@keyframes shimmer-border {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-.animate-shimmer-line {
-  animation: shimmer-border 2.5s infinite;
-}
-
-/* Hide scrollbar for mobile touch feel */
+/* Utilities for touch feel and scroll containers */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -97,83 +59,24 @@
   scrollbar-width: none;
 }
 
-@keyframes pulse-subtle {
-  0%, 100% { transform: scale(1); opacity: 0.95; }
-  50% { transform: scale(1.04); opacity: 1; }
+/* Subtle clean scrollbars for accessibility where desired */
+.clean-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.clean-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.clean-scrollbar::-webkit-scrollbar-thumb {
+  background: #3F3F46;
+  border-radius: 9999px;
 }
 
-@keyframes radar-sweep {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+/* Focus outline standard */
+.focus-ring {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.4);
 }
-
-@keyframes ripple-ring {
-  0% { transform: scale(0.85); opacity: 0.85; }
-  100% { transform: scale(2.3); opacity: 0; }
+.light .focus-ring {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.4);
 }
-
-.animate-ripple {
-  animation: ripple-ring 2.2s cubic-bezier(0.1, 0.8, 0.3, 1) infinite;
-}
-
-/* Gradient Text Utilities */
-.text-gradient-blue {
-  background: linear-gradient(135deg, #2563eb, #7c3aed);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.text-gradient-safe {
-  background: linear-gradient(135deg, #10b981, #06b6d4);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.text-gradient-gold {
-  background: linear-gradient(135deg, #f59e0b, #f97316);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.text-gradient-rose {
-  background: linear-gradient(135deg, #f43f5e, #e11d48);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* Card Glow and Hover Effects */
-.card-hover-glow {
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.card-hover-glow:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 28px -6px rgba(37, 99, 235, 0.12), 0 0 0 1px rgba(99, 102, 241, 0.2);
-}
-
-.card-dark-glow {
-  background: linear-gradient(145deg, #0f172a, #1e1b4b);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.5), 0 0 20px -5px rgba(99, 102, 241, 0.15);
-}
-
-@keyframes float-slow {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-6px); }
-}
-
-.animate-float {
-  animation: float-slow 4s ease-in-out infinite;
-}
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-.animate-spin-slow {
-  animation: spin-slow 12s linear infinite;
-}
-
-
-
-
