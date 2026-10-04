@@ -7,13 +7,19 @@ import {
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { drawerVariants, TRANSITIONS } from '../utils/motion';
 
+import { ScreenId } from '../types';
+
 interface Message {
   sender: 'ai' | 'user';
   text: string;
   time: string;
 }
 
-export const FloatingAiAssistant: React.FC = () => {
+interface FloatingAiAssistantProps {
+  currentScreen?: ScreenId;
+}
+
+export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = ({ currentScreen }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [inputVal, setInputVal] = useState('');
   const shouldReduceMotion = useReducedMotion();
@@ -84,7 +90,11 @@ export const FloatingAiAssistant: React.FC = () => {
             transition={shouldReduceMotion ? TRANSITIONS.reduced : TRANSITIONS.fast}
             whileHover={shouldReduceMotion ? undefined : { scale: 1.05 }}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
-            className="absolute bottom-16 right-3.5 z-40 p-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black shadow-lg border border-neutral-700 dark:border-neutral-300 transition-colors cursor-pointer flex items-center gap-1.5"
+            className={`absolute z-40 p-2 sm:p-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black shadow-lg border border-neutral-700 dark:border-neutral-300 transition-all cursor-pointer flex items-center gap-1.5 ${
+              currentScreen === 'splash'
+                ? 'top-10 right-3.5'
+                : 'bottom-16 right-3.5'
+            }`}
             title="Open AI Assistant"
             aria-label="Open SafeRoute AI Assistant"
           >
@@ -103,7 +113,9 @@ export const FloatingAiAssistant: React.FC = () => {
             initial={shouldReduceMotion ? false : "initial"}
             animate={shouldReduceMotion ? false : "animate"}
             exit={shouldReduceMotion ? false : "exit"}
-            className="absolute inset-x-2 bottom-14 z-50 rounded-2xl bg-white dark:bg-black text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-2xl flex flex-col overflow-hidden h-[380px] max-h-[80%] transition-colors"
+            className={`absolute inset-x-2 ${
+              currentScreen === 'splash' ? 'bottom-2.5' : 'bottom-14'
+            } z-50 rounded-2xl bg-white dark:bg-black text-black dark:text-white border border-neutral-300 dark:border-neutral-800 shadow-2xl flex flex-col overflow-hidden h-[380px] max-h-[82%] transition-colors`}
           >
             {/* Header */}
             <div className="p-3 bg-neutral-100 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between">

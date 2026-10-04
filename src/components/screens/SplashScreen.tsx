@@ -11,54 +11,55 @@ interface SplashScreenProps {
 
 export const SplashScreen: React.FC<SplashScreenProps> = ({ onNavigate }) => {
   return (
-    <div className="relative h-full flex flex-col justify-between p-5 bg-white dark:bg-black text-black dark:text-white select-none transition-colors">
-      {/* Top Header Pill */}
-      <div className="flex justify-between items-center z-10 pt-1">
+    <div className="relative h-full flex flex-col justify-between p-4 sm:p-5 bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar">
+      {/* Top Header Row: Safety Active Pill + Skip Action */}
+      <div className="flex justify-between items-center z-10 pt-0.5 shrink-0">
         <Badge variant="subtle" size="sm" className="font-bold">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Safety Active</span>
         </Badge>
         <button
           id="btn-splash-skip"
           type="button"
           onClick={() => onNavigate('dashboard')}
-          className="text-xs font-bold text-neutral-500 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+          className="text-xs font-bold text-neutral-500 hover:text-black dark:hover:text-white transition-colors cursor-pointer py-1 px-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-900"
+          aria-label="Skip to Home Dashboard"
         >
           Skip to Home →
         </button>
       </div>
 
-      {/* Hero Visual Area: Minimalist Monochrome Shield */}
-      <div className="flex-1 flex flex-col items-center justify-center my-3 z-10 text-center">
-        {/* Emblem */}
-        <div className="relative mb-4">
-          <div className="w-20 h-20 rounded-2xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 flex items-center justify-center shadow-sm">
-            <Shield className="w-10 h-10 text-black dark:text-white stroke-[2]" />
+      {/* Hero Visual Area: Minimalist Monochrome Shield & Brand */}
+      <div className="flex-1 flex flex-col items-center justify-center my-auto py-2 z-10 text-center min-h-0">
+        {/* Shield Emblem */}
+        <div className="relative mb-3 shrink-0">
+          <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 flex items-center justify-center shadow-xs">
+            <Shield className="w-8 h-8 sm:w-9 sm:h-9 text-black dark:text-white stroke-[2.2]" />
           </div>
         </div>
 
         {/* Brand Name & Tagline */}
-        <h1 className="text-2xl font-black tracking-tight text-black dark:text-white">
+        <h1 className="text-2xl font-black tracking-tight text-black dark:text-white leading-tight">
           SafeRoute AI
         </h1>
-        <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mt-1 max-w-xs leading-relaxed">
+        <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mt-1 max-w-[260px] leading-relaxed mx-auto">
           Predictive urban navigation & night safety intelligence
         </p>
 
-        {/* Route Preview Graphic */}
-        <Card variant="default" padding="sm" className="mt-4 w-full max-w-xs shadow-xs">
-          <div className="flex items-center justify-between text-[10px] font-bold text-neutral-500 dark:text-neutral-400 mb-2 px-1">
-            <span>Route Intelligence</span>
-            <span className="text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-1">
+        {/* Route Preview Graphic Card */}
+        <Card variant="default" padding="sm" className="mt-3.5 w-full max-w-[320px] shadow-xs shrink-0">
+          <div className="flex items-center justify-between text-[10px] font-bold text-neutral-500 dark:text-neutral-400 mb-1.5 px-0.5">
+            <span className="uppercase tracking-wider">Route Intelligence</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-1 shrink-0">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 98% Confidence
             </span>
           </div>
 
           {/* SVG Route Trajectory */}
-          <div className="relative h-12 w-full bg-neutral-50 dark:bg-neutral-950 rounded-xl overflow-hidden flex items-center px-3 border border-neutral-200 dark:border-neutral-900">
-            <svg viewBox="0 0 240 40" className="w-full h-8">
+          <div className="relative h-10 w-full bg-neutral-50 dark:bg-neutral-950 rounded-lg overflow-hidden flex items-center px-2.5 border border-neutral-200 dark:border-neutral-900">
+            <svg viewBox="0 0 240 32" className="w-full h-7">
               <path
-                d="M 10 20 Q 70 8, 120 22 T 230 15"
+                d="M 10 16 Q 70 6, 120 18 T 230 12"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2.5"
@@ -66,7 +67,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onNavigate }) => {
                 strokeLinecap="round"
               />
               <path
-                d="M 10 20 Q 70 8, 120 22 T 230 15"
+                d="M 10 16 Q 70 6, 120 18 T 230 12"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2.5"
@@ -75,31 +76,32 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onNavigate }) => {
                 strokeLinecap="round"
               />
               {/* Origin, waypoint, destination */}
-              <circle cx="10" cy="20" r="3.5" fill="currentColor" className="text-black dark:text-white" />
-              <circle cx="120" cy="22" r="3" fill="currentColor" className="text-neutral-400" />
-              <circle cx="230" cy="15" r="4.5" fill="#10B981" />
+              <circle cx="10" cy="16" r="3.5" fill="currentColor" className="text-black dark:text-white" />
+              <circle cx="120" cy="18" r="3" fill="currentColor" className="text-neutral-400" />
+              <circle cx="230" cy="12" r="4.5" fill="#10B981" />
             </svg>
           </div>
 
-          <div className="grid grid-cols-3 gap-1.5 mt-2.5 text-center">
-            <div className="p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-              <div className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold">Lighting</div>
-              <div className="text-xs font-black text-black dark:text-white">98% Lux</div>
+          {/* Metric Row */}
+          <div className="grid grid-cols-3 gap-1.5 mt-2 text-center">
+            <div className="p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 min-w-0">
+              <div className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold truncate">Lighting</div>
+              <div className="text-xs font-black text-black dark:text-white mt-0.5 truncate">98% Lux</div>
             </div>
-            <div className="p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-              <div className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold">Pedestrians</div>
-              <div className="text-xs font-black text-black dark:text-white">Active</div>
+            <div className="p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 min-w-0">
+              <div className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold truncate">Pedestrians</div>
+              <div className="text-xs font-black text-black dark:text-white mt-0.5 truncate">Active</div>
             </div>
-            <div className="p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
-              <div className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold">Refuges</div>
-              <div className="text-xs font-black text-black dark:text-white">5 Safe</div>
+            <div className="p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 min-w-0">
+              <div className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold truncate">Refuges</div>
+              <div className="text-xs font-black text-black dark:text-white mt-0.5 truncate">5 Safe</div>
             </div>
           </div>
         </Card>
       </div>
 
-      {/* Primary Actions */}
-      <div className="space-y-2 z-10 pb-1">
+      {/* Primary & Secondary Actions */}
+      <div className="space-y-2 z-10 shrink-0 pt-2 pb-1.5">
         <Button
           id="btn-splash-get-started"
           variant="primary"

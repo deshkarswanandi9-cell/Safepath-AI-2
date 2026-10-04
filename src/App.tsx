@@ -226,7 +226,7 @@ function MainAppContent() {
         />
 
         {/* Floating Copilot AI Assistant */}
-        <FloatingAiAssistant />
+        <FloatingAiAssistant currentScreen={currentScreen} />
 
         {/* Persistent Bottom Tab Navigation Bar */}
         <BottomNavBar
