@@ -417,17 +417,17 @@ export const MapEngine: React.FC<MapEngineProps> = ({
 
         {/* 11. Destination Pin */}
         <g transform="translate(440, 75)">
-          <circle cx="0" cy="0" r="12" fill="#EF4444" opacity="0.2" />
+          <circle cx="0" cy="0" r="12" fill={userProgress >= 100 ? '#10B981' : '#EF4444'} opacity={userProgress >= 100 ? 0.35 : 0.2} />
           <path
             d="M 0 0 C -6 -8, -8 -13, -8 -17 C -8 -22, -4 -26, 0 -26 C 4 -26, 8 -22, 8 -17 C 8 -13, 6 -8, 0 0 Z"
-            fill="#EF4444"
+            fill={userProgress >= 100 ? '#10B981' : '#EF4444'}
             filter="drop-shadow(0 2px 4px rgba(0,0,0,0.25))"
           />
           <circle cx="0" cy="-17" r="3.5" fill="#FFFFFF" />
           <g transform="translate(-52, -44)">
-            <rect width="104" height="15" rx="3.5" fill={colors.badgeBg} stroke={colors.badgeBorder} strokeWidth="1" />
-            <text x="52" y="10.5" textAnchor="middle" fill={colors.textPrimary} fontSize="8" fontWeight="800">
-              Westwood Res. 🏁
+            <rect width="104" height="15" rx="3.5" fill={colors.badgeBg} stroke={userProgress >= 100 ? '#10B981' : colors.badgeBorder} strokeWidth="1" />
+            <text x="52" y="10.5" textAnchor="middle" fill={userProgress >= 100 ? '#10B981' : colors.textPrimary} fontSize="8" fontWeight="800">
+              {userProgress >= 100 ? 'Westwood Res. ✓ Arrived' : 'Westwood Res. 🏁'}
             </text>
           </g>
         </g>
@@ -474,12 +474,14 @@ export const MapEngine: React.FC<MapEngineProps> = ({
         {/* 13. GPS Navigation Puck with Dynamic Heading Beam */}
         {navMode && (
           <g transform={`translate(${currentGps.x * 5}, ${currentGps.y * 5})`}>
-            {/* Dynamic Direction Beam */}
-            <path
-              d="M 0 0 L -25 -65 A 65 65 0 0 1 25 -65 Z"
-              fill="url(#nav-beam-cone)"
-              transform={`rotate(${currentGps.angle})`}
-            />
+            {/* Dynamic Direction Beam (only when moving) */}
+            {userProgress < 100 && (
+              <path
+                d="M 0 0 L -25 -65 A 65 65 0 0 1 25 -65 Z"
+                fill="url(#nav-beam-cone)"
+                transform={`rotate(${currentGps.angle})`}
+              />
+            )}
 
             {/* GPS Pulse Ring */}
             <circle cx="0" cy="0" r="18" fill="#10B981" opacity="0.2" className="animate-ping" />
@@ -559,8 +561,12 @@ export const MapEngine: React.FC<MapEngineProps> = ({
       {/* Floating Speedometer & Lux Telemetry Pill (Repositioned to bottom-22 in navMode to avoid overlapping bottom card) */}
       <div className={`absolute z-10 flex items-center gap-1.5 ${navMode ? 'left-3 bottom-22' : 'left-3 bottom-3'}`}>
         <div className="px-2.5 py-1 rounded-xl bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-200 dark:border-neutral-800 shadow-sm backdrop-blur-xs flex items-center gap-2">
-          <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">4.8</span>
-          <span className="text-[9px] uppercase font-bold text-neutral-500">km/h Walk</span>
+          <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">
+            {userProgress >= 100 ? '0.0' : '4.8'}
+          </span>
+          <span className="text-[9px] uppercase font-bold text-neutral-500">
+            {userProgress >= 100 ? 'Arrived' : 'km/h Walk'}
+          </span>
         </div>
 
         <div className="px-2 py-1 rounded-xl bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-200 dark:border-neutral-800 shadow-sm backdrop-blur-xs flex items-center gap-1 text-[10px] font-bold">
