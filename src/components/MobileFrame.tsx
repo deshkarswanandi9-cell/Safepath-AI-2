@@ -40,6 +40,10 @@ const SCREENS_LIST: { id: ScreenId; num: number; label: string }[] = [
   { id: 'safety_analytics', num: 13, label: 'Analytics' },
   { id: 'profile_settings', num: 14, label: 'Profile' },
   { id: 'public_gathering_hub', num: 15, label: '📢 Gathering Hub' },
+  { id: 'safe_haven_network', num: 16, label: '🏥 Safe Havens' },
+  { id: 'transport_companion', num: 17, label: '🚗 Transit Companion' },
+  { id: 'infrastructure_reporting', num: 18, label: '💡 Fix Dark Spots' },
+  { id: 'community_safe_walk', num: 19, label: '👥 Safe Walk' },
 ];
 
 export const MobileFrame: React.FC<MobileFrameProps> = ({

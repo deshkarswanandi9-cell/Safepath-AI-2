@@ -243,6 +243,78 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate, on
               </div>
             </div>
           </button>
+
+          {/* Action 5: Verified Safe Haven Network */}
+          <button
+            onClick={() => onNavigate('safe_haven_network')}
+            className="p-3.5 rounded-2xl bg-white border border-slate-200/80 hover:border-cyan-300 hover:shadow-md transition-all text-left flex items-start gap-3 shadow-sm group"
+          >
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-600 to-teal-600 text-white flex items-center justify-center shadow-md shadow-cyan-500/20 group-hover:scale-105 transition-transform">
+              <Shield className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs font-extrabold text-slate-800 group-hover:text-cyan-600 transition-colors">
+                Safe Haven Network
+              </div>
+              <div className="text-[10px] text-slate-500 mt-0.5">
+                5 verified 24/7 refuges
+              </div>
+            </div>
+          </button>
+
+          {/* Action 6: Ride & Public Transit Companion */}
+          <button
+            onClick={() => onNavigate('transport_companion')}
+            className="p-3.5 rounded-2xl bg-white border border-slate-200/80 hover:border-indigo-300 hover:shadow-md transition-all text-left flex items-start gap-3 shadow-sm group"
+          >
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center shadow-md shadow-indigo-500/20 group-hover:scale-105 transition-transform">
+              <Activity className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs font-extrabold text-slate-800 group-hover:text-indigo-600 transition-colors">
+                Transit Ride Companion
+              </div>
+              <div className="text-[10px] text-slate-500 mt-0.5">
+                Route deviation alarm
+              </div>
+            </div>
+          </button>
+
+          {/* Action 7: Community Safe Walk */}
+          <button
+            onClick={() => onNavigate('community_safe_walk')}
+            className="p-3.5 rounded-2xl bg-white border border-slate-200/80 hover:border-emerald-300 hover:shadow-md transition-all text-left flex items-start gap-3 shadow-sm group"
+          >
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 to-green-600 text-white flex items-center justify-center shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+              <Users className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs font-extrabold text-slate-800 group-hover:text-emerald-600 transition-colors">
+                Community Safe Walk
+              </div>
+              <div className="text-[10px] text-slate-500 mt-0.5">
+                Campus security escort
+              </div>
+            </div>
+          </button>
+
+          {/* Action 8: Fix Streetlights & Infrastructure */}
+          <button
+            onClick={() => onNavigate('infrastructure_reporting')}
+            className="p-3.5 rounded-2xl bg-white border border-slate-200/80 hover:border-amber-300 hover:shadow-md transition-all text-left flex items-start gap-3 shadow-sm group"
+          >
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 text-white flex items-center justify-center shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
+              <SunMedium className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="text-xs font-extrabold text-slate-800 group-hover:text-amber-600 transition-colors">
+                Fix Dark Spots
+              </div>
+              <div className="text-[10px] text-slate-500 mt-0.5">
+                Report broken streetlights
+              </div>
+            </div>
+          </button>
         </div>
       </div>
 

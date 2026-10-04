@@ -505,3 +505,199 @@ export const MOCK_COMMUNITY_REPORTS: import('../types').CommunityReport[] = [
   }
 ];
 
+// -------------------------------------------------------------
+// Verified Safe Havens Network Dataset
+// -------------------------------------------------------------
+
+export const MOCK_SAFE_HAVENS: import('../types').SafeHaven[] = [
+  {
+    id: 'sh-1',
+    name: 'Apollo 24/7 Verified Emergency Pharmacy & Safe Haven',
+    category: 'pharmacy_247',
+    address: 'Connaught Place Radial 3, Outer Circle',
+    distance: '180 m',
+    eta: '2 min walk',
+    isOpen247: true,
+    phone: '+91 11 2341 9000',
+    femaleStaffOnDuty: true,
+    cctvVerified: true,
+    coords: { x: 28, y: 76 },
+    rating: 4.9,
+    verifiedBadges: ['24/7 Safe Haven', 'Women Staff On Duty', 'CCTV Monitored', 'Direct Police Link']
+  },
+  {
+    id: 'sh-2',
+    name: 'Delhi Police All-Women Helpdesk & PCR Kiosk',
+    category: 'women_helpdesk',
+    address: 'Janpath Road opposite Central Cottage Industries',
+    distance: '320 m',
+    eta: '4 min walk',
+    isOpen247: true,
+    phone: '1091 / 112',
+    femaleStaffOnDuty: true,
+    cctvVerified: true,
+    coords: { x: 42, y: 68 },
+    rating: 5.0,
+    verifiedBadges: ['Official Helpdesk', 'Immediate Escort', 'First Responder Unit', '1091 Hotlink']
+  },
+  {
+    id: 'sh-3',
+    name: 'Central University Security Command Post & Escort Booth',
+    category: 'campus_security',
+    address: 'City University North Gate, Gate 1',
+    distance: '490 m',
+    eta: '6 min walk',
+    isOpen247: true,
+    phone: '+91 11 2766 8888',
+    femaleStaffOnDuty: true,
+    cctvVerified: true,
+    coords: { x: 62, y: 55 },
+    rating: 4.8,
+    verifiedBadges: ['Campus Warden', 'Night Escort Service', 'CCTV Surveillance', 'Emergency Shelter']
+  },
+  {
+    id: 'sh-4',
+    name: 'Chaayos 24/7 Night Lounge & Women Safe Refuge Point',
+    category: 'verified_retail',
+    address: 'Radial 4 Plaza, Inner Circle',
+    distance: '240 m',
+    eta: '3 min walk',
+    isOpen247: true,
+    phone: '+91 98100 23456',
+    femaleStaffOnDuty: true,
+    cctvVerified: true,
+    coords: { x: 35, y: 82 },
+    rating: 4.7,
+    verifiedBadges: ['Verified Safe Spot', 'Well-Lit Interior', 'Phone Charging Available', 'Assistance Hub']
+  },
+  {
+    id: 'sh-5',
+    name: 'Dr. RML Hospital Emergency & Trauma Triage Reception',
+    category: 'hospital',
+    address: 'Baba Kharak Singh Marg',
+    distance: '750 m',
+    eta: '8 min walk',
+    isOpen247: true,
+    phone: '102 / 112',
+    femaleStaffOnDuty: true,
+    cctvVerified: true,
+    coords: { x: 18, y: 90 },
+    rating: 4.9,
+    verifiedBadges: ['24/7 Trauma Care', 'Security Wardens', 'Ambulance Bay', 'Zero-Refusal Triage']
+  }
+];
+
+// -------------------------------------------------------------
+// Smart Streetlight & Municipal Infrastructure Reports Dataset
+// -------------------------------------------------------------
+
+export const MOCK_INFRASTRUCTURE_ISSUES: import('../types').InfrastructureIssue[] = [
+  {
+    id: 'inf-1',
+    type: 'broken_streetlight',
+    title: '3 consecutive dark streetlights along Radial Road 2 alley',
+    location: 'Radial Road 2 & School Lane Corner',
+    reportedAt: '2 hours ago',
+    status: 'assigned_ward',
+    municipalWard: 'NDMC Ward 4 (Central Lighting Division)',
+    upvotes: 48,
+    impactScore: 'High Concern'
+  },
+  {
+    id: 'inf-2',
+    type: 'dark_bus_stop',
+    title: 'Unlit bus shelter with non-functional solar light',
+    location: 'Ashoka Road Bus Stop (Opposite Bangla Sahib)',
+    reportedAt: 'Yesterday, 8:40 PM',
+    status: 'work_in_progress',
+    municipalWard: 'DTC & NDMC Joint Infrastructure',
+    upvotes: 35,
+    impactScore: 'High Concern'
+  },
+  {
+    id: 'inf-3',
+    type: 'blind_spot_cctv',
+    title: 'Tree branch fully obstructing CCTV camera 14',
+    location: 'Janpath Subway Entrance Gate 2',
+    reportedAt: '3 days ago',
+    status: 'resolved',
+    municipalWard: 'Delhi Safe City Project Wing',
+    upvotes: 29,
+    impactScore: 'Moderate',
+    resolvedDate: 'Today, 2:15 PM'
+  },
+  {
+    id: 'inf-4',
+    type: 'damaged_footpath',
+    title: 'Broken pavers and construction debris forcing pedestrians onto road',
+    location: 'Tolstoy Marg Pedestrian Walkway',
+    reportedAt: '1 day ago',
+    status: 'assigned_ward',
+    municipalWard: 'PWD Central Division',
+    upvotes: 21,
+    impactScore: 'Moderate'
+  }
+];
+
+// -------------------------------------------------------------
+// Community Safe Walk & Verified Guardian Network Dataset
+// -------------------------------------------------------------
+
+export const MOCK_SAFE_WALK_BUDDIES: import('../types').SafeWalkerBuddy[] = [
+  {
+    id: 'sw-1',
+    name: 'Officer Priya Sharma',
+    badgeType: 'campus_security',
+    organization: 'City University Special Night Warden Unit',
+    rating: 4.98,
+    completedWalks: 142,
+    distance: '120 m away',
+    eta: '2 min pickup',
+    isAvailable: true,
+    avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=160&q=80',
+    verifiedId: true,
+    phone: '+91 98111 22334'
+  },
+  {
+    id: 'sw-2',
+    name: 'Ananya Verma (NSS Volunteer)',
+    badgeType: 'verified_volunteer',
+    organization: 'Verified Women Student Safety Network',
+    rating: 4.92,
+    completedWalks: 58,
+    distance: '250 m away',
+    eta: '3 min pickup',
+    isAvailable: true,
+    avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=160&q=80',
+    verifiedId: true,
+    phone: '+91 98222 33445'
+  },
+  {
+    id: 'sw-3',
+    name: 'Warden Rajesh Kumar',
+    badgeType: 'community_guardian',
+    organization: 'Connaught Place Merchant Safety Patrol',
+    rating: 4.88,
+    completedWalks: 89,
+    distance: '380 m away',
+    eta: '5 min pickup',
+    isAvailable: true,
+    avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80',
+    verifiedId: true,
+    phone: '+91 98333 44556'
+  }
+];
+
+export const MOCK_TRANSIT_COMPANION_DEFAULT: import('../types').TransitCompanionTrip = {
+  vehicleType: 'cab_uber',
+  vehiclePlate: 'DL 01 RT 4829 (White Swift Dzire)',
+  driverName: 'Mukesh K. (4.89 ★ • 2,400+ trips)',
+  driverRating: 4.89,
+  routeDeviationMeters: 45,
+  unusualStopSeconds: 0,
+  destinationEta: '14 mins',
+  isLiveTracking: true,
+  guardianNotified: true
+};
+
+

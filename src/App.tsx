@@ -18,6 +18,10 @@ import { TrustedContactsScreen } from './components/screens/TrustedContactsScree
 import { SafetyAnalyticsScreen } from './components/screens/SafetyAnalyticsScreen';
 import { ProfileSettingsScreen } from './components/screens/ProfileSettingsScreen';
 import { PublicGatheringHubScreen } from './components/screens/PublicGatheringHubScreen';
+import { SafeHavenNetworkScreen } from './components/screens/SafeHavenNetworkScreen';
+import { TransportCompanionScreen } from './components/screens/TransportCompanionScreen';
+import { InfrastructureReportingScreen } from './components/screens/InfrastructureReportingScreen';
+import { CommunitySafeWalkScreen } from './components/screens/CommunitySafeWalkScreen';
 import { FloatingAiAssistant } from './components/FloatingAiAssistant';
 import { BottomNavBar } from './components/BottomNavBar';
 
@@ -156,6 +160,32 @@ function MainAppContent() {
             <PublicGatheringHubScreen
               onNavigate={handleNavigate}
               onSelectRoute={setSelectedRoute}
+            />
+          )}
+
+          {currentScreen === 'safe_haven_network' && (
+            <SafeHavenNetworkScreen
+              onNavigate={handleNavigate}
+              onSelectRoute={setSelectedRoute}
+            />
+          )}
+
+          {currentScreen === 'transport_companion' && (
+            <TransportCompanionScreen
+              onNavigate={handleNavigate}
+              onOpenSos={handleOpenSos}
+            />
+          )}
+
+          {currentScreen === 'infrastructure_reporting' && (
+            <InfrastructureReportingScreen
+              onNavigate={handleNavigate}
+            />
+          )}
+
+          {currentScreen === 'community_safe_walk' && (
+            <CommunitySafeWalkScreen
+              onNavigate={handleNavigate}
             />
           )}
         </div>

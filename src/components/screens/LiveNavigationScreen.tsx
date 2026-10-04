@@ -174,25 +174,33 @@ export const LiveNavigationScreen: React.FC<LiveNavigationScreenProps> = ({
         )}
       </div>
 
-      {/* Quick Simulation Bar (Simulate Alert & Safety Check-in) */}
-      <div className="relative z-10 px-4 flex items-center justify-center gap-2">
+      {/* Quick Voice Companion & Safe Haven Bar */}
+      <div className="relative z-10 px-3 flex items-center justify-between gap-1.5">
+        <button
+          onClick={() => {
+            triggerToast('🎙️ AI Voice Companion: "Grand Blvd is 95% well-lit. Next police booth in 350 meters."');
+          }}
+          className="px-2.5 py-1 rounded-full bg-slate-900/90 text-white text-[10px] font-bold shadow-md border border-slate-700 flex items-center gap-1.5 hover:bg-slate-800 transition active:scale-95"
+        >
+          <Sparkles className="w-3 h-3 text-cyan-300" />
+          <span>AI Voice Companion</span>
+        </button>
+
+        <button
+          onClick={() => onNavigate('safe_haven_network')}
+          className="px-2.5 py-1 rounded-full bg-emerald-700/90 text-white text-[10px] font-bold shadow-md border border-emerald-500/40 flex items-center gap-1.5 hover:bg-emerald-600 transition active:scale-95"
+        >
+          <Shield className="w-3 h-3 text-emerald-200" />
+          <span>Apollo Haven (180m)</span>
+        </button>
+
         <button
           id="btn-simulate-alert"
           onClick={onTriggerAlert}
-          className="px-3 py-1.5 rounded-full bg-rose-600 hover:bg-rose-700 text-white text-[10px] font-bold shadow-lg shadow-rose-900/30 flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
-          title="Test Incident Warning Screen"
+          className="px-2.5 py-1 rounded-full bg-rose-600/90 hover:bg-rose-600 text-white text-[10px] font-bold shadow-md flex items-center gap-1 transition active:scale-95"
         >
           <AlertTriangle className="w-3 h-3" />
-          <span>Simulate Safety Alert</span>
-        </button>
-        <button
-          id="btn-simulate-checkin"
-          onClick={onTriggerCheckIn}
-          className="px-3 py-1.5 rounded-full bg-purple-600 hover:bg-purple-700 text-white text-[10px] font-bold shadow-lg shadow-purple-900/30 flex items-center gap-1.5 transition-transform active:scale-95 cursor-pointer"
-          title="Test 30s Check-in Screen"
-        >
-          <Clock className="w-3 h-3" />
-          <span>Test Check-In</span>
+          <span>Simulate Alert</span>
         </button>
       </div>
 

@@ -12,7 +12,8 @@ import {
   VolumeX,
   Check, 
   BellRing,
-  Radio
+  Radio,
+  Clock
 } from 'lucide-react';
 import { ScreenId } from '../../types';
 import { MapEngine } from '../MapEngine';
@@ -175,94 +176,112 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
         </p>
       </div>
 
-      {/* Fast Action Buttons Grid (Prompt Requirements) */}
+      {/* Multi-Tier Emergency Escalation Protocol & Status */}
       <div className="px-4 space-y-2.5">
-        <h3 className="text-xs font-black uppercase tracking-wider text-slate-500">
-          Emergency Quick Actions
+        <div className="p-3.5 rounded-2xl bg-white border border-slate-200/90 shadow-sm space-y-2">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <Shield className="w-3.5 h-3.5 text-rose-600" />
+              Multi-Tier Emergency Escalation
+            </h3>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+              Active Tier 1
+            </span>
+          </div>
+
+          <div className="space-y-1.5 text-[11px]">
+            <div className="flex items-center justify-between p-2 rounded-xl bg-emerald-50 text-emerald-950 font-semibold border border-emerald-200">
+              <span className="flex items-center gap-1.5">
+                <Check className="w-3.5 h-3.5 text-emerald-600" />
+                Tier 1: Primary Guardians (Mother, Aanya)
+              </span>
+              <span className="text-[10px] text-emerald-700 font-bold">Delivered (100%)</span>
+            </div>
+
+            <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-slate-700 font-medium border border-slate-200">
+              <span className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-slate-400" />
+                Tier 2: Campus Security & Safe Walker
+              </span>
+              <span className="text-[10px] text-slate-500 font-bold">Auto-escalates in 35s</span>
+            </div>
+
+            <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 text-slate-700 font-medium border border-slate-200">
+              <span className="flex items-center gap-1.5">
+                <PhoneCall className="w-3.5 h-3.5 text-rose-600" />
+                Tier 3: National Emergency Police (112)
+              </span>
+              <span className="text-[10px] text-rose-700 font-bold">Ready</span>
+            </div>
+          </div>
+        </div>
+
+        <h3 className="text-xs font-black uppercase tracking-wider text-slate-500 pt-1">
+          Emergency Quick Actions (India & Campus Hotlines)
         </h3>
 
         <div className="grid grid-cols-2 gap-2.5">
-          {/* Action 1: Call Emergency Services */}
+          {/* Action 1: Call National Emergency 112 */}
           <a
-            id="btn-sos-call-911"
-            href="tel:911"
-            onClick={() => triggerToast('Connecting to 911 Emergency Dispatch...')}
+            id="btn-sos-call-112"
+            href="tel:112"
+            onClick={() => triggerToast('Connecting to 112 National Emergency Dispatch...')}
             className="p-3 rounded-2xl bg-rose-600 text-white font-bold text-xs flex items-center gap-2.5 shadow-md shadow-rose-600/20 hover:bg-rose-700 transition-colors"
           >
             <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
               <PhoneCall className="w-4 h-4 text-white" />
             </div>
             <div>
-              <div className="leading-tight">{t.call911}</div>
-              <div className="text-[9px] text-rose-100 font-normal">Police / Medical</div>
+              <div className="leading-tight font-black">Call 112 (Emergency)</div>
+              <div className="text-[9px] text-rose-100 font-normal">Police / Ambulance</div>
             </div>
           </a>
 
-          {/* Action 2: Alert Trusted Contacts */}
+          {/* Action 2: Call Women Helpline 1091 */}
+          <a
+            id="btn-sos-call-1091"
+            href="tel:1091"
+            onClick={() => triggerToast('Connecting to 1091 Women Helpline...')}
+            className="p-3 rounded-2xl bg-purple-600 text-white font-bold text-xs flex items-center gap-2.5 shadow-md shadow-purple-600/20 hover:bg-purple-700 transition-colors"
+          >
+            <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <PhoneCall className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <div className="leading-tight font-black">Call 1091 Helpline</div>
+              <div className="text-[9px] text-purple-100 font-normal">Women Safety Desk</div>
+            </div>
+          </a>
+
+          {/* Action 3: Alert Trusted Contacts */}
           <button
             id="btn-sos-alert-contacts"
-            onClick={() => triggerToast('SMS & Voice alert dispatched to Mother, Friend & Sister')}
-            className="p-3 rounded-2xl bg-purple-600 text-white font-bold text-xs flex items-center gap-2.5 shadow-md shadow-purple-600/20 hover:bg-purple-700 transition-colors cursor-pointer text-left"
+            onClick={() => triggerToast('SMS, GPS coordinates & audio stream sent to 3 trusted guardians')}
+            className="p-3 rounded-2xl bg-indigo-600 text-white font-bold text-xs flex items-center gap-2.5 shadow-md shadow-indigo-600/20 hover:bg-indigo-700 transition-colors cursor-pointer text-left"
           >
             <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
               <Users className="w-4 h-4 text-white" />
             </div>
             <div>
               <div className="leading-tight">{t.alertContacts}</div>
-              <div className="text-[9px] text-purple-100 font-normal">3 Guardians</div>
+              <div className="text-[9px] text-indigo-100 font-normal">Discreet Audio + GPS</div>
             </div>
           </button>
 
-          {/* Action 3: Share Live Location */}
+          {/* Action 4: Nearest Safe Haven */}
           <button
-            id="btn-sos-share-location"
-            onClick={() => triggerToast('Live GPS beacon link copied and shared')}
-            className="p-3 rounded-2xl bg-blue-600 text-white font-bold text-xs flex items-center gap-2.5 shadow-md shadow-blue-600/20 hover:bg-blue-700 transition-colors cursor-pointer text-left"
-          >
-            <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
-              <Share2 className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <div className="leading-tight">{t.shareGps}</div>
-              <div className="text-[9px] text-blue-100 font-normal">Real-time link</div>
-            </div>
-          </button>
-
-          {/* Action 4: Nearest Police Station */}
-          <button
-            id="btn-sos-nearest-police"
-            onClick={() => triggerToast('Routing to Metro Police Station (350m away)')}
+            onClick={() => onNavigate('safe_haven_network')}
             className="p-3 rounded-2xl bg-slate-900 text-white font-bold text-xs flex items-center gap-2.5 shadow-md hover:bg-slate-800 transition-colors cursor-pointer text-left"
           >
-            <div className="w-8 h-8 rounded-xl bg-blue-500/30 flex items-center justify-center shrink-0">
-              <Shield className="w-4 h-4 text-blue-400" />
+            <div className="w-8 h-8 rounded-xl bg-cyan-500/30 flex items-center justify-center shrink-0">
+              <Shield className="w-4 h-4 text-cyan-400" />
             </div>
             <div>
-              <div className="leading-tight">{t.policeStation}</div>
-              <div className="text-[9px] text-slate-300 font-normal">350 m away</div>
+              <div className="leading-tight font-black">Nearby Safe Haven</div>
+              <div className="text-[9px] text-slate-300 font-normal">Apollo 24/7 (180m)</div>
             </div>
           </button>
         </div>
-
-        {/* Nearest Hospital Card */}
-        <button
-          id="btn-sos-nearest-hospital"
-          onClick={() => triggerToast('Routing to St. Jude General Hospital (680m away)')}
-          className="w-full p-3 rounded-2xl bg-white border border-slate-200 hover:border-rose-300 flex items-center justify-between shadow-sm cursor-pointer"
-        >
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
-              <Cross className="w-4 h-4" />
-            </div>
-            <div className="text-left">
-              <div className="text-xs font-bold text-slate-800">{t.nearestHospital}</div>
-              <div className="text-[10px] text-slate-500">St. Jude General • 680 m • 4 min walk</div>
-            </div>
-          </div>
-          <span className="px-2.5 py-1 rounded-xl bg-rose-50 text-rose-700 text-[10px] font-bold border border-rose-200">
-            {t.open247}
-          </span>
-        </button>
       </div>
 
       {/* Bottom Section: Interactive Map (Prompt Requirement) */}

@@ -1,19 +1,23 @@
 export type ScreenId =
-  | 'splash'            // Screen 1
-  | 'login'             // Screen 2
-  | 'dashboard'         // Screen 3
-  | 'route_search'      // Screen 4
-  | 'route_comparison'  // Screen 5
-  | 'shap_explain'      // Screen 6
-  | 'live_navigation'   // Screen 7
-  | 'safety_alert'      // Screen 8 (Modal/Screen)
-  | 'dynamic_reroute'   // Screen 9
-  | 'safety_checkin'    // Screen 10
-  | 'emergency_sos'     // Screen 11
-  | 'trusted_contacts'  // Screen 12
-  | 'safety_analytics'  // Screen 13
-  | 'profile_settings'  // Screen 14
-  | 'public_gathering_hub'; // Screen 15 (Public Gathering & Disruption Hub)
+  | 'splash'                 // Screen 1
+  | 'login'                  // Screen 2
+  | 'dashboard'              // Screen 3
+  | 'route_search'           // Screen 4
+  | 'route_comparison'       // Screen 5
+  | 'shap_explain'           // Screen 6
+  | 'live_navigation'        // Screen 7
+  | 'safety_alert'           // Screen 8 (Modal/Screen)
+  | 'dynamic_reroute'        // Screen 9
+  | 'safety_checkin'         // Screen 10
+  | 'emergency_sos'          // Screen 11
+  | 'trusted_contacts'       // Screen 12
+  | 'safety_analytics'       // Screen 13
+  | 'profile_settings'       // Screen 14
+  | 'public_gathering_hub'   // Screen 15 (Public Gathering & Disruption Hub)
+  | 'safe_haven_network'     // Screen 16 (Verified Safe Haven Directory)
+  | 'transport_companion'    // Screen 17 (Safe Transit & Ride Companion)
+  | 'infrastructure_reporting' // Screen 18 (Streetlight & Infrastructure Reporting)
+  | 'community_safe_walk';   // Screen 19 (Community Safe Walk & Buddy Network)
 
 export interface RouteOption {
   id: string;
@@ -152,4 +156,65 @@ export interface CommunityReport {
   status: 'verified_official' | 'corroborated' | 'unverified';
   userAvatar?: string;
 }
+
+// -------------------------------------------------------------
+// Women's Safety Ecosystem, Safe Havens & Transit Companion Types
+// -------------------------------------------------------------
+
+export interface SafeHaven {
+  id: string;
+  name: string;
+  category: 'pharmacy_247' | 'police_kiosk' | 'women_helpdesk' | 'campus_security' | 'verified_retail' | 'hospital';
+  address: string;
+  distance: string;
+  eta: string;
+  isOpen247: boolean;
+  phone: string;
+  femaleStaffOnDuty: boolean;
+  cctvVerified: boolean;
+  coords: { x: number; y: number };
+  rating: number;
+  verifiedBadges: string[];
+}
+
+export interface TransitCompanionTrip {
+  vehicleType: 'cab_uber' | 'auto_rickshaw' | 'metro' | 'city_bus';
+  vehiclePlate: string;
+  driverName?: string;
+  driverRating?: number;
+  routeDeviationMeters: number;
+  unusualStopSeconds: number;
+  destinationEta: string;
+  isLiveTracking: boolean;
+  guardianNotified: boolean;
+}
+
+export interface InfrastructureIssue {
+  id: string;
+  type: 'broken_streetlight' | 'dark_bus_stop' | 'blind_spot_cctv' | 'damaged_footpath' | 'isolated_subway';
+  title: string;
+  location: string;
+  reportedAt: string;
+  status: 'reported' | 'assigned_ward' | 'work_in_progress' | 'resolved';
+  municipalWard: string;
+  upvotes: number;
+  impactScore: 'High Concern' | 'Moderate' | 'Low';
+  resolvedDate?: string;
+}
+
+export interface SafeWalkerBuddy {
+  id: string;
+  name: string;
+  badgeType: 'campus_security' | 'verified_volunteer' | 'community_guardian';
+  organization: string;
+  rating: number;
+  completedWalks: number;
+  distance: string;
+  eta: string;
+  isAvailable: boolean;
+  avatarUrl: string;
+  verifiedId: boolean;
+  phone: string;
+}
+
 
