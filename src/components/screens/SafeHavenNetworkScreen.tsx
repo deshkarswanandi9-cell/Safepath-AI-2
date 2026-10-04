@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { ScreenId, SafeHaven, RouteOption } from '../../types';
 import { MOCK_SAFE_HAVENS, MOCK_ROUTES } from '../../data/mockData';
+import { REAL_DELHI_WOMEN_SUPPORT_ORGS, REAL_DELHI_POLICE_STATIONS } from '../../data/realData';
 import { MapEngine } from '../MapEngine';
 
 interface SafeHavenNetworkScreenProps {
@@ -241,6 +242,83 @@ export const SafeHavenNetworkScreen: React.FC<SafeHavenNetworkScreenProps> = ({
             </div>
           </div>
         ))}
+
+        {/* Verified Delhi Police Stations (Central District) */}
+        <div className="p-4 rounded-3xl bg-slate-900 text-white space-y-3 shadow-lg border border-slate-800">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Delhi Police Stations (Central District)</span>
+            </h4>
+            <span className="text-[10px] font-black bg-emerald-400/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-400/30">
+              24/7 Women Desks
+            </span>
+          </div>
+
+          <div className="space-y-2">
+            {REAL_DELHI_POLICE_STATIONS.map((ps) => (
+              <div key={ps.id} className="p-3 rounded-2xl bg-white/5 border border-white/10 text-xs space-y-1">
+                <div className="flex items-center justify-between font-extrabold text-white">
+                  <span>{ps.name}</span>
+                  <a
+                    href={`tel:${ps.phone}`}
+                    className="text-[10px] font-bold text-emerald-400 flex items-center gap-1 hover:underline"
+                  >
+                    <Phone className="w-3 h-3" />
+                    {ps.phone}
+                  </a>
+                </div>
+                <div className="text-[10px] text-slate-400">{ps.address}</div>
+                <div className="flex items-center gap-2 pt-0.5 text-[9px] text-slate-300 font-semibold">
+                  <span className="px-1.5 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-500/30">
+                    24/7 Duty
+                  </span>
+                  {ps.womensCell && (
+                    <span className="px-1.5 py-0.5 rounded bg-purple-950/80 text-purple-300 border border-purple-500/30">
+                      Dedicated Women Helpdesk
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Delhi Verified Women Support & Crisis NGOs */}
+        <div className="p-4 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-purple-600" />
+              <span>Verified Women Crisis & Legal Aid NGOs</span>
+            </h4>
+            <span className="text-[10px] font-bold text-slate-400">Delhi-NCR</span>
+          </div>
+
+          <div className="space-y-2">
+            {REAL_DELHI_WOMEN_SUPPORT_ORGS.map((ngo) => (
+              <div key={ngo.id} className="p-2.5 rounded-2xl bg-slate-50 border border-slate-200 text-xs space-y-1">
+                <div className="flex items-center justify-between font-extrabold text-slate-900">
+                  <span>{ngo.name}</span>
+                  <a
+                    href={`tel:${ngo.phone}`}
+                    className="text-[10px] font-bold text-purple-700 flex items-center gap-1 hover:underline"
+                  >
+                    <Phone className="w-3 h-3" />
+                    {ngo.phone}
+                  </a>
+                </div>
+                <div className="text-[10px] text-slate-500">{ngo.type} • {ngo.area}</div>
+                <div className="flex flex-wrap gap-1 pt-0.5">
+                  {ngo.services.map((srv, idx) => (
+                    <span key={idx} className="text-[9px] font-medium px-1.5 py-0.2 rounded bg-purple-50 text-purple-700 border border-purple-200">
+                      {srv}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

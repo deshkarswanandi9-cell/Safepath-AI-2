@@ -20,6 +20,7 @@ import {
 import { ScreenId } from '../../types';
 import { MapEngine } from '../MapEngine';
 import { MOCK_HELP_POINTS } from '../../data/mockData';
+import { INDIA_EMERGENCY_HELPLINES } from '../../data/realData';
 import { useLanguage } from '../../context/LanguageContext';
 
 interface EmergencySosScreenProps {
@@ -31,6 +32,7 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
   const [sosTriggered, setSosTriggered] = useState(false);
   const [sirenPlaying, setSirenPlaying] = useState(false);
   const [activeActionToast, setActiveActionToast] = useState<string | null>(null);
+  const [showAllHelplines, setShowAllHelplines] = useState<boolean>(false);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const oscRef = useRef<OscillatorNode | null>(null);
   const gainRef = useRef<GainNode | null>(null);
@@ -286,6 +288,80 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
               <div className="text-[9px] text-slate-400 font-normal">Apollo 24/7 (180m)</div>
             </div>
           </button>
+        </div>
+
+        {/* National Helplines Directory Toggle */}
+        <div className="pt-1">
+          <button
+            onClick={() => setShowAllHelplines(!showAllHelplines)}
+            className="w-full py-2 px-3 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-slate-300 text-xs font-bold flex items-center justify-between transition-colors"
+          >
+            <span className="flex items-center gap-1.5 text-rose-300">
+              <ShieldAlert className="w-3.5 h-3.5 text-rose-400" />
+              <span>All Official Verified National Helplines (India)</span>
+            </span>
+            <span className="text-[10px] text-slate-400">
+              {showAllHelplines ? 'Hide' : 'View (8 Direct Numbers)'}
+            </span>
+          </button>
+
+          {showAllHelplines && (
+            <div className="mt-2 grid grid-cols-2 gap-2 animate-in fade-in slide-in-from-top-2">
+              <a
+                href={`tel:${INDIA_EMERGENCY_HELPLINES.domesticViolence.number}`}
+                onClick={() => triggerToast('Connecting to 181 Women Domestic Violence Helpline...')}
+                className="p-2.5 rounded-xl bg-purple-950/60 border border-purple-500/30 text-white hover:bg-purple-900/60 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-purple-300">181</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-purple-500/30 text-purple-200 font-bold">24/7</span>
+                </div>
+                <div className="text-[10px] font-bold text-white mt-0.5">Domestic & GBV Distress</div>
+                <div className="text-[8px] text-slate-400">Govt. Emergency Link</div>
+              </a>
+
+              <a
+                href={`tel:${INDIA_EMERGENCY_HELPLINES.ncwHelpline.number}`}
+                onClick={() => triggerToast('Connecting to 14490 NCW Helpline...')}
+                className="p-2.5 rounded-xl bg-indigo-950/60 border border-indigo-500/30 text-white hover:bg-indigo-900/60 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-indigo-300">14490</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/30 text-indigo-200 font-bold">24/7</span>
+                </div>
+                <div className="text-[10px] font-bold text-white mt-0.5">NCW National Commission</div>
+                <div className="text-[8px] text-slate-400">Digital Complaint & FIR</div>
+              </a>
+
+              <a
+                href={`tel:${INDIA_EMERGENCY_HELPLINES.ambulance.number}`}
+                onClick={() => triggerToast('Connecting to 102 CATS Ambulance...')}
+                className="p-2.5 rounded-xl bg-rose-950/60 border border-rose-500/30 text-white hover:bg-rose-900/60 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-rose-300">102 / 108</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-rose-500/30 text-rose-200 font-bold">Free</span>
+                </div>
+                <div className="text-[10px] font-bold text-white mt-0.5">Ambulance Emergency</div>
+                <div className="text-[8px] text-slate-400">CATS Govt. Dispatch</div>
+              </a>
+
+              <a
+                href="https://wa.me/917835075012"
+                target="_blank"
+                rel="noreferrer"
+                onClick={() => triggerToast('Opening Delhi Police WhatsApp Helpline...')}
+                className="p-2.5 rounded-xl bg-emerald-950/60 border border-emerald-500/30 text-white hover:bg-emerald-900/60 transition-colors"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-emerald-300">WhatsApp PCR</span>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-200 font-bold">Police</span>
+                </div>
+                <div className="text-[10px] font-bold text-white mt-0.5">7835075012</div>
+                <div className="text-[8px] text-slate-400">Delhi Police Digital Help</div>
+              </a>
+            </div>
+          )}
         </div>
       </div>
 

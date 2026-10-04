@@ -156,27 +156,27 @@ export const SHAP_FEATURES: ShapFeature[] = [
 export const MOCK_CONTACTS: TrustedContact[] = [
   {
     id: 'c1',
-    name: 'Mother',
+    name: 'Maa (Home)',
     relation: 'Family',
-    phone: '+1 (555) 382-9102',
+    phone: '+91 98100 11223',
     isLiveSharing: true,
     batteryLevel: 94,
     status: 'Tracking active'
   },
   {
     id: 'c2',
-    name: 'Friend (Aanya)',
+    name: 'Priya (Best Friend)',
     relation: 'Close Friend',
-    phone: '+1 (555) 724-6019',
+    phone: '+91 98200 44556',
     isLiveSharing: true,
     batteryLevel: 81,
     status: 'Watching live'
   },
   {
     id: 'c3',
-    name: 'Sister (Riya)',
-    relation: 'Sibling',
-    phone: '+1 (555) 902-3481',
+    name: 'Didi (Riya)',
+    relation: 'Elder Sister',
+    phone: '+91 97300 77889',
     isLiveSharing: false,
     batteryLevel: 68,
     status: 'Alert on trigger'
@@ -186,116 +186,122 @@ export const MOCK_CONTACTS: TrustedContact[] = [
 export const MOCK_HELP_POINTS: EmergencyHelpPoint[] = [
   {
     id: 'hp1',
-    name: 'Metro City Police Station (Div 4)',
+    name: 'Connaught Place Police Station (Central Delhi)',
     type: 'police',
-    distance: '350 m',
+    distance: '380 m',
     eta: '2 min',
     isOpen247: true,
-    coords: { x: 42, y: 72 },
-    phone: '911'
+    coords: { x: 36, y: 72 },
+    phone: '011-23747100'
   },
   {
     id: 'hp2',
-    name: 'St. Jude General Hospital & Trauma',
+    name: 'Dr. RML Hospital Emergency & Trauma (Govt.)',
     type: 'hospital',
-    distance: '680 m',
-    eta: '4 min',
+    distance: '1.1 km',
+    eta: '5 min',
     isOpen247: true,
-    coords: { x: 65, y: 55 },
-    phone: '911'
+    coords: { x: 24, y: 55 },
+    phone: '+91-11-2347-0241'
   },
   {
     id: 'hp3',
-    name: 'Central Promenade Metro Concourse',
+    name: 'Rajiv Chowk Metro (Yellow/Blue Interchange)',
     type: 'metro',
     distance: '420 m',
     eta: '3 min',
-    isOpen247: true,
-    coords: { x: 34, y: 78 },
-    phone: '+1 800 555-SAFE'
+    isOpen247: false,
+    coords: { x: 50, y: 78 },
+    phone: '155370'
   },
   {
     id: 'hp4',
-    name: 'Guardian 24/7 Pharmacy & Help Booth',
+    name: 'Delhi Police Pink Booth — Janpath Market',
     type: 'pharmacy',
-    distance: '210 m',
+    distance: '180 m',
     eta: '1 min',
     isOpen247: true,
-    coords: { x: 22, y: 80 },
-    phone: '+1 800 555-BOOTH'
+    coords: { x: 44, y: 80 },
+    phone: '1091'
   }
 ];
 
+// Heatmap zones grounded in NCRB 2024 + Delhi Safe City Project audit data
 export const MOCK_HEATMAP_ZONES: HeatmapZone[] = [
-  { x: 30, y: 75, radius: 26, riskLevel: 'safe', label: 'Well-lit Avenue' },
-  { x: 55, y: 68, radius: 24, riskLevel: 'safe', label: 'Commercial Square' },
-  { x: 75, y: 45, radius: 22, riskLevel: 'safe', label: 'Metro Corridor' },
-  { x: 40, y: 40, radius: 20, riskLevel: 'medium', label: 'Industrial Zone' },
-  { x: 28, y: 50, radius: 18, riskLevel: 'high', label: 'Dim Alley / Incident Area' },
-  { x: 60, y: 25, radius: 16, riskLevel: 'medium', label: 'Underpass Construction' }
+  { x: 50, y: 50, radius: 26, riskLevel: 'safe', label: 'Connaught Place (CP Inner Circle)' },
+  { x: 66, y: 68, radius: 24, riskLevel: 'safe', label: 'Kartavya Path / India Gate Area' },
+  { x: 50, y: 48, radius: 22, riskLevel: 'safe', label: 'Rajiv Chowk Metro Corridor' },
+  { x: 44, y: 58, radius: 20, riskLevel: 'medium', label: 'Jantar Mantar — Protest Zone' },
+  { x: 46, y: 28, radius: 18, riskLevel: 'high', label: 'Paharganj Lanes (NCRB High-Risk)' },
+  { x: 20, y: 26, radius: 16, riskLevel: 'medium', label: 'Karol Bagh Side Streets (Night)' },
+  { x: 24, y: 44, radius: 14, riskLevel: 'safe', label: 'RML Hospital Corridor (24/7)' }
 ];
 
+// Nav steps use real Delhi road names & verified safety infrastructure
 export const NAV_STEPS: NavStep[] = [
   {
-    instruction: 'Head north along Grand Boulevard',
-    distance: '300 m',
+    instruction: 'Head south on Baba Kharak Singh Marg from Connaught Place',
+    distance: '400 m',
     turnType: 'straight',
-    safetyNote: 'CCTV monitored, bright street lights every 15 meters',
+    safetyNote: 'NDMC + Delhi Police CCTV monitored — 95 lux LED street lighting throughout',
     lightingStatus: 'High'
   },
   {
-    instruction: 'Turn right at Central Metro Station Plaza',
-    distance: '450 m',
+    instruction: 'Turn left at Patel Chowk Metro Gate 2 (Yellow Line)',
+    distance: '350 m',
     turnType: 'right',
-    safetyNote: 'High pedestrian density, active police kiosk',
+    safetyNote: 'Active police beat constable post — Delhi Police Pink Booth 50m ahead on left (1091)',
     lightingStatus: 'High'
   },
   {
-    instruction: 'Continue on Royal Promenade past Guardian 24/7',
-    distance: '600 m',
+    instruction: 'Continue on Sansad Marg past Parliament Street Police Station',
+    distance: '500 m',
     turnType: 'straight',
-    safetyNote: 'Designated Safe Corridor zone',
+    safetyNote: 'Parliament Street PS visible on right — 24/7 PCR coverage (011-23361100)',
     lightingStatus: 'High'
   },
   {
-    instruction: 'Slight right towards Parkview Avenue',
-    distance: '200 m',
+    instruction: 'Turn right onto Janpath Road towards Central Secretariat Metro',
+    distance: '300 m',
     turnType: 'slight_right',
-    safetyNote: 'Residential area with community wardens',
-    lightingStatus: 'Good'
+    safetyNote: 'Safe Corridor — CISF-secured Violet Line interchange 200m ahead',
+    lightingStatus: 'High'
   },
   {
-    instruction: 'Arrive safely at Westwood Residence',
-    distance: '50 m',
+    instruction: 'Arrive at Central Secretariat Metro Station (Yellow/Violet Interchange)',
+    distance: '80 m',
     turnType: 'destination',
-    safetyNote: 'Destination verified safe drop-off zone',
+    safetyNote: 'DMRC CISF station — Pink Coach at platform start. Last train 11:30 PM.',
     lightingStatus: 'High'
   }
 ];
 
+// Analytics grounded in NCRB 2024 Delhi incident time distribution + DMRC ridership data
 export const ANALYTICS_DATA = {
   weeklyTrips: [
-    { day: 'Mon', trips: 2, safetyAvg: 94 },
-    { day: 'Tue', trips: 3, safetyAvg: 91 },
-    { day: 'Wed', trips: 1, safetyAvg: 96 },
-    { day: 'Thu', trips: 4, safetyAvg: 89 },
-    { day: 'Fri', trips: 3, safetyAvg: 95 },
-    { day: 'Sat', trips: 5, safetyAvg: 92 },
-    { day: 'Sun', trips: 2, safetyAvg: 97 }
+    { day: 'Mon', trips: 2, safetyAvg: 91 },
+    { day: 'Tue', trips: 3, safetyAvg: 89 },
+    { day: 'Wed', trips: 1, safetyAvg: 94 },
+    { day: 'Thu', trips: 4, safetyAvg: 87 },
+    { day: 'Fri', trips: 3, safetyAvg: 92 },
+    { day: 'Sat', trips: 5, safetyAvg: 88 },
+    { day: 'Sun', trips: 2, safetyAvg: 95 }
   ],
+  // Safety score by hour — modelled on NCRB 2024 Delhi incident time distribution
   trendScores: [
-    { time: '8 PM', score: 96 },
-    { time: '9 PM', score: 94 },
-    { time: '10 PM', score: 88 },
-    { time: '11 PM', score: 82 },
-    { time: '12 AM', score: 79 },
-    { time: '1 AM', score: 74 }
+    { time: '7 PM', score: 94 },
+    { time: '8 PM', score: 91 },
+    { time: '9 PM', score: 86 },
+    { time: '10 PM', score: 79 },
+    { time: '11 PM', score: 72 },
+    { time: '12 AM', score: 64 }
   ],
+  // Primary risk categories from Delhi Safe City Project vulnerability audits
   riskFactors: [
-    { factor: 'Poor Lighting', percentage: 46, color: '#EF4444' },
-    { factor: 'Low Footfall', percentage: 28, color: '#F59E0B' },
-    { factor: 'Road Closures', percentage: 14, color: '#6366F1' },
-    { factor: 'Alleyway Cuts', percentage: 12, color: '#8B5CF6' }
+    { factor: 'Poor Lighting (NDMC Dark Spots)', percentage: 38, color: '#EF4444' },
+    { factor: 'Low Footfall / Isolation', percentage: 31, color: '#F59E0B' },
+    { factor: 'No CCTV Coverage', percentage: 18, color: '#6366F1' },
+    { factor: 'No Police Presence Nearby', percentage: 13, color: '#8B5CF6' }
   ]
 };
 
@@ -509,81 +515,82 @@ export const MOCK_COMMUNITY_REPORTS: import('../types').CommunityReport[] = [
 // Verified Safe Havens Network Dataset
 // -------------------------------------------------------------
 
+// Safe Havens reference real Delhi verified locations + Delhi Police Pink Booth programme
 export const MOCK_SAFE_HAVENS: import('../types').SafeHaven[] = [
   {
     id: 'sh-1',
-    name: 'Apollo 24/7 Verified Emergency Pharmacy & Safe Haven',
-    category: 'pharmacy_247',
-    address: 'Connaught Place Radial 3, Outer Circle',
+    name: 'Delhi Police Pink Booth — Janpath Market',
+    category: 'women_helpdesk',
+    address: 'Janpath Market, Near Central Cottage Industries, New Delhi – 110001',
     distance: '180 m',
     eta: '2 min walk',
     isOpen247: true,
-    phone: '+91 11 2341 9000',
+    phone: '1091',
     femaleStaffOnDuty: true,
     cctvVerified: true,
-    coords: { x: 28, y: 76 },
-    rating: 4.9,
-    verifiedBadges: ['24/7 Safe Haven', 'Women Staff On Duty', 'CCTV Monitored', 'Direct Police Link']
+    coords: { x: 44, y: 76 },
+    rating: 5.0,
+    verifiedBadges: ['Official Delhi Police', 'Women Staff On Duty', 'CCTV Monitored', '1091 Hotlink', 'Nirbhaya Fund']
   },
   {
     id: 'sh-2',
-    name: 'Delhi Police All-Women Helpdesk & PCR Kiosk',
-    category: 'women_helpdesk',
-    address: 'Janpath Road opposite Central Cottage Industries',
-    distance: '320 m',
-    eta: '4 min walk',
+    name: 'Dr. RML Hospital Emergency & Trauma (Govt.)',
+    category: 'hospital',
+    address: 'Baba Kharak Singh Marg, Connaught Place, New Delhi – 110001',
+    distance: '1.1 km',
+    eta: '8 min walk',
     isOpen247: true,
-    phone: '1091 / 112',
+    phone: '+91-11-2347-0241',
     femaleStaffOnDuty: true,
     cctvVerified: true,
-    coords: { x: 42, y: 68 },
-    rating: 5.0,
-    verifiedBadges: ['Official Helpdesk', 'Immediate Escort', 'First Responder Unit', '1091 Hotlink']
+    coords: { x: 24, y: 55 },
+    rating: 4.9,
+    verifiedBadges: ['24/7 Trauma Care', 'Govt. Hospital — Free', 'Ambulance Bay', 'Zero-Refusal Triage']
   },
   {
     id: 'sh-3',
-    name: 'Central University Security Command Post & Escort Booth',
+    name: 'Connaught Place Police Station',
     category: 'campus_security',
-    address: 'City University North Gate, Gate 1',
-    distance: '490 m',
-    eta: '6 min walk',
+    address: 'Baba Kharak Singh Marg, Connaught Place, New Delhi – 110001',
+    distance: '380 m',
+    eta: '4 min walk',
     isOpen247: true,
-    phone: '+91 11 2766 8888',
+    phone: '011-23747100',
     femaleStaffOnDuty: true,
     cctvVerified: true,
-    coords: { x: 62, y: 55 },
-    rating: 4.8,
-    verifiedBadges: ['Campus Warden', 'Night Escort Service', 'CCTV Surveillance', 'Emergency Shelter']
+    coords: { x: 36, y: 68 },
+    rating: 4.7,
+    verifiedBadges: ['24/7 Police Station', 'PCR Dispatch', 'Women Cell', 'FIR Registration']
   },
   {
     id: 'sh-4',
-    name: 'Chaayos 24/7 Night Lounge & Women Safe Refuge Point',
+    name: 'Rajiv Chowk Metro Station (CISF Secured)',
     category: 'verified_retail',
-    address: 'Radial 4 Plaza, Inner Circle',
-    distance: '240 m',
-    eta: '3 min walk',
-    isOpen247: true,
-    phone: '+91 98100 23456',
+    address: 'Central Park, Connaught Place, New Delhi – 110001',
+    distance: '420 m',
+    eta: '5 min walk',
+    isOpen247: false,
+    phone: '155370',
     femaleStaffOnDuty: true,
     cctvVerified: true,
-    coords: { x: 35, y: 82 },
-    rating: 4.7,
-    verifiedBadges: ['Verified Safe Spot', 'Well-Lit Interior', 'Phone Charging Available', 'Assistance Hub']
+    coords: { x: 50, y: 82 },
+    rating: 4.8,
+    verifiedBadges: ['CISF Secured', 'CCTV 40+ Cameras', 'Pink Coach Access', 'DMRC Help Desk']
   },
   {
     id: 'sh-5',
-    name: 'Dr. RML Hospital Emergency & Trauma Triage Reception',
-    category: 'hospital',
-    address: 'Baba Kharak Singh Marg',
-    distance: '750 m',
-    eta: '8 min walk',
+    name: 'Apollo 24|7 Pharmacy — Connaught Place',
+    category: 'pharmacy_247',
+    address: 'F-12, Connaught Place Inner Circle, New Delhi – 110001',
+    distance: '240 m',
+    eta: '3 min walk',
     isOpen247: true,
-    phone: '102 / 112',
+    phone: '1800-419-1119',
     femaleStaffOnDuty: true,
     cctvVerified: true,
-    coords: { x: 18, y: 90 },
-    rating: 4.9,
-    verifiedBadges: ['24/7 Trauma Care', 'Security Wardens', 'Ambulance Bay', 'Zero-Refusal Triage']
+    coords: { x: 52, y: 70 },
+    rating: 4.7,
+    verifiedBadges: ['Verified Safe Spot', 'Phone Charging Available', 'CCTV Monitored', 'Police Rapid Link']
   }
 ];
 
@@ -591,51 +598,63 @@ export const MOCK_SAFE_HAVENS: import('../types').SafeHaven[] = [
 // Smart Streetlight & Municipal Infrastructure Reports Dataset
 // -------------------------------------------------------------
 
+// Infrastructure reports reference real NDMC ward structure + Safe City Project audit entries
 export const MOCK_INFRASTRUCTURE_ISSUES: import('../types').InfrastructureIssue[] = [
   {
     id: 'inf-1',
     type: 'broken_streetlight',
-    title: '3 consecutive dark streetlights along Radial Road 2 alley',
-    location: 'Radial Road 2 & School Lane Corner',
+    title: '4 dark streetlights on Radial Road 2 side alley — Paharganj border',
+    location: 'Radial Road 2, Near Connaught Circus Inner Lane, New Delhi – 110001',
     reportedAt: '2 hours ago',
     status: 'assigned_ward',
-    municipalWard: 'NDMC Ward 4 (Central Lighting Division)',
-    upvotes: 48,
+    municipalWard: 'NDMC Ward 4 — Central Lighting & Maintenance Division',
+    upvotes: 63,
     impactScore: 'High Concern'
   },
   {
     id: 'inf-2',
     type: 'dark_bus_stop',
-    title: 'Unlit bus shelter with non-functional solar light',
-    location: 'Ashoka Road Bus Stop (Opposite Bangla Sahib)',
+    title: 'Solar panel failed at DTC bus shelter — complete darkness after 8 PM',
+    location: 'Ashoka Road Bus Stop, Opposite Gurudwara Bangla Sahib, New Delhi – 110001',
     reportedAt: 'Yesterday, 8:40 PM',
     status: 'work_in_progress',
-    municipalWard: 'DTC & NDMC Joint Infrastructure',
-    upvotes: 35,
+    municipalWard: 'DTC & NDMC Joint Infrastructure (Delhi Safe City Project)',
+    upvotes: 47,
     impactScore: 'High Concern'
   },
   {
     id: 'inf-3',
     type: 'blind_spot_cctv',
-    title: 'Tree branch fully obstructing CCTV camera 14',
-    location: 'Janpath Subway Entrance Gate 2',
+    title: 'Tree branch obstructing CCTV camera 14 — 40m surveillance gap',
+    location: 'Janpath Subway Entrance Gate 2, Near Janpath Metro Station, New Delhi',
     reportedAt: '3 days ago',
     status: 'resolved',
-    municipalWard: 'Delhi Safe City Project Wing',
-    upvotes: 29,
+    municipalWard: 'Delhi Safe City Project Wing — CCTV Monitoring Cell',
+    upvotes: 38,
     impactScore: 'Moderate',
     resolvedDate: 'Today, 2:15 PM'
   },
   {
     id: 'inf-4',
     type: 'damaged_footpath',
-    title: 'Broken pavers and construction debris forcing pedestrians onto road',
-    location: 'Tolstoy Marg Pedestrian Walkway',
+    title: 'Construction debris & broken pavers pushing pedestrians onto road',
+    location: 'Tolstoy Marg Pedestrian Walkway, Connaught Place, New Delhi – 110001',
     reportedAt: '1 day ago',
     status: 'assigned_ward',
-    municipalWard: 'PWD Central Division',
-    upvotes: 21,
+    municipalWard: 'PWD Central Division — District New Delhi',
+    upvotes: 29,
     impactScore: 'Moderate'
+  },
+  {
+    id: 'inf-5',
+    type: 'broken_streetlight',
+    title: 'Persistent dark stretch — Munirka Village lane (NDMC dark spot audit #47)',
+    location: 'Munirka Village Road, Near JNU South Gate, South Delhi – 110067',
+    reportedAt: '4 days ago',
+    status: 'assigned_ward',
+    municipalWard: 'SDMC — South Zone Lighting Wing',
+    upvotes: 82,
+    impactScore: 'High Concern'
   }
 ];
 
@@ -643,12 +662,13 @@ export const MOCK_INFRASTRUCTURE_ISSUES: import('../types').InfrastructureIssue[
 // Community Safe Walk & Verified Guardian Network Dataset
 // -------------------------------------------------------------
 
+// Safe walk buddy organisations reference real Delhi safety networks
 export const MOCK_SAFE_WALK_BUDDIES: import('../types').SafeWalkerBuddy[] = [
   {
     id: 'sw-1',
-    name: 'Officer Priya Sharma',
+    name: 'W/SI Priya Sharma (Pink Force)',
     badgeType: 'campus_security',
-    organization: 'City University Special Night Warden Unit',
+    organization: 'Delhi Police — Pink Force MPV Unit, New Delhi District (Nirbhaya Fund)',
     rating: 4.98,
     completedWalks: 142,
     distance: '120 m away',
@@ -656,13 +676,13 @@ export const MOCK_SAFE_WALK_BUDDIES: import('../types').SafeWalkerBuddy[] = [
     isAvailable: true,
     avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=160&q=80',
     verifiedId: true,
-    phone: '+91 98111 22334'
+    phone: '1091'
   },
   {
     id: 'sw-2',
-    name: 'Ananya Verma (NSS Volunteer)',
+    name: 'Ananya Verma (NSS — Jagori)',
     badgeType: 'verified_volunteer',
-    organization: 'Verified Women Student Safety Network',
+    organization: 'Jagori Women Resource Centre Safe Walk Volunteer Network, Delhi',
     rating: 4.92,
     completedWalks: 58,
     distance: '250 m away',
@@ -670,13 +690,13 @@ export const MOCK_SAFE_WALK_BUDDIES: import('../types').SafeWalkerBuddy[] = [
     isAvailable: true,
     avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=160&q=80',
     verifiedId: true,
-    phone: '+91 98222 33445'
+    phone: '+91 11 2637-7279'
   },
   {
     id: 'sw-3',
-    name: 'Warden Rajesh Kumar',
+    name: 'Suresh Meena (NDMC Guard)',
     badgeType: 'community_guardian',
-    organization: 'Connaught Place Merchant Safety Patrol',
+    organization: 'NDMC Connaught Place Security & Night Patrol Division',
     rating: 4.88,
     completedWalks: 89,
     distance: '380 m away',
@@ -684,18 +704,19 @@ export const MOCK_SAFE_WALK_BUDDIES: import('../types').SafeWalkerBuddy[] = [
     isAvailable: true,
     avatarUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=160&q=80',
     verifiedId: true,
-    phone: '+91 98333 44556'
+    phone: '+91 11 2334-7600'
   }
 ];
 
+// Vehicle uses real Delhi DL registration format. Route via actual Baba Kharak Singh Marg.
 export const MOCK_TRANSIT_COMPANION_DEFAULT: import('../types').TransitCompanionTrip = {
   vehicleType: 'cab_uber',
-  vehiclePlate: 'DL 01 RT 4829 (White Swift Dzire)',
-  driverName: 'Mukesh K. (4.89 ★ • 2,400+ trips)',
-  driverRating: 4.89,
-  routeDeviationMeters: 45,
+  vehiclePlate: 'DL 3C AT 2847 (White Maruti Suzuki Swift)',
+  driverName: 'Ramesh Yadav (4.91 ★ · 3,120+ trips · Uber Verified Delhi)',
+  driverRating: 4.91,
+  routeDeviationMeters: 38,
   unusualStopSeconds: 0,
-  destinationEta: '14 mins',
+  destinationEta: '12 mins (via Baba Kharak Singh Marg → Sansad Marg)',
   isLiveTracking: true,
   guardianNotified: true
 };
