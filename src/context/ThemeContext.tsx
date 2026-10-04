@@ -23,6 +23,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return 'dark'; // Default to dark for night navigation app
   });
 
+  // Apply theme class and data attribute immediately on state change
   useEffect(() => {
     try {
       localStorage.setItem('saferoute_theme', theme);
@@ -31,11 +32,15 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     const root = document.documentElement;
     if (theme === 'dark') {
-      root.classList.add('dark');
       root.classList.remove('light');
+      root.classList.add('dark');
+      root.setAttribute('data-theme', 'dark');
+      root.style.colorScheme = 'dark';
     } else {
-      root.classList.add('light');
       root.classList.remove('dark');
+      root.classList.add('light');
+      root.setAttribute('data-theme', 'light');
+      root.style.colorScheme = 'light';
     }
   }, [theme]);
 

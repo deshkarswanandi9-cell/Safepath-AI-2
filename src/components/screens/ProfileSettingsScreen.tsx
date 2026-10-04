@@ -30,7 +30,7 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
   onLogout
 }) => {
   const { language, setLanguage, t } = useLanguage();
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme, toggleTheme } = useTheme();
   const [pushNotifications, setPushNotifications] = useState(true);
   const [anonymizeGps, setAnonymizeGps] = useState(false);
   const [autoSosThreshold, setAutoSosThreshold] = useState('30 Seconds');
@@ -104,20 +104,45 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
               Appearance
             </div>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white">
-                  {theme === 'dark' ? <Moon className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
-                </div>
-                <div>
-                  <div className="text-xs font-bold text-black dark:text-white">Dark Theme</div>
-                  <div className="text-[10px] text-neutral-500">Pure monochrome high contrast</div>
-                </div>
+              <div>
+                <div className="text-xs font-bold text-black dark:text-white">Theme Selection</div>
+                <div className="text-[10px] text-neutral-500">Pure monochrome high contrast</div>
               </div>
-              <Switch
-                id="switch-theme"
-                checked={theme === 'dark'}
-                onChange={toggleTheme}
-              />
+
+              <div 
+                role="radiogroup" 
+                aria-label="Theme Selection"
+                className="inline-flex items-center p-0.5 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 text-xs font-bold"
+              >
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={theme === 'light'}
+                  onClick={() => setTheme('light')}
+                  className={`px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                    theme === 'light'
+                      ? 'bg-white text-black shadow-xs font-black'
+                      : 'text-neutral-500 hover:text-black dark:hover:text-white'
+                  }`}
+                >
+                  <Sun className="w-3.5 h-3.5 text-amber-500" />
+                  <span>Light</span>
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={theme === 'dark'}
+                  onClick={() => setTheme('dark')}
+                  className={`px-2.5 py-1 rounded-md text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                    theme === 'dark'
+                      ? 'bg-black text-white shadow-xs font-black border border-neutral-800'
+                      : 'text-neutral-500 hover:text-black dark:hover:text-white'
+                  }`}
+                >
+                  <Moon className="w-3.5 h-3.5 text-neutral-300" />
+                  <span>Dark</span>
+                </button>
+              </div>
             </div>
           </Card>
 
