@@ -551,15 +551,15 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
       {/* ========================================================================= */}
       <main 
         ref={mainRef}
-        className="flex-1 min-h-0 w-full flex items-center justify-center p-2 sm:p-3 overflow-hidden relative bg-white dark:bg-black transition-colors duration-150"
+        className="flex-1 min-h-0 w-full flex items-center justify-center p-2.5 sm:p-4 overflow-hidden relative bg-white dark:bg-black transition-colors duration-150"
       >
         {/* Outer Frame: Pure layout geometry transition (width, height, max-width, radius, padding).
             NO transform: scale, NO layout prop, NO spring bounce. Inner UI never scales or boings. */}
         <div
-          className={`relative flex flex-col overflow-hidden shrink-0 shadow-xl dark:shadow-2xl border ${
+          className={`relative flex flex-col overflow-hidden shrink-0 border ${
             deviceView === 'mobile'
-              ? 'rounded-[44px] bg-neutral-100 dark:bg-neutral-950 border-neutral-300 dark:border-neutral-800 p-2'
-              : 'w-full max-w-3xl rounded-2xl bg-white dark:bg-black border-neutral-300 dark:border-neutral-800 p-0'
+              ? 'rounded-[44px] bg-neutral-100 dark:bg-neutral-950 p-2 phone-frame-shell'
+              : 'w-full max-w-3xl rounded-2xl bg-white dark:bg-black p-0 fluid-frame-shell'
           }`}
           style={{
             width: deviceView === 'mobile' ? `${phoneWidth}px` : '100%',
@@ -568,7 +568,7 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
             maxHeight: '100%',
             transition: shouldReduceMotion
               ? 'none'
-              : 'width 350ms cubic-bezier(0.16, 1, 0.3, 1), height 350ms cubic-bezier(0.16, 1, 0.3, 1), max-width 350ms cubic-bezier(0.16, 1, 0.3, 1), border-radius 350ms cubic-bezier(0.16, 1, 0.3, 1), padding 350ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease, border-color 150ms ease'
+              : 'width 350ms cubic-bezier(0.16, 1, 0.3, 1), height 350ms cubic-bezier(0.16, 1, 0.3, 1), max-width 350ms cubic-bezier(0.16, 1, 0.3, 1), border-radius 350ms cubic-bezier(0.16, 1, 0.3, 1), padding 350ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease, border-color 150ms ease, box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1)'
           }}
         >
           {/* Inner Screen Container */}
