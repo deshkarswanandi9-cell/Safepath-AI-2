@@ -17,10 +17,26 @@ interface Message {
 
 interface FloatingAiAssistantProps {
   currentScreen?: ScreenId;
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = ({ currentScreen }) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = ({
+  currentScreen,
+  isOpen: controlledIsOpen,
+  onOpenChange
+}) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isControlled = controlledIsOpen !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
+
+  const handleOpenChange = (open: boolean) => {
+    if (!isControlled) {
+      setInternalIsOpen(open);
+    }
+    onOpenChange?.(open);
+  };
+
   const [inputVal, setInputVal] = useState('');
   const shouldReduceMotion = useReducedMotion();
   const [messages, setMessages] = useState<Message[]>([
@@ -76,14 +92,14 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = ({ curren
 
   return (
     <>
-      {/* Floating Trigger Button (Absolute inside phone preview) */}
+      {/* Floating Trigger Button (Absolute inside phone preview - hidden on splash where integrated in header) */}
       <AnimatePresence>
-        {!isOpen && (
+        {!isOpen && currentScreen !== 'splash' && (
           <motion.button
             key="btn-floating-trigger"
             id="btn-floating-ai-copilot"
             type="button"
-            onClick={() => setIsOpen(true)}
+            onClick={() => handleOpenChange(true)}
             initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
             animate={shouldReduceMotion ? false : { opacity: 1, scale: 1 }}
             exit={shouldReduceMotion ? false : { opacity: 0, scale: 0.8 }}
@@ -91,9 +107,7 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = ({ curren
             whileHover={shouldReduceMotion ? undefined : { scale: 1.05 }}
             whileTap={shouldReduceMotion ? undefined : { scale: 0.95 }}
             className={`absolute z-40 p-2 sm:p-2.5 rounded-full bg-black text-white dark:bg-white dark:text-black shadow-lg border border-neutral-700 dark:border-neutral-300 transition-all cursor-pointer flex items-center gap-1.5 ${
-              currentScreen === 'splash'
-                ? 'top-10 right-3.5'
-                : currentScreen === 'live_navigation'
+              currentScreen === 'live_navigation'
                 ? 'top-22 left-3'
                 : 'bottom-16 right-3.5'
             }`}
@@ -133,7 +147,7 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = ({ curren
 
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={() => handleOpenChange(false)}
                 className="p-1 rounded-md text-neutral-500 hover:text-black dark:hover:text-white hover:bg-neutral-200 dark:hover:bg-neutral-800 transition-colors cursor-pointer"
                 aria-label="Close Assistant"
               >

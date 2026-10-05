@@ -33,6 +33,7 @@ function MainAppContent() {
   const [selectedRoute, setSelectedRoute] = useState<RouteOption>(MOCK_ROUTES[2]); // Default Route C (Recommended 93%)
   const [destination, setDestination] = useState('Westwood Residence, 88 Parkview');
   const [showAlertModal, setShowAlertModal] = useState(false);
+  const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
   const shouldReduceMotion = useReducedMotion();
 
   // Navigate to screen handler
@@ -76,7 +77,12 @@ function MainAppContent() {
   const renderActiveScreen = () => {
     switch (currentScreen) {
       case 'splash':
-        return <SplashScreen onNavigate={handleNavigate} />;
+        return (
+          <SplashScreen
+            onNavigate={handleNavigate}
+            onOpenAi={() => setIsAiAssistantOpen(true)}
+          />
+        );
       case 'login':
         return (
           <LoginScreen
@@ -226,7 +232,11 @@ function MainAppContent() {
         />
 
         {/* Floating Copilot AI Assistant */}
-        <FloatingAiAssistant currentScreen={currentScreen} />
+        <FloatingAiAssistant
+          currentScreen={currentScreen}
+          isOpen={isAiAssistantOpen}
+          onOpenChange={setIsAiAssistantOpen}
+        />
 
         {/* Persistent Bottom Tab Navigation Bar */}
         <BottomNavBar

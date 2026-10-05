@@ -1,5 +1,5 @@
 import React from 'react';
-import { Shield, ArrowRight, Lock, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Shield, ArrowRight, Lock, Sparkles, CheckCircle2, Bot } from 'lucide-react';
 import { ScreenId } from '../../types';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
@@ -7,26 +7,43 @@ import { Badge } from '../ui/Badge';
 
 interface SplashScreenProps {
   onNavigate: (screen: ScreenId) => void;
+  onOpenAi?: () => void;
 }
 
-export const SplashScreen: React.FC<SplashScreenProps> = ({ onNavigate }) => {
+export const SplashScreen: React.FC<SplashScreenProps> = ({ onNavigate, onOpenAi }) => {
   return (
     <div className="relative h-full flex flex-col justify-between p-4 sm:p-5 bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar">
-      {/* Top Header Row: Safety Active Pill + Skip Action */}
-      <div className="flex justify-between items-center z-10 pt-0.5 shrink-0">
-        <Badge variant="subtle" size="sm" className="font-bold">
+      {/* Top Header Row: Safety Active Pill + (AI Assistant Trigger & Skip Action) */}
+      <div className="flex justify-between items-center z-10 pt-0.5 shrink-0 gap-2">
+        <Badge variant="subtle" size="sm" className="font-bold shrink-0">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
           <span>Safety Active</span>
         </Badge>
-        <button
-          id="btn-splash-skip"
-          type="button"
-          onClick={() => onNavigate('dashboard')}
-          className="text-xs font-bold text-neutral-500 hover:text-black dark:hover:text-white transition-colors cursor-pointer py-1 px-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-900"
-          aria-label="Skip to Home Dashboard"
-        >
-          Skip to Home →
-        </button>
+
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button
+            id="btn-floating-ai-copilot"
+            data-testid="btn-splash-ai"
+            type="button"
+            onClick={onOpenAi}
+            className="px-2.5 py-1 rounded-full bg-black text-white dark:bg-white dark:text-black text-xs font-bold flex items-center gap-1.5 shadow-xs border border-neutral-700 dark:border-neutral-300 transition-all cursor-pointer hover:opacity-90 active:scale-95"
+            aria-label="Open SafeRoute AI Assistant"
+            title="Open SafeRoute AI Assistant"
+          >
+            <Bot className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-black uppercase tracking-wider">AI</span>
+          </button>
+
+          <button
+            id="btn-splash-skip"
+            type="button"
+            onClick={() => onNavigate('dashboard')}
+            className="text-xs font-bold text-neutral-500 hover:text-black dark:hover:text-white transition-colors cursor-pointer py-1 px-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-900 shrink-0"
+            aria-label="Skip to Home Dashboard"
+          >
+            Skip to Home →
+          </button>
+        </div>
       </div>
 
       {/* Hero Visual Area: Minimalist Monochrome Shield & Brand */}
