@@ -120,11 +120,11 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
     };
   }, []);
 
-  // Compute realistic smartphone proportions constrained strictly by aspect ratio 390 / 844
+  // Compute realistic smartphone proportions constrained by available viewport
   const maxPhoneHeight = Math.min(844, containerHeight);
-  const phoneHeight = Math.max(300, Math.floor(maxPhoneHeight));
-  const phoneWidth = Math.round(phoneHeight * (390 / 844));
-  const fluidHeight = Math.max(300, Math.floor(Math.min(820, containerHeight)));
+  const phoneHeight = Math.max(480, Math.floor(maxPhoneHeight));
+  const phoneWidth = Math.min(390, Math.max(360, Math.round(phoneHeight * (390 / 844))));
+  const fluidHeight = Math.max(480, Math.floor(Math.min(844, containerHeight)));
 
   // Current screen lookup
   const currentIndex = SCREENS_LIST.findIndex((s) => s.id === currentScreen);
@@ -566,7 +566,6 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
             height: deviceView === 'mobile' ? `${phoneHeight}px` : `${fluidHeight}px`,
             maxWidth: deviceView === 'mobile' ? 'min(390px, 94vw)' : '48rem',
             maxHeight: '100%',
-            aspectRatio: deviceView === 'mobile' ? '390 / 844' : 'auto',
             transition: shouldReduceMotion
               ? 'none'
               : 'width 350ms cubic-bezier(0.16, 1, 0.3, 1), height 350ms cubic-bezier(0.16, 1, 0.3, 1), max-width 350ms cubic-bezier(0.16, 1, 0.3, 1), border-radius 350ms cubic-bezier(0.16, 1, 0.3, 1), padding 350ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease, border-color 150ms ease'

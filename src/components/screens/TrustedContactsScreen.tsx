@@ -59,7 +59,7 @@ export const TrustedContactsScreen: React.FC<TrustedContactsScreenProps> = ({ on
   };
 
   return (
-    <div className="relative h-full flex flex-col justify-between bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar p-4 pb-6">
+    <div className="relative h-full flex flex-col justify-between bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar p-4 pb-20">
       <div>
         {/* Header */}
         <div className="pt-1 flex items-center justify-between mb-3">

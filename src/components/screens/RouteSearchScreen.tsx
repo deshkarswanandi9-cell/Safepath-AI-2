@@ -58,7 +58,7 @@ export const RouteSearchScreen: React.FC<RouteSearchScreenProps> = ({
   };
 
   return (
-    <div className="relative h-full flex flex-col justify-between bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar p-4 pb-6">
+    <div className="relative h-full flex flex-col justify-between bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar p-4 pb-20">
       <div>
         {/* Header */}
         <div className="flex items-center justify-between pt-1 mb-3">

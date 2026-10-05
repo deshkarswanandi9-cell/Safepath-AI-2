@@ -28,7 +28,7 @@ export const RouteComparisonScreen: React.FC<RouteComparisonScreenProps> = ({
   onSelectRoute
 }) => {
   return (
-    <div className="relative h-full flex flex-col justify-between bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar pb-5">
+    <div className="relative h-full flex flex-col justify-between bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar pb-20">
       {/* Top Map Preview */}
       <div className="relative h-48 w-full shrink-0 border-b border-neutral-200 dark:border-neutral-800">
         <MapEngine
