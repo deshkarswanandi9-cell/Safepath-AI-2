@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { ScreenId, RouteOption } from './types';
 import { MOCK_ROUTES } from './data/mockData';
 import { LanguageProvider } from './context/LanguageContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { MobileFrame } from './components/MobileFrame';
 import { SplashScreen } from './components/screens/SplashScreen';
 import { LoginScreen } from './components/screens/LoginScreen';
@@ -24,12 +26,15 @@ import { InfrastructureReportingScreen } from './components/screens/Infrastructu
 import { CommunitySafeWalkScreen } from './components/screens/CommunitySafeWalkScreen';
 import { FloatingAiAssistant } from './components/FloatingAiAssistant';
 import { BottomNavBar } from './components/BottomNavBar';
+import { screenVariants, safetyScreenVariants } from './utils/motion';
 
 function MainAppContent() {
   const [currentScreen, setCurrentScreen] = useState<ScreenId>('splash');
   const [selectedRoute, setSelectedRoute] = useState<RouteOption>(MOCK_ROUTES[2]); // Default Route C (Recommended 93%)
   const [destination, setDestination] = useState('Westwood Residence, 88 Parkview');
   const [showAlertModal, setShowAlertModal] = useState(false);
+  const [isAiAssistantOpen, setIsAiAssistantOpen] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
 
   // Navigate to screen handler
   const handleNavigate = (screen: ScreenId) => {
@@ -58,9 +63,138 @@ function MainAppContent() {
   // Confirm rerouting from Alert or Reroute screen
   const handleConfirmReroute = () => {
     setShowAlertModal(false);
-    // Switch to optimal rerouted route C
     setSelectedRoute(MOCK_ROUTES[2]);
     setCurrentScreen('live_navigation');
+  };
+
+  // Check if current screen is a critical safety screen (requires instant interaction)
+  const isSafetyScreen =
+    currentScreen === 'emergency_sos' ||
+    currentScreen === 'live_navigation' ||
+    currentScreen === 'safety_checkin';
+
+  // Helper to render active screen component
+  const renderActiveScreen = () => {
+    switch (currentScreen) {
+      case 'splash':
+        return (
+          <SplashScreen
+            onNavigate={handleNavigate}
+            onOpenAi={() => setIsAiAssistantOpen(true)}
+          />
+        );
+      case 'login':
+        return (
+          <LoginScreen
+            onNavigate={handleNavigate}
+            onLoginSuccess={() => setCurrentScreen('dashboard')}
+          />
+        );
+      case 'dashboard':
+        return (
+          <DashboardScreen
+            onNavigate={handleNavigate}
+            onOpenSos={handleOpenSos}
+          />
+        );
+      case 'route_search':
+        return (
+          <RouteSearchScreen
+            onNavigate={handleNavigate}
+            destination={destination}
+            setDestination={setDestination}
+            onGenerateRoutes={() => setSelectedRoute(MOCK_ROUTES[2])}
+          />
+        );
+      case 'route_comparison':
+        return (
+          <RouteComparisonScreen
+            onNavigate={handleNavigate}
+            selectedRoute={selectedRoute}
+            onSelectRoute={setSelectedRoute}
+          />
+        );
+      case 'shap_explain':
+        return <ShapExplainabilityScreen onNavigate={handleNavigate} />;
+      case 'live_navigation':
+        return (
+          <LiveNavigationScreen
+            onNavigate={handleNavigate}
+            selectedRoute={selectedRoute}
+            onTriggerAlert={handleTriggerAlert}
+            onTriggerCheckIn={handleTriggerCheckIn}
+            onOpenSos={handleOpenSos}
+          />
+        );
+      case 'dynamic_reroute':
+        return (
+          <DynamicReroutingScreen
+            onNavigate={handleNavigate}
+            onConfirmReroute={handleConfirmReroute}
+          />
+        );
+      case 'safety_checkin':
+        return (
+          <SafetyCheckInScreen
+            onNavigate={handleNavigate}
+            onSafe={() => setCurrentScreen('live_navigation')}
+            onNeedHelp={handleOpenSos}
+          />
+        );
+      case 'emergency_sos':
+        return <EmergencySosScreen onNavigate={handleNavigate} />;
+      case 'trusted_contacts':
+        return <TrustedContactsScreen onNavigate={handleNavigate} />;
+      case 'safety_analytics':
+        return <SafetyAnalyticsScreen onNavigate={handleNavigate} />;
+      case 'profile_settings':
+        return (
+          <ProfileSettingsScreen
+            onNavigate={handleNavigate}
+            onLogout={() => setCurrentScreen('login')}
+          />
+        );
+      case 'public_gathering_hub':
+        return (
+          <PublicGatheringHubScreen
+            onNavigate={handleNavigate}
+            onSelectRoute={setSelectedRoute}
+          />
+        );
+      case 'safe_haven_network':
+        return (
+          <SafeHavenNetworkScreen
+            onNavigate={handleNavigate}
+            onSelectRoute={setSelectedRoute}
+          />
+        );
+      case 'transport_companion':
+        return (
+          <TransportCompanionScreen
+            onNavigate={handleNavigate}
+            onOpenSos={handleOpenSos}
+          />
+        );
+      case 'infrastructure_reporting':
+        return (
+          <InfrastructureReportingScreen
+            onNavigate={handleNavigate}
+          />
+        );
+      case 'community_safe_walk':
+        return (
+          <CommunitySafeWalkScreen
+            onNavigate={handleNavigate}
+          />
+        );
+      default:
+        return (
+          <DashboardScreen
+            onNavigate={handleNavigate}
+            onOpenSos={handleOpenSos}
+          />
+        );
+    }
   };
 
   return (
@@ -70,127 +204,24 @@ function MainAppContent() {
       onTriggerAlert={handleTriggerAlert}
       onTriggerCheckIn={handleTriggerCheckIn}
     >
-      <div className="relative w-full h-full flex flex-col overflow-hidden bg-[#F8FAFC]">
-        {/* Active Screen Rendering */}
-        <div className="flex-1 relative overflow-hidden flex flex-col">
-          {currentScreen === 'splash' && (
-            <SplashScreen onNavigate={handleNavigate} />
-          )}
-
-          {currentScreen === 'login' && (
-            <LoginScreen
-              onNavigate={handleNavigate}
-              onLoginSuccess={() => setCurrentScreen('dashboard')}
-            />
-          )}
-
-          {currentScreen === 'dashboard' && (
-            <DashboardScreen
-              onNavigate={handleNavigate}
-              onOpenSos={handleOpenSos}
-            />
-          )}
-
-          {currentScreen === 'route_search' && (
-            <RouteSearchScreen
-              onNavigate={handleNavigate}
-              destination={destination}
-              setDestination={setDestination}
-              onGenerateRoutes={() => setSelectedRoute(MOCK_ROUTES[2])}
-            />
-          )}
-
-          {currentScreen === 'route_comparison' && (
-            <RouteComparisonScreen
-              onNavigate={handleNavigate}
-              selectedRoute={selectedRoute}
-              onSelectRoute={setSelectedRoute}
-            />
-          )}
-
-          {currentScreen === 'shap_explain' && (
-            <ShapExplainabilityScreen onNavigate={handleNavigate} />
-          )}
-
-          {currentScreen === 'live_navigation' && (
-            <LiveNavigationScreen
-              onNavigate={handleNavigate}
-              selectedRoute={selectedRoute}
-              onTriggerAlert={handleTriggerAlert}
-              onTriggerCheckIn={handleTriggerCheckIn}
-              onOpenSos={handleOpenSos}
-            />
-          )}
-
-          {currentScreen === 'dynamic_reroute' && (
-            <DynamicReroutingScreen
-              onNavigate={handleNavigate}
-              onConfirmReroute={handleConfirmReroute}
-            />
-          )}
-
-          {currentScreen === 'safety_checkin' && (
-            <SafetyCheckInScreen
-              onNavigate={handleNavigate}
-              onSafe={() => setCurrentScreen('live_navigation')}
-              onNeedHelp={handleOpenSos}
-            />
-          )}
-
-          {currentScreen === 'emergency_sos' && (
-            <EmergencySosScreen onNavigate={handleNavigate} />
-          )}
-
-          {currentScreen === 'trusted_contacts' && (
-            <TrustedContactsScreen onNavigate={handleNavigate} />
-          )}
-
-          {currentScreen === 'safety_analytics' && (
-            <SafetyAnalyticsScreen onNavigate={handleNavigate} />
-          )}
-
-          {currentScreen === 'profile_settings' && (
-            <ProfileSettingsScreen
-              onNavigate={handleNavigate}
-              onLogout={() => setCurrentScreen('login')}
-            />
-          )}
-
-          {currentScreen === 'public_gathering_hub' && (
-            <PublicGatheringHubScreen
-              onNavigate={handleNavigate}
-              onSelectRoute={setSelectedRoute}
-            />
-          )}
-
-          {currentScreen === 'safe_haven_network' && (
-            <SafeHavenNetworkScreen
-              onNavigate={handleNavigate}
-              onSelectRoute={setSelectedRoute}
-            />
-          )}
-
-          {currentScreen === 'transport_companion' && (
-            <TransportCompanionScreen
-              onNavigate={handleNavigate}
-              onOpenSos={handleOpenSos}
-            />
-          )}
-
-          {currentScreen === 'infrastructure_reporting' && (
-            <InfrastructureReportingScreen
-              onNavigate={handleNavigate}
-            />
-          )}
-
-          {currentScreen === 'community_safe_walk' && (
-            <CommunitySafeWalkScreen
-              onNavigate={handleNavigate}
-            />
-          )}
+      <div className="relative w-full h-full flex flex-col overflow-hidden bg-white dark:bg-black text-black dark:text-white transition-colors">
+        {/* Active Screen Rendering with AnimatePresence */}
+        <div className="flex-1 min-h-0 relative overflow-hidden flex flex-col">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={currentScreen}
+              variants={shouldReduceMotion ? undefined : (isSafetyScreen ? safetyScreenVariants : screenVariants)}
+              initial={shouldReduceMotion ? false : "initial"}
+              animate={shouldReduceMotion ? false : "animate"}
+              exit={shouldReduceMotion ? false : "exit"}
+              className="w-full h-full flex flex-col overflow-hidden"
+            >
+              {renderActiveScreen()}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
-        {/* Global Modal: Screen 8 Safety Alert Warning */}
+        {/* Global Modal: Screen 8 Safety Alert Warning bounded inside phone container */}
         <SafetyAlertModal
           isOpen={showAlertModal}
           onClose={() => setShowAlertModal(false)}
@@ -200,17 +231,19 @@ function MainAppContent() {
           }}
         />
 
-        {/* Bottom Persistent Navigation Bar (5 tabs) */}
+        {/* Floating Copilot AI Assistant */}
+        <FloatingAiAssistant
+          currentScreen={currentScreen}
+          isOpen={isAiAssistantOpen}
+          onOpenChange={setIsAiAssistantOpen}
+        />
+
+        {/* Persistent Bottom Tab Navigation Bar */}
         <BottomNavBar
           currentScreen={currentScreen}
           onNavigate={handleNavigate}
           onOpenSos={handleOpenSos}
         />
-
-        {/* Floating AI Assistant Copilot */}
-        {currentScreen !== 'splash' && (
-          <FloatingAiAssistant />
-        )}
       </div>
     </MobileFrame>
   );
@@ -218,8 +251,10 @@ function MainAppContent() {
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <MainAppContent />
-    </LanguageProvider>
+    <ThemeProvider>
+      <LanguageProvider>
+        <MainAppContent />
+      </LanguageProvider>
+    </ThemeProvider>
   );
 }

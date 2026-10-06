@@ -6,17 +6,17 @@ import {
   Clock, 
   ThumbsUp, 
   ChevronLeft, 
-  Camera, 
   Plus, 
   Building2, 
-  AlertTriangle, 
-  Sparkles, 
-  ShieldCheck, 
-  TrendingUp, 
-  Send
+  AlertTriangle,
+  X
 } from 'lucide-react';
 import { ScreenId, InfrastructureIssue } from '../../types';
 import { MOCK_INFRASTRUCTURE_ISSUES } from '../../data/mockData';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
+import { Input } from '../ui/Input';
 
 interface InfrastructureReportingScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -28,7 +28,7 @@ export const InfrastructureReportingScreen: React.FC<InfrastructureReportingScre
   const [issues, setIssues] = useState<InfrastructureIssue[]>(MOCK_INFRASTRUCTURE_ISSUES);
   const [showNewModal, setShowNewModal] = useState<boolean>(false);
   const [newTitle, setNewTitle] = useState<string>('');
-  const [newLocation, setNewLocation] = useState<string>('Radial Road 4 (GPS Auto-Tagged)');
+  const [newLocation, setNewLocation] = useState<string>('Radial Road 4 (GPS Geotagged)');
   const [newType, setNewType] = useState<InfrastructureIssue['type']>('broken_streetlight');
   const [submittedToast, setSubmittedToast] = useState<boolean>(false);
 
@@ -58,228 +58,168 @@ export const InfrastructureReportingScreen: React.FC<InfrastructureReportingScre
     setNewTitle('');
     setShowNewModal(false);
     setSubmittedToast(true);
-    setTimeout(() => setSubmittedToast(false), 3500);
+    setTimeout(() => setSubmittedToast(false), 3000);
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#F8FAFC] overflow-y-auto no-scrollbar pb-28 select-none">
-      {/* Top Header */}
-      <div className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-xl text-white px-4 pt-3 pb-3.5 border-b border-slate-800 shadow-md">
-        <div className="flex items-center justify-between">
+    <div className="relative h-full flex flex-col justify-between bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar p-4 pb-20">
+      <div>
+        {/* Header */}
+        <div className="pt-1 flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <button 
+            <button
+              type="button"
               onClick={() => onNavigate('dashboard')}
-              className="p-1.5 -ml-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+              className="p-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+              aria-label="Back to Dashboard"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
-                </span>
-                <h1 className="text-sm font-black tracking-tight text-white flex items-center gap-1">
-                  Streetlight & Safety Infrastructure Hub
-                </h1>
-              </div>
-              <p className="text-[10px] text-slate-400">
-                Fix dark spots, broken streetlights & CCTV blind zones
-              </p>
+              <h1 className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
+                Infrastructure Hub
+              </h1>
+              <p className="text-[10px] text-neutral-500">Fix dark spots, streetlights & CCTV blind zones</p>
             </div>
           </div>
 
-          <button
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => setShowNewModal(true)}
-            className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center gap-1 shadow-md shadow-amber-500/20 transition active:scale-95"
+            icon={<Plus className="w-3.5 h-3.5" />}
           >
-            <Plus className="w-3.5 h-3.5" />
-            Report Issue
-          </button>
+            Report
+          </Button>
         </div>
-      </div>
 
-      {/* Success Notification Banner */}
-      {submittedToast && (
-        <div className="mx-4 mt-3 p-3 rounded-2xl bg-emerald-600 text-white shadow-lg flex items-center justify-between animate-pulse">
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4" />
-            <span className="text-xs font-bold">Report logged and dispatched to NDMC Municipal Division!</span>
+        {/* Feedback Toast */}
+        {submittedToast && (
+          <div className="mb-3 p-2.5 rounded-xl bg-black text-white dark:bg-white dark:text-black text-xs font-bold shadow-md flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 dark:text-emerald-600" />
+            <span>Hazard reported and dispatched to Municipal Maintenance Ward</span>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Municipal Impact Stats Card */}
-      <div className="p-4">
-        <div className="p-4 rounded-3xl bg-gradient-to-br from-slate-900 to-indigo-950 text-white shadow-lg border border-slate-800 space-y-3">
+        {/* Summary Card */}
+        <Card variant="subtle" padding="sm" className="mb-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-amber-400" />
-              <h3 className="text-xs font-black uppercase tracking-wider text-slate-200">
-                Municipal Action Dashboard
-              </h3>
+            <div>
+              <span className="text-xs font-bold text-black dark:text-white">Municipal Accountability</span>
+              <p className="text-[10px] text-neutral-500">Reports are escalated directly to NDMC/PWD wards</p>
             </div>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-              84% Resolved Rate
-            </span>
+            <Badge variant="safe" size="sm">
+              92% Solved
+            </Badge>
           </div>
+        </Card>
 
-          <div className="grid grid-cols-3 gap-2 py-2 border-t border-slate-800 text-center text-xs">
-            <div>
-              <div className="text-[10px] text-slate-400">Active Dark Spots</div>
-              <div className="text-base font-black text-amber-400">3 Fixed Today</div>
-            </div>
-            <div>
-              <div className="text-[10px] text-slate-400">Avg Resolution</div>
-              <div className="text-base font-black text-slate-100">18 Hours</div>
-            </div>
-            <div>
-              <div className="text-[10px] text-slate-400">Community Votes</div>
-              <div className="text-base font-black text-emerald-400">133 Upvotes</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Issues Feed */}
-      <div className="px-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">
-            Verified Infrastructure Issues & Status
-          </h3>
-          <span className="text-[10px] text-slate-400 font-semibold">{issues.length} records</span>
-        </div>
-
-        {issues.map((issue) => (
-          <div 
-            key={issue.id}
-            className="p-4 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3 hover:border-slate-300 transition"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start gap-2.5">
-                <div className={`p-2 rounded-2xl text-white shrink-0 shadow-md ${
-                  issue.status === 'resolved' 
-                    ? 'bg-emerald-600' 
-                    : issue.type === 'broken_streetlight' 
-                    ? 'bg-amber-500' 
-                    : 'bg-indigo-600'
-                }`}>
-                  <SunMedium className="w-4 h-4" />
-                </div>
+        {/* Issue Feed */}
+        <div className="space-y-2">
+          {issues.map((issue) => (
+            <Card key={issue.id} variant="default" padding="sm" className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
                 <div>
-                  <h4 className="text-xs font-bold text-slate-900 leading-snug">{issue.title}</h4>
-                  <p className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
-                    <MapPin className="w-3 h-3 text-slate-400" />
-                    {issue.location} • <Clock className="w-3 h-3 ml-1 text-slate-400" /> {issue.reportedAt}
-                  </p>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="text-xs font-black text-black dark:text-white">{issue.title}</h3>
+                  </div>
+                  <div className="text-[10px] text-neutral-500 flex items-center gap-1 mt-0.5">
+                    <MapPin className="w-3 h-3 text-neutral-400" />
+                    <span>{issue.location}</span>
+                  </div>
+                  <div className="text-[9px] text-neutral-400 mt-0.5 font-medium">
+                    Reported {issue.reportedAt} • {issue.municipalWard}
+                  </div>
                 </div>
+
+                <Badge
+                  variant={
+                    issue.status === 'resolved'
+                      ? 'safe'
+                      : issue.status === 'work_in_progress'
+                      ? 'caution'
+                      : 'subtle'
+                  }
+                  size="sm"
+                >
+                  {issue.status.replace(/_/g, ' ').toUpperCase()}
+                </Badge>
               </div>
 
-              <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                issue.status === 'resolved'
-                  ? 'bg-emerald-100 text-emerald-800'
-                  : issue.status === 'work_in_progress'
-                  ? 'bg-blue-100 text-blue-800'
-                  : 'bg-amber-100 text-amber-800'
-              }`}>
-                {issue.status.replace(/_/g, ' ')}
-              </span>
-            </div>
+              {/* Upvote Footer */}
+              <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800 flex items-center justify-between text-[10px]">
+                <span className="text-neutral-500 font-medium">Concern: {issue.impactScore}</span>
 
-            <div className="text-[10px] text-slate-600 bg-slate-50 p-2 rounded-xl border border-slate-100 flex items-center justify-between">
-              <span>🏛️ <strong>{issue.municipalWard}</strong></span>
-              {issue.resolvedDate && (
-                <span className="text-emerald-700 font-bold">✓ Fixed on {issue.resolvedDate}</span>
-              )}
-            </div>
-
-            <div className="flex items-center justify-between pt-2 border-t border-slate-100 text-[10px]">
-              <span className="text-slate-500 font-semibold">
-                <strong>{issue.upvotes}</strong> commuters confirmed this hazard
-              </span>
-
-              <button
-                onClick={() => handleUpvote(issue.id)}
-                className="px-3 py-1 bg-slate-100 hover:bg-amber-50 hover:text-amber-800 text-slate-700 rounded-xl font-bold flex items-center gap-1 transition active:scale-95 shadow-xs"
-              >
-                <ThumbsUp className="w-3 h-3 text-amber-600" />
-                Upvote (+1)
-              </button>
-            </div>
-          </div>
-        ))}
+                <button
+                  type="button"
+                  onClick={() => handleUpvote(issue.id)}
+                  className="px-2.5 py-1 rounded-lg border border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white bg-neutral-100 dark:bg-neutral-900 text-black dark:text-white font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <ThumbsUp className="w-3 h-3" />
+                  <span>+{issue.upvotes} Confirm</span>
+                </button>
+              </div>
+            </Card>
+          ))}
+        </div>
       </div>
 
-      {/* New Report Modal Dialog */}
+      {/* New Report Modal (Bounded) */}
       {showNewModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-sm bg-white rounded-3xl p-5 shadow-2xl space-y-3.5 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-              <h3 className="text-sm font-black text-slate-900 flex items-center gap-1.5">
-                <SunMedium className="w-4 h-4 text-amber-500" />
-                Report Dark Spot / Infrastructure Issue
+        <div className="absolute inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="w-full max-w-xs rounded-2xl bg-white dark:bg-black text-black dark:text-white p-4 border border-neutral-300 dark:border-neutral-800 shadow-2xl">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
+                Report Dark Spot or Hazard
               </h3>
-              <button 
+              <button
+                type="button"
                 onClick={() => setShowNewModal(false)}
-                className="text-slate-400 hover:text-slate-700 text-xs font-bold"
+                className="p-1 text-neutral-400 hover:text-black dark:hover:text-white"
               >
-                ✕
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateReport} className="space-y-3 text-xs">
+            <form onSubmit={handleCreateReport} className="space-y-2.5">
               <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Issue Category</label>
+                <label className="block text-[11px] font-bold text-neutral-700 dark:text-neutral-300 mb-1">
+                  Hazard Category
+                </label>
                 <select
                   value={newType}
                   onChange={(e) => setNewType(e.target.value as any)}
-                  className="w-full p-2 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-800"
+                  className="w-full bg-neutral-50 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 text-black dark:text-white text-xs font-bold rounded-xl px-3 py-2 focus:outline-none"
                 >
-                  <option value="broken_streetlight">Broken / Dim Streetlight</option>
-                  <option value="dark_bus_stop">Dark / Unlit Bus Shelter</option>
-                  <option value="blind_spot_cctv">Obstructed / Broken CCTV</option>
-                  <option value="damaged_footpath">Damaged Footpath / Obstruction</option>
-                  <option value="isolated_subway">Unsafe Pedestrian Subway</option>
+                  <option value="broken_streetlight">Broken / Dark Streetlight</option>
+                  <option value="dark_bus_stop">Unlit Public Bus Stop</option>
+                  <option value="blind_spot_cctv">CCTV Blind Spot</option>
+                  <option value="damaged_footpath">Damaged Footpath / Pavement</option>
                 </select>
               </div>
 
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Description</label>
-                <textarea
-                  rows={2}
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="e.g. 2 dead streetlights near Metro Gate 3 alley..."
-                  className="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 font-medium text-slate-800 focus:outline-none focus:border-amber-500"
-                  required
-                />
-              </div>
+              <Input
+                label="Issue Description"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                placeholder="e.g. 3 consecutive lights broken near gate"
+                required
+              />
 
-              <div>
-                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">GPS Geotagged Location</label>
-                <input
-                  type="text"
-                  value={newLocation}
-                  onChange={(e) => setNewLocation(e.target.value)}
-                  className="w-full p-2 rounded-xl border border-slate-200 bg-slate-50 font-semibold text-slate-800"
-                />
-              </div>
+              <Input
+                label="Location Tag"
+                value={newLocation}
+                onChange={(e) => setNewLocation(e.target.value)}
+                required
+              />
 
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowNewModal(false)}
-                  className="flex-1 py-2 px-3 rounded-xl bg-slate-100 text-slate-700 font-bold"
-                >
+              <div className="pt-2 flex gap-2">
+                <Button type="submit" variant="primary" fullWidth size="md">
+                  Submit to Ward
+                </Button>
+                <Button type="button" variant="outline" size="md" onClick={() => setShowNewModal(false)}>
                   Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black shadow-md flex items-center justify-center gap-1"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  Submit Report
-                </button>
+                </Button>
               </div>
             </form>
           </div>

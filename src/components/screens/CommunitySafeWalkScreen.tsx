@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
 import { 
   Users, 
-  ShieldCheck, 
   MapPin, 
   Clock, 
   Phone, 
   ChevronLeft, 
   CheckCircle2, 
-  UserCheck, 
-  Sparkles, 
-  Star, 
-  Award,
-  Navigation,
-  ExternalLink
+  ShieldCheck, 
+  Star 
 } from 'lucide-react';
 import { ScreenId, SafeWalkerBuddy } from '../../types';
 import { MOCK_SAFE_WALK_BUDDIES } from '../../data/mockData';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
+import { Button } from '../ui/Button';
 
 interface CommunitySafeWalkScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -34,154 +32,122 @@ export const CommunitySafeWalkScreen: React.FC<CommunitySafeWalkScreenProps> = (
   };
 
   return (
-    <div className="flex-1 flex flex-col bg-[#F8FAFC] overflow-y-auto no-scrollbar pb-28 select-none">
-      {/* Top Header */}
-      <div className="sticky top-0 z-30 bg-slate-900/95 backdrop-blur-xl text-white px-4 pt-3 pb-3.5 border-b border-slate-800 shadow-md">
-        <div className="flex items-center justify-between">
+    <div className="relative h-full flex flex-col justify-between bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar p-4 pb-20">
+      <div>
+        {/* Header */}
+        <div className="pt-1 flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <button 
+            <button
+              type="button"
               onClick={() => onNavigate('dashboard')}
-              className="p-1.5 -ml-1 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition"
+              className="p-1.5 rounded-lg border border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors cursor-pointer"
+              aria-label="Back to Dashboard"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4" />
             </button>
             <div>
+              <h1 className="text-xs font-black uppercase tracking-wider text-black dark:text-white">
+                Safe Walk Network
+              </h1>
+              <p className="text-[10px] text-neutral-500">Verified campus security & volunteer escorts</p>
+            </div>
+          </div>
+          <Badge variant="safe" size="sm">
+            3 Available
+          </Badge>
+        </div>
+
+        {/* Confirmation Alert */}
+        {requestConfirmed && selectedBuddy && (
+          <div className="mb-3 p-3 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 space-y-2">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
-                <span className="relative flex h-2.5 w-2.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                </span>
-                <h1 className="text-sm font-black tracking-tight text-white flex items-center gap-1">
-                  Community Safe Walk Network
-                </h1>
+                <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                <span className="text-xs font-black text-black dark:text-white">Accompaniment Confirmed</span>
               </div>
-              <p className="text-[10px] text-slate-400">
-                Verified Campus Security & Volunteer Walk Accompaniment
-              </p>
+              <Badge variant="subtle" size="sm">2 min ETA</Badge>
+            </div>
+            <p className="text-[11px] text-neutral-600 dark:text-neutral-300 leading-relaxed font-medium">
+              <strong>{selectedBuddy.name}</strong> ({selectedBuddy.organization}) is en route to your current GPS pin.
+            </p>
+            <div className="flex gap-2 pt-1">
+              <Button variant="primary" size="sm" fullWidth onClick={() => setRequestConfirmed(false)}>
+                Track Approach
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => setRequestConfirmed(false)}>
+                Cancel
+              </Button>
             </div>
           </div>
+        )}
 
-          <span className="px-2 py-1 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-            3 Buddies Available
-          </span>
-        </div>
-      </div>
-
-      {/* Confirmation Banner */}
-      {requestConfirmed && selectedBuddy && (
-        <div className="mx-4 mt-3 p-4 rounded-3xl bg-emerald-600 text-white shadow-xl space-y-2 animate-in fade-in zoom-in-95">
+        {/* Summary Card */}
+        <Card variant="subtle" padding="sm" className="mb-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-white" />
-              <span className="text-xs font-black">Walk Request Confirmed!</span>
+            <div>
+              <span className="text-xs font-bold text-black dark:text-white">Verified Peer Escorts</span>
+              <p className="text-[10px] text-neutral-500">Background-checked students & campus safety wardens</p>
             </div>
-            <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full font-bold">2 Min ETA</span>
+            <Badge variant="safe" size="sm">
+              Zero Incidents
+            </Badge>
           </div>
+        </Card>
 
-          <p className="text-[11px] text-emerald-100 leading-relaxed">
-            <strong>{selectedBuddy.name}</strong> ({selectedBuddy.organization}) is en route to your current GPS point.
-          </p>
-
-          <div className="flex gap-2 pt-1">
-            <button
-              onClick={() => setRequestConfirmed(false)}
-              className="py-1.5 px-3 rounded-xl bg-white text-emerald-900 font-extrabold text-xs flex-1 shadow-sm"
-            >
-              Track Live Buddy Approach
-            </button>
-            <button
-              onClick={() => setRequestConfirmed(false)}
-              className="py-1.5 px-3 rounded-xl bg-emerald-700 text-white font-bold text-xs"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Info Card */}
-      <div className="p-4">
-        <div className="p-4 rounded-3xl bg-gradient-to-br from-indigo-950 to-slate-900 text-white shadow-md border border-indigo-800/40 space-y-2">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-200">
-              Zero-Alone Night Escort Policy
-            </h3>
-          </div>
-          <p className="text-[11px] text-slate-300 leading-relaxed">
-            Request an in-person walk accompaniment between metro stations, campus hostels, bus stops, and parking lots. All walkers are background-verified.
-          </p>
-        </div>
-      </div>
-
-      {/* Buddies Directory */}
-      <div className="px-4 space-y-3">
-        <h3 className="text-xs font-black text-slate-700 uppercase tracking-wider">
-          Nearby Available Safe Walkers
-        </h3>
-
-        {buddies.map((buddy) => (
-          <div
-            key={buddy.id}
-            className="p-4 rounded-3xl bg-white border border-slate-200 shadow-sm space-y-3 hover:border-emerald-300 hover:shadow-md transition"
-          >
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <img
-                    src={buddy.avatarUrl}
-                    alt={buddy.name}
-                    className="w-12 h-12 rounded-2xl object-cover border-2 border-emerald-500 shadow-sm"
-                  />
-                  <span className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center text-[8px] font-black text-white">
-                    ✓
-                  </span>
-                </div>
-
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <h4 className="text-xs font-black text-slate-900">{buddy.name}</h4>
-                    <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
-                      ID Verified
-                    </span>
+        {/* Buddy List */}
+        <div className="space-y-2">
+          {buddies.map((buddy) => (
+            <Card key={buddy.id} variant="default" padding="sm" className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 shrink-0">
+                    <img
+                      src={buddy.avatarUrl}
+                      alt={buddy.name}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
-                  <p className="text-[10px] text-slate-500 font-semibold">{buddy.organization}</p>
+                  <div>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-xs font-black text-black dark:text-white">{buddy.name}</h3>
+                      <span className="px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-neutral-800 text-[8px] font-bold text-neutral-700 dark:text-neutral-300">
+                        {buddy.badgeType.replace(/_/g, ' ')}
+                      </span>
+                    </div>
+                    <div className="text-[10px] text-neutral-500">{buddy.organization}</div>
+                    <div className="text-[9px] text-neutral-400 mt-0.5 flex items-center gap-1.5">
+                      <Star className="w-2.5 h-2.5 text-amber-500 fill-amber-500" />
+                      <span>{buddy.rating} ({buddy.completedWalks} walks)</span>
+                      <span>•</span>
+                      <span>{buddy.distance} ({buddy.eta})</span>
+                    </div>
+                  </div>
                 </div>
+
+                <a
+                  href={`tel:${buddy.phone}`}
+                  className="p-1.5 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-neutral-100 dark:bg-neutral-900 text-neutral-700 dark:text-neutral-300 hover:text-black dark:hover:text-white"
+                  title={`Call ${buddy.name}`}
+                  aria-label={`Call ${buddy.name}`}
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                </a>
               </div>
 
-              <div className="text-right">
-                <div className="flex items-center gap-1 text-amber-500 text-xs font-black">
-                  <Star className="w-3.5 h-3.5 fill-amber-400" />
-                  <span>{buddy.rating}</span>
-                </div>
-                <div className="text-[9px] text-slate-400 font-bold">{buddy.completedWalks} walks</div>
+              {/* Request Button */}
+              <div className="pt-2 border-t border-neutral-200 dark:border-neutral-800">
+                <Button
+                  variant="primary"
+                  size="sm"
+                  fullWidth
+                  onClick={() => handleRequestWalk(buddy)}
+                >
+                  Request Walk Accompaniment
+                </Button>
               </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-              <span className="flex items-center gap-1">📍 <strong>{buddy.distance}</strong></span>
-              <span className="flex items-center gap-1">⏱️ <strong>{buddy.eta}</strong></span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2 pt-1">
-              <button
-                onClick={() => handleRequestWalk(buddy)}
-                className="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20 transition active:scale-95"
-              >
-                <UserCheck className="w-3.5 h-3.5" />
-                Request Walk
-              </button>
-
-              <button
-                onClick={() => onNavigate('dashboard')}
-                className="py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold flex items-center justify-center gap-1 transition"
-              >
-                <Phone className="w-3.5 h-3.5 text-slate-600" />
-                Call Officer
-              </button>
-            </div>
-          </div>
-        ))}
+            </Card>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -1,137 +1,145 @@
 import React from 'react';
-import { Shield, Sparkles, ArrowRight, Compass, Lock, ShieldCheck, Radio, SunMedium } from 'lucide-react';
+import { Shield, ArrowRight, Lock, Sparkles, CheckCircle2, Bot } from 'lucide-react';
 import { ScreenId } from '../../types';
+import { Button } from '../ui/Button';
+import { Card } from '../ui/Card';
+import { Badge } from '../ui/Badge';
 
 interface SplashScreenProps {
   onNavigate: (screen: ScreenId) => void;
+  onOpenAi?: () => void;
 }
 
-export const SplashScreen: React.FC<SplashScreenProps> = ({ onNavigate }) => {
+export const SplashScreen: React.FC<SplashScreenProps> = ({ onNavigate, onOpenAi }) => {
   return (
-    <div className="relative min-h-[640px] h-full flex flex-col justify-between p-6 bg-[#0b101b] text-slate-100 overflow-hidden">
-      {/* Background Animated Gradient Blobs */}
-      <div className="absolute -top-24 -right-24 w-80 h-80 rounded-full bg-blue-600/20 blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 -left-28 w-80 h-80 rounded-full bg-indigo-600/20 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-emerald-600/10 blur-3xl pointer-events-none" />
+    <div className="relative h-full flex flex-col justify-between p-4 sm:p-5 bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar">
+      {/* Top Header Row: Safety Active Pill + (AI Assistant Trigger & Skip Action) */}
+      <div className="flex justify-between items-center z-10 pt-0.5 shrink-0 gap-2">
+        <Badge variant="subtle" size="sm" className="font-bold shrink-0">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Safety Active</span>
+        </Badge>
 
-      {/* Top Brand Pill */}
-      <div className="pt-4 flex justify-between items-center z-10">
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900/80 backdrop-blur-md border border-white/15 shadow-lg text-xs font-bold text-slate-200">
-          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-          <span>AI Safety Shield Active</span>
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          <button
+            id="btn-floating-ai-copilot"
+            data-testid="btn-splash-ai"
+            type="button"
+            onClick={onOpenAi}
+            className="px-2.5 py-1 rounded-full bg-black text-white dark:bg-white dark:text-black text-xs font-bold flex items-center gap-1.5 shadow-xs border border-neutral-700 dark:border-neutral-300 transition-all cursor-pointer hover:opacity-90 active:scale-95"
+            aria-label="Open SafeRoute AI Assistant"
+            title="Open SafeRoute AI Assistant"
+          >
+            <Bot className="w-3.5 h-3.5" />
+            <span className="text-[10px] font-black uppercase tracking-wider">AI</span>
+          </button>
+
+          <button
+            id="btn-splash-skip"
+            type="button"
+            onClick={() => onNavigate('dashboard')}
+            className="text-xs font-bold text-neutral-500 hover:text-black dark:hover:text-white transition-colors cursor-pointer py-1 px-1.5 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-900 shrink-0"
+            aria-label="Skip to Home Dashboard"
+          >
+            Skip to Home →
+          </button>
         </div>
-        <button
-          id="btn-splash-skip"
-          onClick={() => onNavigate('dashboard')}
-          className="text-xs font-bold text-cyan-400 hover:text-cyan-300 transition-colors"
-        >
-          Skip to Home →
-        </button>
       </div>
 
-      {/* Hero Visual Area: AI-powered Shield & Animated Route Graphic */}
-      <div className="flex-1 flex flex-col items-center justify-center my-4 z-10 text-center">
-        {/* Glowing Shield Emblem */}
-        <div className="relative mb-5">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 blur-2xl opacity-50 animate-pulse" />
-          <div className="relative w-28 h-28 rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 p-0.5 shadow-2xl shadow-blue-500/40 flex items-center justify-center">
-            <div className="w-full h-full rounded-[22px] bg-slate-950/80 backdrop-blur-md flex flex-col items-center justify-center">
-              <Shield className="w-13 h-13 text-cyan-300 drop-shadow-md stroke-[1.75]" />
-              <div className="absolute -bottom-2 px-2.5 py-0.5 bg-emerald-500 text-slate-950 rounded-full text-[10px] font-black tracking-wider uppercase shadow-lg flex items-center gap-1">
-                <Sparkles className="w-2.5 h-2.5" /> AI Core
-              </div>
-            </div>
+      {/* Hero Visual Area: Minimalist Monochrome Shield & Brand */}
+      <div className="flex-1 flex flex-col items-center justify-center my-auto py-2 z-10 text-center min-h-0">
+        {/* Shield Emblem */}
+        <div className="relative mb-3 shrink-0">
+          <div className="w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 flex items-center justify-center shadow-xs">
+            <Shield className="w-8 h-8 sm:w-9 sm:h-9 text-black dark:text-white stroke-[2.2]" />
           </div>
         </div>
 
         {/* Brand Name & Tagline */}
-        <h1 className="text-3xl font-black text-white tracking-tight flex items-center justify-center gap-2">
-          <span>SafeRoute</span>
-          <span className="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
-            AI
-          </span>
+        <h1 className="text-2xl font-black tracking-tight text-black dark:text-white leading-tight">
+          SafeRoute AI
         </h1>
-        <p className="text-xs font-medium text-slate-400 mt-2 max-w-xs">
-          “Predictive Urban Navigation & Women’s Safety Ecosystem”
+        <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400 mt-1 max-w-[260px] leading-relaxed mx-auto">
+          Predictive urban navigation & night safety intelligence
         </p>
 
-        {/* Animated route path graphic */}
-        <div className="mt-6 w-full max-w-xs p-4 rounded-3xl bg-slate-900/90 backdrop-blur-xl border border-white/15 shadow-2xl shadow-black/50">
-          <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 mb-2">
-            <span>Dynamic Route Intelligence</span>
-            <span className="text-emerald-400 flex items-center gap-1 font-black">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> 98% Confidence
+        {/* Route Preview Graphic Card */}
+        <Card variant="default" padding="sm" className="mt-3.5 w-full max-w-[320px] shadow-xs shrink-0">
+          <div className="flex items-center justify-between text-[10px] font-bold text-neutral-500 dark:text-neutral-400 mb-1.5 px-0.5">
+            <span className="uppercase tracking-wider">Route Intelligence</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-extrabold flex items-center gap-1 shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> 98% Confidence
             </span>
           </div>
 
-          {/* SVG Animated Route Path */}
-          <div className="relative h-14 w-full bg-slate-950/70 rounded-2xl overflow-hidden flex items-center px-4 border border-white/5">
-            <svg viewBox="0 0 240 40" className="w-full h-10">
+          {/* SVG Route Trajectory */}
+          <div className="relative h-10 w-full bg-neutral-50 dark:bg-neutral-950 rounded-lg overflow-hidden flex items-center px-2.5 border border-neutral-200 dark:border-neutral-900">
+            <svg viewBox="0 0 240 32" className="w-full h-7">
               <path
-                d="M 10 20 Q 70 5, 120 25 T 230 15"
+                d="M 10 16 Q 70 6, 120 18 T 230 12"
                 fill="none"
-                stroke="#1e293b"
-                strokeWidth="4"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                className="text-neutral-300 dark:text-neutral-700"
                 strokeLinecap="round"
               />
               <path
-                d="M 10 20 Q 70 5, 120 25 T 230 15"
+                d="M 10 16 Q 70 6, 120 18 T 230 12"
                 fill="none"
-                stroke="url(#splash-route-grad)"
-                strokeWidth="4"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                className="text-black dark:text-white"
+                strokeDasharray="6 4"
                 strokeLinecap="round"
-                strokeDasharray="8 6"
               />
-              <defs>
-                <linearGradient id="splash-route-grad" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#06b6d4" />
-                  <stop offset="50%" stopColor="#6366f1" />
-                  <stop offset="100%" stopColor="#10b981" />
-                </linearGradient>
-              </defs>
-              {/* Pulsing origin and destination nodes */}
-              <circle cx="10" cy="20" r="4" fill="#06b6d4" />
-              <circle cx="120" cy="25" r="3" fill="#6366f1" />
-              <circle cx="230" cy="15" r="5" fill="#10b981" />
+              {/* Origin, waypoint, destination */}
+              <circle cx="10" cy="16" r="3.5" fill="currentColor" className="text-black dark:text-white" />
+              <circle cx="120" cy="18" r="3" fill="currentColor" className="text-neutral-400" />
+              <circle cx="230" cy="12" r="4.5" fill="#10B981" />
             </svg>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 mt-3 text-center">
-            <div className="p-2 rounded-xl bg-white/5 border border-white/5">
-              <div className="text-[9px] text-slate-400 font-bold">Lighting</div>
-              <div className="text-xs font-black text-amber-300">98% Lux</div>
+          {/* Metric Row */}
+          <div className="grid grid-cols-3 gap-1.5 mt-2 text-center">
+            <div className="p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 min-w-0">
+              <div className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold truncate">Lighting</div>
+              <div className="text-xs font-black text-black dark:text-white mt-0.5 truncate">98% Lux</div>
             </div>
-            <div className="p-2 rounded-xl bg-white/5 border border-white/5">
-              <div className="text-[9px] text-slate-400 font-bold">Activity</div>
-              <div className="text-xs font-black text-emerald-400">Safe Crowd</div>
+            <div className="p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 min-w-0">
+              <div className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold truncate">Pedestrians</div>
+              <div className="text-xs font-black text-black dark:text-white mt-0.5 truncate">Active</div>
             </div>
-            <div className="p-2 rounded-xl bg-white/5 border border-white/5">
-              <div className="text-[9px] text-slate-400 font-bold">Safe Havens</div>
-              <div className="text-xs font-black text-cyan-300">5 Nearby</div>
+            <div className="p-1.5 rounded-lg bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 min-w-0">
+              <div className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold truncate">Refuges</div>
+              <div className="text-xs font-black text-black dark:text-white mt-0.5 truncate">5 Safe</div>
             </div>
           </div>
-        </div>
+        </Card>
       </div>
 
-      {/* Primary Actions */}
-      <div className="space-y-2.5 z-10 pb-2">
-        <button
+      {/* Primary & Secondary Actions */}
+      <div className="space-y-2 z-10 shrink-0 pt-2 pb-1.5">
+        <Button
           id="btn-splash-get-started"
+          variant="primary"
+          size="md"
+          fullWidth
           onClick={() => onNavigate('dashboard')}
-          className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 text-white font-black text-xs shadow-xl shadow-blue-600/30 hover:opacity-95 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+          icon={<ArrowRight className="w-4 h-4" />}
         >
-          <span>Get Started</span>
-          <ArrowRight className="w-4 h-4" />
-        </button>
+          Get Started
+        </Button>
 
-        <button
+        <Button
           id="btn-splash-sign-in"
+          variant="outline"
+          size="md"
+          fullWidth
           onClick={() => onNavigate('login')}
-          className="w-full py-3 px-6 rounded-2xl bg-slate-900 hover:bg-slate-800 text-slate-200 font-bold text-xs border border-white/15 shadow-sm active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer"
+          icon={<Lock className="w-3.5 h-3.5" />}
         >
-          <Lock className="w-4 h-4 text-slate-400" />
-          <span>Sign In / Register</span>
-        </button>
+          Sign In / Register
+        </Button>
       </div>
     </div>
   );
