@@ -1,6 +1,6 @@
 # SafeRoute AI — Smart & Safe Navigation Platform for Nighttime Mobility
 
-> **An AI-powered personal safety and navigation prototype engineered for women, solo commuters, students, and night-shift workers. Features multidimensional safety route scoring, Explainable AI (SHAP) feature attribution, in-house vector cartography, and multi-tier emergency response escalation.**
+> **An AI-powered personal safety and navigation prototype engineered for women, solo commuters, students, and night-shift workers. Features multidimensional safety route scoring, Explainable AI (SHAP) feature attribution, real-time adaptive route recommendations, Proactive Police-Assisted Safety Monitoring, in-house vector cartography, and multi-tier emergency response escalation.**
 
 ---
 
@@ -11,10 +11,12 @@
 - [3. Proposed Solution](#3-proposed-solution)
 - [4. Features](#4-features)
   - [A. Core Route Intelligence & Explainability](#a-core-route-intelligence--explainability)
-  - [B. Live Navigation & Anomaly Rerouting](#b-live-navigation--anomaly-rerouting)
+  - [B. Live Navigation, Dynamic Conditions & Adaptive Recommendations](#b-live-navigation-dynamic-conditions--adaptive-recommendations)
   - [C. Emergency Response & Safe Refuges](#c-emergency-response--safe-refuges)
   - [D. Transit, Infrastructure & Community Network](#d-transit-infrastructure--community-network)
   - [E. Hardware Bezel Emulator & Developer Toolbar](#e-hardware-bezel-emulator--developer-toolbar)
+  - [F. Proactive Police-Assisted Safety Monitoring (Challenge 4)](#f-proactive-police-assisted-safety-monitoring-challenge-4)
+- [4a. Hackathon Challenge Summary](#4a-hackathon-challenge-summary)
 - [5. Technologies / Tech Stack Used](#5-technologies--tech-stack-used)
 - [6. Installation & Setup Instructions](#6-installation--setup-instructions)
 - [7. How to Run the Project](#7-how-to-run-the-project)
@@ -37,10 +39,13 @@
 **SafeRoute AI** is an interactive, mobile-first web prototype created to demonstrate how modern navigation platforms can prioritize **personal safety and well-lit pedestrian corridors** rather than optimizing solely for shortest distance or vehicular speed.
 
 Built with **React 19, TypeScript, Tailwind CSS v4, and Motion**, the application features:
-- A custom **in-house SVG vector map engine** (`MapEngine.tsx`) that renders realistic urban city morphology, waterways, parks, road casing hierarchies, and active navigation routes without external paid API keys.
-- A **19-screen mobile experience** running inside an interactive hardware emulator (`MobileFrame.tsx`) with instant Phone-to-Fluid switching.
+- A high-performance **interactive OpenStreetMap engine** (`MapEngine.tsx` powered by Leaflet) that renders real street tiles centered on Central Delhi (Sector 4 / Connaught Place), real-time safety heatmaps, verified emergency safe haven markers, directional GPS navigation puck, and live zoom/recenter controls without paid API keys.
+- A **21-screen mobile experience** running inside an interactive hardware emulator (`MobileFrame.tsx`) with instant Phone-to-Fluid switching.
 - **Explainable AI (SHAP Waterfall Attribution)** illustrating the positive and negative parameters contributing to a route's safety index.
 - A **deterministic navigation lifecycle state machine** with active GPS simulation, live lux illumination telemetry, and arrival confirmation.
+- **Real-time adaptive safety scoring** (`conditionSimulator.ts`) that recalculates route safety dynamically as environmental conditions change during a live journey.
+- **Adaptive Recommendation Engine** with XAI explanations that automatically recommends a safer route and explains the reason when a score drops.
+- **Proactive Police-Assisted Safety Monitoring** (`ProactivePoliceMonitoringScreen.tsx`) — a non-emergency, consent-based safety protocol linking women in uncomfortable situations to a simulated police PCR control room before a crisis occurs.
 - Comprehensive safety workflows including **Safe Havens (24/7 pharmacies, police kiosks)**, **Transit Disruption & Gathering Hubs**, **Streetlight Infrastructure Reporting**, and **Community Safe Walk Escorts**.
 
 ---
@@ -103,7 +108,7 @@ flowchart TD
 
 ## 4. Features
 
-The prototype implements **19 full screens and interactive modals**, categorized into 5 functional modules:
+The prototype implements **20 full screens and interactive modals**, categorized into 6 functional modules:
 
 ### A. Core Route Intelligence & Explainability
 - **Home Dashboard (`DashboardScreen.tsx`):** Central safety status center featuring a dynamic 94% Safety Index badge, night mode indicators, emergency SOS trigger, quick action cards, and localized safety widgets.
@@ -119,7 +124,7 @@ The prototype implements **19 full screens and interactive modals**, categorized
   - `+8 pts`: Active police kiosk coverage
   - `-12 pts`: Penalty for recent isolated incident report
 
-### B. Live Navigation & Anomaly Rerouting
+### B. Live Navigation, Dynamic Conditions & Adaptive Recommendations
 - **Live Navigation HUD (`LiveNavigationScreen.tsx`):** Turn-by-turn guidance with simulated walk progression, step-by-step safety notes, real-time lux illumination gauge (e.g. 98 Lux), and unified right-hand control rail (Recenter, Layer toggle, Audio, Pause/Resume, 30s Check-In, Alert simulation).
 - **Navigation Lifecycle State Machine:** Explicit transitions between `navigating`, `paused`, and `completed`.
 - **Terminal Arrival Experience:** Automatic arrival confirmation at 100% progress, setting remaining distance/time to zero, stopping simulation timers, and displaying verified journey summary statistics.
@@ -127,12 +132,33 @@ The prototype implements **19 full screens and interactive modals**, categorized
 - **Safety Alert Simulation (`SafetyAlertModal.tsx`):** Real-time simulated hazard pop-up triggered by sudden sensor illumination drop or corridor obstruction.
 - **Dynamic Rerouting (`DynamicReroutingScreen.tsx`):** Side-by-side detour comparison contrasting the compromised corridor against an optimized safe bypass corridor (+2 min delta, +18% safety gain).
 
+#### Challenge 1 — Dynamic Conditions & Real-Time Safety Updates
+- **Condition Simulation Engine (`conditionSimulator.ts`):** Implements `calculateDynamicSafety()` which recalculates a weighted safety score in real-time based on six environmental factors: street lighting, pedestrian activity, public gathering/disruption, road condition, emergency service presence, and weather.
+- **Auto-Simulation Along Route:** As the user progresses through their journey (tracked via progress 0→100%), conditions automatically shift at defined thresholds to simulate real-world deterioration (e.g. lighting drops from 100% to 40% at a dark corridor midpoint).
+- **Scenario Preset Panel:** Judges and testers can manually trigger named condition presets ("Poor Lighting", "Road Disruption", "Public Gathering", "Optimal Conditions") from the Dynamic Conditions drawer during live navigation.
+- **Visual Score Badge:** The live safety score badge updates in real-time, transitioning through green → amber → red as conditions degrade.
+
+#### Challenge 2 — Alternative Route Comparison
+- **Multi-Route Comparison (`RouteComparisonScreen.tsx`):** Presents three evaluated route corridors with side-by-side safety scores, travel times, trade-off pros/cons, and contextual labels (Fastest Compromised / Moderate Detour / Maximum Safety).
+- **`MultiRouteComparisonCard.tsx`:** Reusable card component rendering each route's lighting score, crowd density, police coverage, safe haven count, and dynamic conditions adjustments.
+- **Informed Route Selection:** Users can tap any route card to select it as their active navigation route, with the choice propagating to the App-level state and live navigation.
+
+#### Challenge 3 — Intelligent Adaptive Recommendation Engine
+- **`evaluateAdaptiveRecommendation()` (`conditionSimulator.ts`):** XAI-driven function that compares the current route's live safety score against all available alternatives. If a safer alternative exists and the drop exceeds a defined threshold, it returns a recommendation object with a severity level and human-readable explanation.
+- **`AdaptiveRecommendationBanner.tsx`:** Context-aware, dismissible banner in Live Navigation that displays the recommended alternative route, the reason for the recommendation (e.g. "Lighting score dropped from 96% to 40%"), the safety score delta, and an "Accept Recommendation" button.
+- **Explainable Reason Chain:** Every recommendation includes a natural-language explanation of which conditions triggered the change, making the AI decision transparent to the user.
+
 ### C. Emergency Response & Safe Refuges
-- **Emergency SOS Hub (`EmergencySosScreen.tsx`):** 5-second countdown panic button, emergency audio siren simulation, automated GPS coordinate transmission to trusted guardians, and 1-tap links to National Emergency Helplines (112 Police, 1091 Women Safety).
+- **Emergency Safe Haven Finder (`NearestSafePlaceScreen.tsx` — Screen 21):**
+  - **1. Detect Emergency:** Immediate trigger via SOS button, cab deviation alarm, or chatbot voice/text prompt (*"I feel unsafe. Find me somewhere safe"*).
+  - **2. Proximity & Categorization:** Queries live GPS coordinates to identify nearby Police Stations/Pink Booths, Hospital Emergency/Trauma Wards, verified 24/7 Pharmacies, and staffed public transit hubs.
+  - **3. Multi-Dimensional Safety Ranking (`emergencySafeHavenFinder.ts`):** Evaluates distance, walk/drive ETA, operating hours, verified staffing, route lighting (lux level), and emergency scenario match (e.g., Police for threats/cabs; Hospital for medical trauma). Recommends the single **best suitable option** rather than just the closest one.
+  - **4. Turn-by-Turn Guidance & Police Bridge:** Directly starts live guided navigation to the haven, notifies authorized trusted contacts, shares live telemetry with the simulated Police PCR Control Room Dashboard, and provides a 1-tap dialer for India 112.
+- **Emergency SOS Hub (`EmergencySosScreen.tsx`):** Panic button, emergency audio siren simulation, automated GPS coordinate transmission to trusted guardians, and 1-tap links to National Emergency Helplines (112 Police, 1091 Women Safety).
 - **Safety Check-In (`SafetyCheckInScreen.tsx`):** 30-second automated countdown prompt ("Are you safe?") with single-tap "I Am Safe" confirmation or direct SOS escalation.
 - **Verified Safe Haven Directory (`SafeHavenNetworkScreen.tsx`):** Interactive map and directory of 24/7 verified civilian safe havens:
   - Apollo 24/7 Pharmacies (first-aid, phone charging)
-  - Delhi Police All-Women Helpdesks
+  - Delhi Police All-Women Helpdesks (Pink Booths)
   - Campus Security Command Posts
   - Direct telephone dialing and 1-tap detour routing into the nearest haven.
 
@@ -152,6 +178,63 @@ The prototype implements **19 full screens and interactive modals**, categorized
 - **Event Simulation Buttons:** Hardware bezel shortcuts to simulate real-time safety alerts and 30-second safety check-in countdowns.
 - **Embedded AI Safety Copilot (`FloatingAiAssistant.tsx`):** Contextual assistant drawer offering quick prompt chips ("Explain my 93% SHAP score", "Is Grand Blvd safe right now?", "Nearest 24/7 safe haven?") with responsive intent parsing.
 - **Theme & Language Toggles:** High-contrast Light/Dark mode switcher and multilingual selector (English, Hindi, Spanish, French).
+
+### F. Proactive Police-Assisted Safety Monitoring (Challenge 4)
+
+> *"Addresses a situation that ordinary SOS systems often overlook: when a person feels unsafe but is not yet in an emergency and does not want to trigger a panic alarm."*
+
+**Screen:** `ProactivePoliceMonitoringScreen.tsx` (Screen 20) — accessible from the Dashboard's Safety Modules grid.
+
+This feature introduces a **non-emergency, consent-based proactive safety protocol** that allows a user to privately communicate concern to an authorized police control room operator before a situation becomes critical.
+
+#### How the System Works
+
+| Step | Action | System Response |
+|------|--------|----------------|
+| **1** | User tells the AI chatbot: *"I'm in a cab and feeling a little unsafe"* | AI offers to start Safety Monitoring Mode (no SOS alarm triggered) |
+| **2** | User consents to monitoring | Session created with encrypted live location, destination, ETA, and vehicle details shared with authorized PCR operator |
+| **3** | Journey is monitored against a time threshold | System tracks elapsed time vs. max threshold; user can extend ETA for traffic |
+| **4** | Anomaly detected (route deviation > 200m or prolonged stop > 3 min) | PCR operator sends verification prompt to the passenger's device |
+| **5** | Passenger responds "I Am Safe" | Monitoring continues; session logged and audit trail updated |
+| **5b** | Passenger responds "I Need Help!" or threshold exceeded | PCR operator dispatches nearest patrol unit (PCR Van #42) to GPS coordinates |
+| **6** | Safe arrival confirmed | Session closed and archived in PCR Master Log |
+
+#### Implemented Features
+
+- **Dual-Mode View Toggle:** Switch between **Passenger View** (what the user sees) and **PCR Console** (simulated police control room dashboard) to demonstrate both sides of the protocol.
+- **Session State Machine (`proactivePoliceMonitoring.ts`):** A pure-function engine managing the `ProactiveSafetySession` state across statuses: `monitoring_active` → `anomaly_detected` → `operator_verifying` → `escalated_dispatch` / `journey_safe`.
+- **Live Vehicle Telemetry:** Displays cab number, driver name, current speed, and route deviation in meters on the map overlay.
+- **Time-Bound Threshold Progress Bar:** Visual countdown of elapsed journey time against the agreed maximum threshold (e.g. 22 min elapsed of 28 min max).
+- **Anomaly Simulator (for judges):** Two test buttons — *Simulate Deviation* (flags 340m off-corridor) and *Simulate Prolonged Stop* (flags 195s idle in dark spot) — to demonstrate the anomaly detection pipeline without waiting.
+- **Operator Verification Prompt:** When an anomaly is detected, an amber verification card appears on the Passenger View with the operator's message and two response buttons.
+- **Discreet Silent Operator Chat:** Expandable encrypted chat drawer showing a pre-seeded conversation between the passenger and Sub-Inspector Meena, with live message send and auto-operator reply.
+- **PCR Console — SOP Action Panel:** Police-side controls including *Send Verification Call/SMS*, *Dispatch PCR Van #42*, and *Safe Closure & Incident Archive*.
+- **Chronological Telemetry Audit Trail:** Full PCR log stream showing every telemetry event with timestamp, severity colouring (info / alert / escalation), and operator notes.
+- **Escalated Dispatch Status Card:** When dispatch is triggered, a red pulsing card appears showing the dispatched unit, officer in charge, and ETA.
+- **Direct SOS Escape:** A "Trigger Immediate SOS Alarm" button is always visible, instantly escalating to the full Emergency SOS screen.
+- **Compliance Disclaimer:** Footer note clarifying that real deployment requires certified ERSS 112 API integration and MHA privacy authorization.
+
+#### What Makes This Innovative
+
+1. **Non-Emergency Safety Support** — Users get help *before* a crisis, not only after.
+2. **AI-Assisted Risk Assessment** — The AI chatbot collects concern context and initiates the appropriate safety workflow discreetly.
+3. **Time-Bound Journey Monitoring** — System verifies arrival within a user-agreed threshold; no threshold = no false alarm.
+4. **Human Verification Before Escalation** — An authorized operator attempts to confirm safety first, preventing automated over-reaction.
+5. **Seamless Integration** — Builds on SafeRoute AI's existing chatbot, GPS tracking, deviation alerts, trusted contacts, and emergency response infrastructure.
+
+#### Prototype Implementation Note
+> The police-tracking and dispatch component is demonstrated via a **simulated PCR control-room dashboard**. Real-world deployment would require authorized access to ERSS 112 or state emergency services APIs, data privacy safeguards under MHA guidelines, and a formally defined operator response protocol.
+
+---
+
+## 4a. Hackathon Challenge Summary
+
+| Challenge | Feature | Key Files | Status |
+|-----------|---------|-----------|--------|
+| **Challenge 1** | Dynamic Conditions & Real-Time Safety Updates | `conditionSimulator.ts`, `LiveNavigationScreen.tsx`, `DynamicConditionsPanel.tsx` | ✅ Implemented |
+| **Challenge 2** | Alternative Route Comparison | `RouteComparisonScreen.tsx`, `MultiRouteComparisonCard.tsx` | ✅ Implemented |
+| **Challenge 3** | Intelligent Adaptive Recommendations | `conditionSimulator.ts` (`evaluateAdaptiveRecommendation`), `AdaptiveRecommendationBanner.tsx` | ✅ Implemented |
+| **Challenge 4** | Proactive Police-Assisted Safety Monitoring | `ProactivePoliceMonitoringScreen.tsx`, `proactivePoliceMonitoring.ts`, `types.ts` | ✅ Implemented |
 
 ---
 
@@ -274,15 +357,18 @@ Safepath-AI-2/
     │   ├── FloatingAiAssistant.tsx # Embedded AI Safety Copilot with prompt chips
     │   ├── MapEngine.tsx      # In-house SVG vector cartography engine
     │   ├── MobileFrame.tsx    # Hardware bezel emulator & screen switcher toolbar
+    │   ├── DynamicConditionsPanel.tsx     # Ch.1: Condition sliders & scenario presets
+    │   ├── AdaptiveRecommendationBanner.tsx  # Ch.3: XAI recommendation banner
+    │   ├── MultiRouteComparisonCard.tsx   # Ch.2: Route trade-off comparison card
     │   │
-    │   ├── screens/           # 19 Screen implementations
+    │   ├── screens/           # 20 Screen implementations
     │   │   ├── SplashScreen.tsx
     │   │   ├── LoginScreen.tsx
     │   │   ├── DashboardScreen.tsx
     │   │   ├── RouteSearchScreen.tsx
-    │   │   ├── RouteComparisonScreen.tsx
+    │   │   ├── RouteComparisonScreen.tsx          # Ch.2: Route comparison
     │   │   ├── ShapExplainabilityScreen.tsx
-    │   │   ├── LiveNavigationScreen.tsx
+    │   │   ├── LiveNavigationScreen.tsx           # Ch.1: Dynamic conditions + Ch.3: Adaptive recs
     │   │   ├── SafetyAlertModal.tsx
     │   │   ├── DynamicReroutingScreen.tsx
     │   │   ├── SafetyCheckInScreen.tsx
@@ -294,7 +380,8 @@ Safepath-AI-2/
     │   │   ├── SafeHavenNetworkScreen.tsx
     │   │   ├── TransportCompanionScreen.tsx
     │   │   ├── InfrastructureReportingScreen.tsx
-    │   │   └── CommunitySafeWalkScreen.tsx
+    │   │   ├── CommunitySafeWalkScreen.tsx
+    │   │   └── ProactivePoliceMonitoringScreen.tsx  # Ch.4: PCR Safety Monitoring (Screen 20)
     │   │
     │   └── ui/                # High-contrast monochrome atomic design system
     │       ├── Badge.tsx      # Semantic status badges (Safe, Caution, Alert)
@@ -307,8 +394,10 @@ Safepath-AI-2/
     │   ├── LanguageContext.tsx# Multilingual localization provider (EN, HI, ES, FR)
     │   └── ThemeContext.tsx   # Pure Light / Pure Dark monochrome theme provider
     │
-    ├── data/                  # Seed datasets & dictionaries
+    ├── data/                  # Seed datasets, engines & dictionaries
     │   ├── mockData.ts        # Routes, SHAP factors, POIs, nav steps, zones
+    │   ├── conditionSimulator.ts  # Ch.1+3: Dynamic safety engine & adaptive recommendation
+    │   ├── proactivePoliceMonitoring.ts  # Ch.4: PCR session state machine & simulation fns
     │   └── translations.ts    # Multilingual translation dictionary
     │
     └── utils/                 # Utilities & animation tokens
@@ -320,29 +409,30 @@ Safepath-AI-2/
 ## 9. Screenshots / Demo Views
 
 > **Visual Assets Note:**  
-> The repository utilizes programmatic SVG vector cartography and responsive styling rather than static image files. The table below lists the 19 core views available in the interactive prototype for documentation capture:
+> The repository utilizes programmatic SVG vector cartography and responsive styling rather than static image files. The table below lists the 20 core views available in the interactive prototype for documentation capture:
 
-| # | Screen / Module | Primary Visual Components |
-| :---: | :--- | :--- |
-| **01** | **Splash Screen** | Branded header, core safety pillars, Get Started CTA |
-| **02** | **Login & Auth** | Mobile number input, simulated OTP verification, guardian setup |
-| **03** | **Home Dashboard** | 94% Safety Index badge, night status, SOS button, quick action grid |
-| **04** | **Route Search** | Origin/destination inputs, safety criteria filter toggles |
-| **05** | **Route Comparison** | Evaluated corridors (Routes A, B, C) with interactive map preview |
-| **06** | **SHAP Explainability** | XAI waterfall chart attributing positive/negative safety weights |
-| **07** | **Live Navigation** | SVG map HUD, turn guidance, lux meter, progress bar, arrival card |
-| **08** | **Safety Alert Modal** | High-contrast emergency dialog for sudden corridor dark spots |
-| **09** | **Dynamic Rerouting** | Side-by-side detour comparison contrasting old vs. safe path |
-| **10** | **Safety Check-In** | 30s countdown timer with "I Am Safe" acknowledgment |
-| **11** | **Emergency SOS** | 5s panic trigger, audio siren toggle, 112 & 1091 helpline hotlinks |
-| **12** | **Trusted Contacts** | Guardian list, real-time battery status, location sharing toggles |
-| **13** | **Safety Analytics** | Weekly safety rating graphs, 8 PM - 1 AM hourly safety trends |
-| **14** | **Profile & Settings** | High-contrast monochrome toggles, alert sensitivity, language selection |
-| **15** | **Public Gathering Hub** | Civic assembly monitor, metro gate closures, Green Medical Corridor |
-| **16** | **Safe Haven Network** | 24/7 verified refuge directory (police desks, pharmacies, campus posts) |
-| **17** | **Transit Companion** | Cab ride telemetry: plate logger, deviation & abnormal stop alarms |
-| **18** | **Infrastructure Reporting** | Dark spot geotagging, community upvotes, municipal PWD tracker |
-| **19** | **Community Safe Walk** | Peer walking escort requests, background-checked campus wardens |
+| # | Screen / Module | Primary Visual Components | Challenge |
+| :---: | :--- | :--- | :---: |
+| **01** | **Splash Screen** | Branded header, core safety pillars, Get Started CTA | — |
+| **02** | **Login & Auth** | Mobile number input, simulated OTP verification, guardian setup | — |
+| **03** | **Home Dashboard** | 94% Safety Index badge, night status, SOS button, quick action grid (incl. Challenge 4 entry card) | — |
+| **04** | **Route Search** | Origin/destination inputs, safety criteria filter toggles | — |
+| **05** | **Route Comparison** | Evaluated corridors (Routes A, B, C) with safety scores, travel time, pros/cons | **Ch.2** |
+| **06** | **SHAP Explainability** | XAI waterfall chart attributing positive/negative safety weights | — |
+| **07** | **Live Navigation** | SVG map HUD, dynamic condition panel, adaptive recommendation banner, lux meter | **Ch.1, Ch.3** |
+| **08** | **Safety Alert Modal** | High-contrast emergency dialog for sudden corridor dark spots triggered by condition change | **Ch.1** |
+| **09** | **Dynamic Rerouting** | Side-by-side detour comparison contrasting old vs. safe path with updated safety scores | **Ch.2** |
+| **10** | **Safety Check-In** | 30s countdown timer with "I Am Safe" acknowledgment | — |
+| **11** | **Emergency SOS** | 5s panic trigger, audio siren toggle, 112 & 1091 helpline hotlinks | — |
+| **12** | **Trusted Contacts** | Guardian list, real-time battery status, location sharing toggles | — |
+| **13** | **Safety Analytics** | Weekly safety rating graphs, 8 PM - 1 AM hourly safety trends | — |
+| **14** | **Profile & Settings** | High-contrast monochrome toggles, alert sensitivity, language selection | — |
+| **15** | **Public Gathering Hub** | Civic assembly monitor, metro gate closures, Green Medical Corridor | — |
+| **16** | **Safe Haven Network** | 24/7 verified refuge directory (police desks, pharmacies, campus posts) | — |
+| **17** | **Transit Companion** | Cab ride telemetry: plate logger, deviation & abnormal stop alarms | — |
+| **18** | **Infrastructure Reporting** | Dark spot geotagging, community upvotes, municipal PWD tracker | — |
+| **19** | **Community Safe Walk** | Peer walking escort requests, background-checked campus wardens | — |
+| **20** | **Proactive Police Monitoring** | Dual-mode PCR console: passenger journey monitor + police control room dashboard with telemetry audit trail | **Ch.4** |
 
 ---
 
@@ -366,6 +456,9 @@ Safepath-AI-2/
 4. **Backend Infrastructure & Persistence:** Build a production backend (Node.js/Express, PostgreSQL + PostGIS) for persistent user accounts, encrypted contact lists, and municipal report tickets.
 5. **Production SOS Telephony Integration:** Connect emergency SOS triggers to SMS/voice gateways (Twilio / Exotel) to send automated location SMS messages and initiate real calls to verified guardians.
 6. **Federated & Privacy-Preserving Analytics:** Implement local on-device differential privacy for incident reporting to ensure commuter anonymity.
+7. **ERSS 112 / State PCR API Integration (Challenge 4):** Partner with National Emergency Response Center to enable authorized, encrypted real-time location sharing between SafeRoute AI and certified Women Safety PCR desks.
+8. **AI Chatbot Integration for Challenge 4 Trigger:** Replace the current simulated trigger with a live Gemini-powered chatbot that parses natural language safety concerns ("The driver looks suspicious", "We've stopped in a dark area") and automatically initiates the monitoring session workflow.
+9. **Wearable & IoT Panic Button Integration:** Allow the monitoring session to be activated from a smart wristband or earpiece double-tap, enabling fully hands-free safety escalation.
 
 ---
 
@@ -383,18 +476,21 @@ All source code required to inspect, build, and run the working prototype is tra
 
 ## 13. Testing and Validation
 
-The codebase has undergone static code analysis and production build verification:
+The codebase has undergone static code analysis, production build verification, and feature-level integration testing.
 
 ### 1. Static TypeScript Verification
 ```bash
 npx tsc --noEmit
-# Result: 0 errors (Exit code 0)
+# Result: 0 errors, 0 warnings (Exit code 0)
 ```
 
 ### 2. Production Bundle Compilation
 ```bash
 npm run build
-# Result: Vite v6.2.3 built production client bundle into dist/ (Exit code 0)
+# Result: Vite v6.4.3 — 2115 modules transformed
+# dist/assets/index.js  717 KB │ gzip: 190 KB
+# dist/assets/index.css  77 KB │ gzip:  13 KB
+# Exit code: 0
 ```
 
 ### 3. Navigation Lifecycle Unit Verification
@@ -404,6 +500,28 @@ The navigation state machine, step index synchronization, metric calculations, a
 - **Map Alignment:** Progress at 100% mathematically matches destination pin coordinates `(440, 75)`.
 - **Interval Management:** Timers halt on pause, resume on play, and cleanly terminate upon journey completion.
 
+### 4. Challenge Integration Verification
+
+| Challenge | Integration Check | Result |
+|-----------|-------------------|--------|
+| **Ch.1** | `calculateDynamicSafety()` recalculates on every `conditions` state change | ✅ Pass |
+| **Ch.1** | Auto-simulation triggers condition change at progress thresholds (30%, 60%) | ✅ Pass |
+| **Ch.1** | Safety score badge in Live Navigation reflects live `calculation.adjustedScore` | ✅ Pass |
+| **Ch.2** | `RouteComparisonScreen` renders 3 route options with safety scores and trade-offs | ✅ Pass |
+| **Ch.2** | Selecting a route in comparison updates `selectedRoute` in `App.tsx` global state | ✅ Pass |
+| **Ch.3** | `evaluateAdaptiveRecommendation()` returns recommendation when score drops >15 pts | ✅ Pass |
+| **Ch.3** | `AdaptiveRecommendationBanner` displays reason text and accept button | ✅ Pass |
+| **Ch.3** | Accepting recommendation changes active route and resets conditions | ✅ Pass |
+| **Ch.4** | `proactive_police_monitoring` ScreenId registered and routed in `App.tsx` | ✅ Pass |
+| **Ch.4** | Dashboard entry card (indigo, LIVE badge) navigates to Screen 20 | ✅ Pass |
+| **Ch.4** | MobileFrame simulator picker lists Screen 20 | ✅ Pass |
+| **Ch.4** | `simulateAnomalyDeviation()` transitions session to `anomaly_detected` status | ✅ Pass |
+| **Ch.4** | `simulateProlongedStop()` transitions session to `anomaly_detected` status | ✅ Pass |
+| **Ch.4** | Passenger "I Need Help!" triggers `escalated_dispatch` + PCR dispatch card | ✅ Pass |
+| **Ch.4** | PCR Console "Dispatch PCR Van #42" triggers dispatch from police side | ✅ Pass |
+| **Ch.4** | Discreet chat send + auto-operator reply functioning | ✅ Pass |
+| **Ch.4** | "Trigger Immediate SOS Alarm" calls `onOpenSos` and opens Emergency SOS screen | ✅ Pass |
+
 ---
 
 ## 14. Limitations
@@ -412,6 +530,7 @@ The navigation state machine, step index synchronization, metric calculations, a
 - **Local Mock Data:** Route paths, SHAP feature values, streetlight lux levels, and incident reports are pre-configured seed structures (`src/data/mockData.ts`) rather than live municipal server feeds.
 - **Client-Side AI Copilot:** The AI safety assistant uses client-side keyword and intent parsing for offline predictability rather than live cloud LLM inference.
 - **Demonstration Emergency Dispatch:** The Emergency SOS screen simulates guardian SMS and siren alerts; it does not automatically dispatch police or contact emergency services in real life.
+- **Simulated PCR Integration (Challenge 4):** The Proactive Police Monitoring screen demonstrates the full monitoring workflow via a simulated PCR control-room dashboard. Real deployment requires authorized ERSS 112 API access, MHA-compliant data privacy safeguards, and a formally ratified police operator response protocol. The simulation accurately represents the intended system behaviour but does not connect to live emergency services.
 
 ---
 
