@@ -1,22 +1,23 @@
-import React, { useState } from 'react';
-import { motion, useReducedMotion } from 'motion/react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
+import L from 'leaflet';
 import { 
   Shield, 
   Layers, 
   Plus, 
   Minus, 
-  Compass, 
+  Navigation, 
   Building2, 
   Train, 
   X,
-  LocateFixed,
-  Hospital
+  Hospital,
+  AlertTriangle,
+  Moon
 } from 'lucide-react';
 import { RouteOption, EmergencyHelpPoint } from '../types';
 import { MOCK_HELP_POINTS, MOCK_HEATMAP_ZONES } from '../data/mockData';
 import { useTheme } from '../context/ThemeContext';
 
-interface MapEngineProps {
+export interface MapEngineProps {
   activeRoute?: RouteOption;
   selectedRouteId?: string;
   onSelectRoute?: (routeId: string) => void;
@@ -32,60 +33,65 @@ interface MapEngineProps {
   navMode?: boolean;
   onHelpPointClick?: (hp: EmergencyHelpPoint) => void;
   rerouteMode?: boolean; // for Screen 9 comparison
+  routesToCompare?: RouteOption[]; // Multiple alternatives for Challenge 2
+  lastStoppedLocation?: { x: number; y: number; label?: string } | null;
+  luxLevel?: number; // Real-time environmental lux from Challenge 1 simulator
+  lightingStatus?: 'optimal' | 'moderate' | 'failed' | 'dark_spot';
+  disruptionLabel?: string;
+  onExpandMap?: () => void;
+  expandMapLabel?: string;
 }
+
+// Center of Connaught Place, Central Delhi (matches screenshot visual and coordinates)
+const CP_LAT = 28.6315;
+const CP_LNG = 77.2167;
+
+// Converts normalized {x: 0..100, y: 0..100} route coordinates to realistic Delhi Lat/Lng
+const toLatLng = (pt: { x: number; y: number }): [number, number] => {
+  // y=0 is North, y=100 is South; x=0 is West, x=100 is East
+  const lat = CP_LAT + (50 - pt.y) * 0.00032;
+  const lng = CP_LNG + (pt.x - 50) * 0.00034;
+  return [lat, lng];
+};
 
 export const MapEngine: React.FC<MapEngineProps> = ({
   activeRoute,
+  selectedRouteId,
+  onSelectRoute,
   showHeatmap = true,
   showHelpPoints = true,
-  showStreetlights = true,
-  showPublicGatherings = false,
-  showBarricades = false,
-  showMedicalCorridor = false,
   interactive = true,
   heightClass = 'h-full min-h-[380px]',
   userProgress = 25,
   navMode = false,
   onHelpPointClick,
-  rerouteMode = false
+  rerouteMode = false,
+  routesToCompare,
+  lastStoppedLocation,
+  luxLevel = 96,
+  lightingStatus = 'optimal',
+  disruptionLabel,
+  onExpandMap,
+  expandMapLabel
 }) => {
-  const [zoom, setZoom] = useState<number>(1);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const layersGroupRef = useRef<L.LayerGroup | null>(null);
+
   const [heatmapVisible, setHeatmapVisible] = useState<boolean>(showHeatmap);
   const [selectedHp, setSelectedHp] = useState<EmergencyHelpPoint | null>(null);
-  const shouldReduceMotion = useReducedMotion();
   const { theme } = useTheme();
   const isDark = theme === 'dark';
 
-  // Synchronize internal heatmap state when prop changes
-  React.useEffect(() => {
+  // Synchronize internal heatmap state with prop
+  useEffect(() => {
     setHeatmapVisible(showHeatmap);
   }, [showHeatmap]);
 
-  // Authentic cartographic palette for pure Light and Dark modes
-  const colors = {
-    canvas: isDark ? '#0C0E12' : '#EEF2F6',
-    block: isDark ? '#141820' : '#E2E7ED',
-    blockStroke: isDark ? '#1D222E' : '#D6DCE4',
-    water: isDark ? '#0F2038' : '#CBE0FA',
-    waterStroke: isDark ? '#162F52' : '#B5D3F8',
-    park: isDark ? '#11261B' : '#D2EBD5',
-    parkStroke: isDark ? '#183827' : '#BEE2C3',
-    roadMinorCasing: isDark ? '#1E232F' : '#D5DCE4',
-    roadMinorFill: isDark ? '#262D3B' : '#FFFFFF',
-    roadMajorCasing: isDark ? '#2E3647' : '#BAC6D3',
-    roadMajorFill: isDark ? '#3A4458' : '#FFFFFF',
-    bridgeDeck: isDark ? '#313A4D' : '#CFD8E3',
-    bridgeParapet: isDark ? '#4A556B' : '#94A3B8',
-    textPrimary: isDark ? '#FFFFFF' : '#111827',
-    textMuted: isDark ? '#9CA3AF' : '#6B7280',
-    badgeBg: isDark ? 'rgba(0, 0, 0, 0.92)' : 'rgba(255, 255, 255, 0.96)',
-    badgeBorder: isDark ? '#27272A' : '#E5E7EB'
-  };
-
   // Interpolated GPS position along active route
-  const getGpsPosition = () => {
+  const getGpsPosition = useCallback(() => {
     if (!activeRoute || !activeRoute.pathPoints || activeRoute.pathPoints.length < 2) {
-      return { x: 18, y: 80, angle: 45 };
+      return { latLng: [CP_LAT, CP_LNG] as [number, number], angle: 45 };
     }
     const points = activeRoute.pathPoints;
     const totalSegments = points.length - 1;
@@ -97,490 +103,535 @@ export const MapEngine: React.FC<MapEngineProps> = ({
     const p1 = points[segIndex];
     const p2 = points[segIndex + 1];
 
+    const currentX = p1.x + (p2.x - p1.x) * segFraction;
+    const currentY = p1.y + (p2.y - p1.y) * segFraction;
+
     const dx = p2.x - p1.x;
     const dy = p2.y - p1.y;
+    // Map screen angle to navigation compass angle
     const angle = (Math.atan2(dy, dx) * 180) / Math.PI + 90;
 
     return {
-      x: p1.x + dx * segFraction,
-      y: p1.y + dy * segFraction,
+      latLng: toLatLng({ x: currentX, y: currentY }),
       angle
     };
+  }, [activeRoute, userProgress]);
+
+  // 1. Initialize Leaflet Map
+  useEffect(() => {
+    if (!containerRef.current) return;
+    if (mapRef.current) return;
+
+    const initialCenter: [number, number] = navMode 
+      ? getGpsPosition().latLng 
+      : [CP_LAT, CP_LNG];
+
+    const map = L.map(containerRef.current, {
+      center: initialCenter,
+      zoom: 15,
+      zoomControl: false,
+      attributionControl: false,
+      dragging: interactive,
+      touchZoom: interactive,
+      scrollWheelZoom: interactive,
+      doubleClickZoom: interactive,
+      boxZoom: interactive,
+      keyboard: interactive,
+    });
+
+    // High quality OpenStreetMap standard tiles
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const layerGroup = L.layerGroup().addTo(map);
+    layersGroupRef.current = layerGroup;
+    mapRef.current = map;
+
+    // Handle container resize
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+
+    return () => {
+      clearTimeout(timer);
+      map.remove();
+      mapRef.current = null;
+      layersGroupRef.current = null;
+    };
+  }, [interactive]);
+
+  // 2. Render all overlays (Routes, Heatmaps, Help Points, Hazard Markers, GPS Puck)
+  useEffect(() => {
+    const map = mapRef.current;
+    const layerGroup = layersGroupRef.current;
+    if (!map || !layerGroup) return;
+
+    // Clear existing overlay layers
+    layerGroup.clearLayers();
+
+    // --- A. Heatmap Risk Zones ---
+    if (heatmapVisible) {
+      MOCK_HEATMAP_ZONES.forEach((zone) => {
+        const center = toLatLng({ x: zone.x, y: zone.y });
+        const radiusInMeters = zone.radius * 9.5; // realistic urban radius
+        const isSafe = zone.riskLevel === 'safe';
+        const isMedium = zone.riskLevel === 'medium';
+
+        const color = isSafe ? '#10B981' : isMedium ? '#F59E0B' : '#EF4444';
+        const fillOpacity = isSafe ? 0.16 : isMedium ? 0.22 : 0.28;
+
+        const circle = L.circle(center, {
+          radius: radiusInMeters,
+          color,
+          fillColor: color,
+          fillOpacity,
+          weight: 1.5,
+          dashArray: isMedium ? '4 4' : undefined
+        });
+
+        circle.bindTooltip(`<b>${zone.label}</b><br/>Safety: ${zone.riskLevel.toUpperCase()}`, {
+          direction: 'top',
+          className: 'custom-map-tooltip'
+        });
+
+        circle.addTo(layerGroup);
+      });
+    }
+
+    // --- B. Alternative Routes (Challenge 2 & Comparison) ---
+    if (routesToCompare && routesToCompare.length > 0) {
+      routesToCompare.forEach((r) => {
+        const isSelected = (activeRoute?.id === r.id) || (selectedRouteId === r.id);
+        if (isSelected) return; // Rendered below with active primary styling
+
+        const latLngs = r.pathPoints.map(toLatLng);
+        const polyline = L.polyline(latLngs, {
+          color: r.color || '#6B7280',
+          weight: 4.5,
+          opacity: 0.65,
+          dashArray: r.id === 'route_a' ? '6 6' : undefined,
+          lineCap: 'round',
+          lineJoin: 'round'
+        });
+
+        polyline.on('click', () => {
+          onSelectRoute?.(r.id);
+        });
+
+        polyline.bindTooltip(`${r.name} (${r.safetyScore}%)`, {
+          sticky: true,
+          direction: 'top'
+        });
+
+        polyline.addTo(layerGroup);
+      });
+    }
+
+    // Fallback reroute mode line (Screen 9)
+    if (rerouteMode && !routesToCompare) {
+      const fallbackPts = [
+        { x: 15, y: 80 },
+        { x: 25, y: 70 },
+        { x: 30, y: 55 },
+        { x: 45, y: 35 },
+        { x: 88, y: 15 }
+      ].map(toLatLng);
+
+      L.polyline(fallbackPts, {
+        color: '#EF4444',
+        weight: 4,
+        dashArray: '6 6',
+        opacity: 0.75
+      }).addTo(layerGroup);
+    }
+
+    // --- C. Active Navigation Route ---
+    if (activeRoute && activeRoute.pathPoints && activeRoute.pathPoints.length > 0) {
+      const latLngs = activeRoute.pathPoints.map(toLatLng);
+
+      // Casing outline for crisp contrast
+      L.polyline(latLngs, {
+        color: isDark ? '#000000' : '#FFFFFF',
+        weight: 9,
+        opacity: 0.95,
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(layerGroup);
+
+      // Core route stroke
+      const routeColor = activeRoute.color || (activeRoute.isRecommended ? '#10B981' : '#2563EB');
+      L.polyline(latLngs, {
+        color: routeColor,
+        weight: 5.5,
+        opacity: 0.95,
+        lineCap: 'round',
+        lineJoin: 'round'
+      }).addTo(layerGroup);
+
+      // Origin start dot
+      const startPt = latLngs[0];
+      const originIcon = L.divIcon({
+        className: 'origin-marker',
+        html: `
+          <div style="width: 14px; height: 14px; border-radius: 50%; background-color: #10B981; border: 2.5px solid #FFFFFF; box-shadow: 0 1px 4px rgba(0,0,0,0.3);"></div>
+        `,
+        iconSize: [14, 14],
+        iconAnchor: [7, 7]
+      });
+      L.marker(startPt, { icon: originIcon }).addTo(layerGroup);
+
+      // Destination Flag/Pin
+      const endPt = latLngs[latLngs.length - 1];
+      const isArrived = userProgress >= 100;
+      const destIcon = L.divIcon({
+        className: 'destination-marker',
+        html: `
+          <div style="display: flex; flex-direction: column; align-items: center; transform: translateY(-26px);">
+            <div style="padding: 2px 6px; border-radius: 4px; background: ${isDark ? '#000000' : '#FFFFFF'}; border: 1px solid ${isArrived ? '#10B981' : '#EF4444'}; font-size: 9px; font-weight: 800; color: ${isArrived ? '#10B981' : (isDark ? '#FFFFFF' : '#111827')}; box-shadow: 0 2px 5px rgba(0,0,0,0.25); white-space: nowrap;">
+              ${isArrived ? 'Arrived ✓' : 'Destination 🏁'}
+            </div>
+            <div style="width: 8px; height: 8px; border-radius: 50%; background: ${isArrived ? '#10B981' : '#EF4444'}; border: 2px solid #FFFFFF; margin-top: 2px;"></div>
+          </div>
+        `,
+        iconSize: [80, 32],
+        iconAnchor: [40, 32]
+      });
+      L.marker(endPt, { icon: destIcon }).addTo(layerGroup);
+
+      // Stopped / Incident Origin Pin (when rerouting or stopped mid-route)
+      if (lastStoppedLocation) {
+        const stoppedPt = toLatLng(lastStoppedLocation);
+        const stoppedIcon = L.divIcon({
+          className: 'stopped-location-marker',
+          html: `
+            <div style="display: flex; flex-direction: column; align-items: center; transform: translateY(-28px); z-index: 100;">
+              <div style="padding: 2.5px 7px; border-radius: 6px; background: #DC2626; color: #FFFFFF; font-size: 9px; font-weight: 900; box-shadow: 0 3px 8px rgba(220,38,38,0.45); white-space: nowrap; border: 1.5px solid #FFFFFF; display: flex; align-items: center; gap: 3px;">
+                <span>📍</span>
+                <span>${lastStoppedLocation.label || 'Stopped / Reroute Point'}</span>
+              </div>
+              <div style="position: relative; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; margin-top: 2px;">
+                <div style="position: absolute; width: 22px; height: 22px; border-radius: 50%; background: rgba(220,38,38,0.4); animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+                <div style="width: 12px; height: 12px; border-radius: 50%; background: #DC2626; border: 2.5px solid #FFFFFF; z-index: 2;"></div>
+              </div>
+            </div>
+          `,
+          iconSize: [120, 36],
+          iconAnchor: [60, 36]
+        });
+        L.marker(stoppedPt, { icon: stoppedIcon, zIndexOffset: 500 }).addTo(layerGroup);
+      }
+    }
+
+    // --- D. Verified Safe Havens / Help Points (POIs) ---
+    if (showHelpPoints) {
+      MOCK_HELP_POINTS.forEach((hp) => {
+        const hpLatLng = toLatLng(hp.coords);
+        const isPolice = hp.type === 'police';
+        const isHosp = hp.type === 'hospital';
+        const isMetro = hp.type === 'metro';
+
+        const bgCol = isPolice ? '#2563EB' : isHosp ? '#EF4444' : isMetro ? '#D97706' : '#10B981';
+        const iconChar = isPolice ? '🛡️' : isHosp ? '🏥' : isMetro ? '🚇' : '💊';
+
+        const hpIcon = L.divIcon({
+          className: 'poi-marker',
+          html: `
+            <div style="
+              width: 24px; 
+              height: 24px; 
+              border-radius: 50%; 
+              background: ${bgCol}; 
+              border: 2px solid #FFFFFF; 
+              display: flex; 
+              align-items: center; 
+              justify-content: center; 
+              font-size: 11px; 
+              cursor: pointer;
+              box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+              transition: transform 0.2s ease;
+            ">
+              ${iconChar}
+            </div>
+          `,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
+        });
+
+        const marker = L.marker(hpLatLng, { icon: hpIcon });
+        marker.on('click', () => {
+          setSelectedHp(hp);
+          if (onHelpPointClick) onHelpPointClick(hp);
+        });
+        marker.addTo(layerGroup);
+      });
+    }
+
+    // --- E. Environmental Dark Spot & Hazard Markers (Challenge 1 & 3) ---
+    if (lightingStatus === 'failed' || lightingStatus === 'dark_spot') {
+      const darkSpotCenter = toLatLng({ x: 52, y: 56 });
+      const darkSpotIcon = L.divIcon({
+        className: 'dark-spot-hazard',
+        html: `
+          <div style="display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -50%);">
+            <div style="position: absolute; width: 44px; height: 44px; border-radius: 50%; background: rgba(239,68,68,0.25); animation: ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+            <div style="width: 20px; height: 20px; border-radius: 50%; background: #EF4444; border: 2px solid #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 10px; color: white; font-weight: bold; z-index: 2;">
+              ⚡
+            </div>
+            <div style="margin-top: 3px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.85); color: #EF4444; font-size: 8px; font-weight: 800; border: 1px solid #EF4444; white-space: nowrap; z-index: 2;">
+              DARK SPOT (${luxLevel} LUX)
+            </div>
+          </div>
+        `,
+        iconSize: [100, 40],
+        iconAnchor: [0, 0]
+      });
+      L.marker(darkSpotCenter, { icon: darkSpotIcon }).addTo(layerGroup);
+    }
+
+    if (disruptionLabel) {
+      const hazardCenter = toLatLng({ x: 62, y: 48 });
+      const hazardIcon = L.divIcon({
+        className: 'disruption-hazard',
+        html: `
+          <div style="display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -50%);">
+            <div style="width: 22px; height: 22px; border-radius: 50%; background: #DC2626; border: 2px solid #FFFFFF; display: flex; align-items: center; justify-content: center; font-size: 11px; color: white;">
+              ⚠️
+            </div>
+            <div style="margin-top: 2px; padding: 2px 6px; border-radius: 4px; background: rgba(0,0,0,0.88); color: #FCA5A5; font-size: 8px; font-weight: 800; border: 1px solid #DC2626; white-space: nowrap;">
+              ${disruptionLabel}
+            </div>
+          </div>
+        `,
+        iconSize: [110, 40],
+        iconAnchor: [0, 0]
+      });
+      L.marker(hazardCenter, { icon: hazardIcon }).addTo(layerGroup);
+    }
+
+    // --- F. GPS User Puck (matches screenshot: Blue glowing GPS dot + DELHI bold label) ---
+    if (navMode) {
+      const { latLng: gpsLatLng, angle: gpsAngle } = getGpsPosition();
+      const navGpsIcon = L.divIcon({
+        className: 'nav-gps-puck',
+        html: `
+          <div style="position: relative; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; transform: translate(-18px, -18px);">
+            <!-- Directional Navigation Cone -->
+            <div style="
+              position: absolute;
+              top: -18px;
+              left: 50%;
+              transform: translateX(-50%) rotate(${gpsAngle}deg);
+              width: 0;
+              height: 0;
+              border-left: 10px solid transparent;
+              border-right: 10px solid transparent;
+              border-bottom: 22px solid rgba(16, 185, 129, 0.45);
+              transform-origin: bottom center;
+            "></div>
+            <!-- Pulsing Halo -->
+            <div style="position: absolute; width: 32px; height: 32px; border-radius: 50%; background: rgba(16, 185, 129, 0.3); animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+            <!-- Solid High-Contrast Puck -->
+            <div style="width: 18px; height: 18px; border-radius: 50%; background: #FFFFFF; border: 3px solid #10B981; box-shadow: 0 2px 6px rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center;">
+              <div style="width: 6px; height: 6px; border-radius: 50%; background: #10B981;"></div>
+            </div>
+          </div>
+        `,
+        iconSize: [36, 36],
+        iconAnchor: [0, 0]
+      });
+
+      L.marker(gpsLatLng, { icon: navGpsIcon }).addTo(layerGroup);
+
+      // Pan to follow user in navMode smoothly
+      map.panTo(gpsLatLng, { animate: true, duration: 0.5 });
+    } else {
+      // General / Dashboard Preview Mode: Exact blue dot & DELHI label from user's screenshot!
+      const previewCenter: [number, number] = [CP_LAT, CP_LNG];
+      const previewGpsIcon = L.divIcon({
+        className: 'delhi-preview-puck',
+        html: `
+          <div style="display: flex; flex-direction: column; align-items: center; transform: translate(-50%, -50%); pointer-events: none;">
+            <!-- Prominent "DELHI" Typography Label as seen in screenshot -->
+            <div style="
+              font-size: 15px; 
+              font-weight: 900; 
+              letter-spacing: 1px; 
+              color: ${isDark ? '#93C5FD' : '#2563EB'}; 
+              text-shadow: 0 1px 3px ${isDark ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)'}, 0 0 10px ${isDark ? 'rgba(37,99,235,0.4)' : 'rgba(255,255,255,0.9)'};
+              margin-bottom: 2px;
+            ">
+              DELHI
+            </div>
+            
+            <!-- Concentric Blue Pulsing Glow Dot -->
+            <div style="position: relative; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;">
+              <!-- Outer glowing pulse aura -->
+              <div class="gps-pulse-aura" style="position: absolute; width: 28px; height: 28px; border-radius: 50%; background: rgba(37, 99, 235, 0.35);"></div>
+              <div style="position: absolute; width: 20px; height: 20px; border-radius: 50%; background: rgba(59, 130, 246, 0.45);"></div>
+              <!-- Inner solid blue core -->
+              <div style="width: 12px; height: 12px; border-radius: 50%; background: #2563EB; border: 2.5px solid #FFFFFF; box-shadow: 0 2px 6px rgba(0,0,0,0.35); z-index: 2;"></div>
+            </div>
+          </div>
+        `,
+        iconSize: [80, 50],
+        iconAnchor: [0, 0]
+      });
+
+      L.marker(previewCenter, { icon: previewGpsIcon }).addTo(layerGroup);
+    }
+  }, [
+    activeRoute,
+    selectedRouteId,
+    routesToCompare,
+    rerouteMode,
+    heatmapVisible,
+    showHelpPoints,
+    userProgress,
+    navMode,
+    luxLevel,
+    lightingStatus,
+    disruptionLabel,
+    isDark,
+    getGpsPosition,
+    onSelectRoute,
+    onHelpPointClick
+  ]);
+
+  // Recenter map handler
+  const handleRecenter = () => {
+    if (!mapRef.current) return;
+    if (navMode) {
+      mapRef.current.setView(getGpsPosition().latLng, 16, { animate: true });
+    } else {
+      mapRef.current.setView([CP_LAT, CP_LNG], 15, { animate: true });
+    }
   };
 
-  const currentGps = getGpsPosition();
+  const handleZoomIn = () => {
+    mapRef.current?.zoomIn();
+  };
 
-  // Helper for SVG polyline points string
-  const pointsToSvgPath = (pts: { x: number; y: number }[]) => {
-    if (!pts.length) return '';
-    return pts.reduce((acc, pt, idx) => {
-      return idx === 0 ? `M ${pt.x * 5} ${pt.y * 5}` : `${acc} L ${pt.x * 5} ${pt.y * 5}`;
-    }, '');
+  const handleZoomOut = () => {
+    mapRef.current?.zoomOut();
   };
 
   return (
-    <div className={`relative w-full overflow-hidden select-none transition-colors ${heightClass}`} style={{ backgroundColor: colors.canvas }}>
-      {/* SVG Vector Map Canvas */}
-      <svg
-        viewBox="0 0 500 500"
-        className="w-full h-full object-cover transition-transform duration-300 ease-out"
-        style={{ transform: `scale(${zoom})` }}
-      >
-        <defs>
-          {/* Heatmaps */}
-          <radialGradient id="heat-safe" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#10B981" stopOpacity="0.32" />
-            <stop offset="70%" stopColor="#10B981" stopOpacity="0.10" />
-            <stop offset="100%" stopColor="#10B981" stopOpacity="0" />
-          </radialGradient>
-          <radialGradient id="heat-caution" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#F59E0B" stopOpacity="0.35" />
-            <stop offset="80%" stopColor="#F59E0B" stopOpacity="0.10" />
-            <stop offset="100%" stopColor="#F59E0B" stopOpacity="0" />
-          </radialGradient>
-          <radialGradient id="heat-danger" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#EF4444" stopOpacity="0.45" />
-            <stop offset="70%" stopColor="#EF4444" stopOpacity="0.15" />
-            <stop offset="100%" stopColor="#EF4444" stopOpacity="0" />
-          </radialGradient>
+    <div className={`relative w-full overflow-hidden select-none ${heightClass}`}>
+      {/* 1. Underlying Leaflet Map Canvas */}
+      <div 
+        ref={containerRef} 
+        className="w-full h-full z-0" 
+      />
 
-          {/* Navigation Beam Cone */}
-          <linearGradient id="nav-beam-cone" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0%" stopColor="#10B981" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#10B981" stopOpacity="0.0" />
-          </linearGradient>
-        </defs>
+      {/* 2. Top-Left Badge: "Live Street Map · Sector 4" (as seen in user screenshot) */}
+      <div className="absolute top-2.5 left-2.5 z-500 pointer-events-none">
+        <div className="px-2.5 py-1 rounded-full bg-white/90 dark:bg-black/90 backdrop-blur-md border border-neutral-200/90 dark:border-neutral-800 text-[10px] font-extrabold text-neutral-800 dark:text-neutral-100 flex items-center gap-1.5 shadow-sm">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
+          <span>Live Street Map • Sector 4</span>
+        </div>
+      </div>
 
-        {/* 1. Base Land Canvas */}
-        <rect width="500" height="500" fill={colors.canvas} />
-
-        {/* 2. City Blocks / Parcels (Subtle, realistic urban density) */}
-        <g fill={colors.block} stroke={colors.blockStroke} strokeWidth="1">
-          {/* Northwest Sector */}
-          <rect x="25" y="25" width="45" height="35" rx="3" />
-          <rect x="90" y="25" width="55" height="35" rx="3" />
-          <rect x="25" y="80" width="45" height="30" rx="3" />
-          <rect x="90" y="80" width="55" height="30" rx="3" />
+      {/* 3. Sleek Floating Zoom & Recenter Control Pill (Matches user screenshot right column) */}
+      {interactive && !navMode && (
+        <div className="absolute right-2.5 top-2.5 z-500 flex flex-col bg-white/95 dark:bg-black/95 backdrop-blur-md rounded-xl border border-neutral-200/90 dark:border-neutral-800 shadow-sm overflow-hidden divide-y divide-neutral-200 dark:divide-neutral-800">
+          <button
+            type="button"
+            id="btn-map-zoom-in"
+            aria-label="Zoom In"
+            onClick={handleZoomIn}
+            className="w-7 h-7.5 flex items-center justify-center text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
+            title="Zoom In"
+          >
+            <Plus className="w-3.5 h-3.5" />
+          </button>
           
-          {/* Central-North Sector */}
-          <rect x="175" y="25" width="25" height="35" rx="3" />
-          <rect x="175" y="80" width="25" height="30" rx="3" />
-          <rect x="315" y="25" width="60" height="35" rx="3" />
-          <rect x="390" y="25" width="85" height="35" rx="3" />
-          <rect x="315" y="80" width="60" height="30" rx="3" />
-
-          {/* Mid City Core (Between Northway y=120 and Central Ave y=250) */}
-          <rect x="25" y="130" width="45" height="40" rx="3" />
-          <rect x="90" y="130" width="55" height="40" rx="3" />
-          <rect x="175" y="130" width="60" height="40" rx="3" />
-          <rect x="250" y="130" width="75" height="40" rx="3" />
-          <rect x="345" y="130" width="60" height="40" rx="3" />
-          <rect x="420" y="130" width="55" height="40" rx="3" />
-
-          <rect x="115" y="190" width="30" height="45" rx="3" />
-          <rect x="160" y="190" width="75" height="45" rx="3" />
-          <rect x="250" y="190" width="75" height="45" rx="3" />
-          <rect x="345" y="190" width="60" height="45" rx="3" />
-          <rect x="420" y="190" width="55" height="45" rx="3" />
-
-          {/* South Corridor (Above Canal) */}
-          <rect x="25" y="260" width="45" height="45" rx="3" />
-          <rect x="90" y="260" width="55" height="45" rx="3" />
-          <rect x="160" y="260" width="75" height="45" rx="3" />
-          <rect x="250" y="260" width="75" height="45" rx="3" />
-          <rect x="345" y="260" width="60" height="45" rx="3" />
-          <rect x="420" y="260" width="55" height="45" rx="3" />
-
-          {/* South District (Below Canal y=380) */}
-          <rect x="25" y="420" width="55" height="55" rx="3" />
-          <rect x="95" y="420" width="50" height="55" rx="3" />
-          <rect x="160" y="420" width="75" height="55" rx="3" />
-          <rect x="250" y="420" width="75" height="55" rx="3" />
-          <rect x="345" y="420" width="45" height="55" rx="3" />
-          <rect x="405" y="420" width="70" height="55" rx="3" />
-        </g>
-
-        {/* 3. Waterway (Canal with natural curve) */}
-        <path
-          d="M -10 340 Q 120 330, 240 350 T 510 340 L 510 380 Q 370 390, 240 380 T -10 375 Z"
-          fill={colors.water}
-          stroke={colors.waterStroke}
-          strokeWidth="1.5"
-        />
-
-        {/* Waterway Label */}
-        <text
-          x="420"
-          y="363"
-          textAnchor="middle"
-          fill={isDark ? '#4B7AB8' : '#2563EB'}
-          fontSize="7.5"
-          fontWeight="700"
-          letterSpacing="0.8"
-          opacity="0.85"
-        >
-          HARBOR CANAL
-        </text>
-
-        {/* 4. Parks & Public Greens */}
-        {/* West Botanical Reserve */}
-        <rect x="25" y="185" width="75" height="55" rx="8" fill={colors.park} stroke={colors.parkStroke} strokeWidth="1" />
-        <text x="62" y="215" textAnchor="middle" fill={isDark ? '#4ADE80' : '#166534'} fontSize="7.5" fontWeight="700">
-          🌿 City Botanical
-        </text>
-
-        {/* North Heritage Memorial Park */}
-        <rect x="215" y="25" width="85" height="75" rx="8" fill={colors.park} stroke={colors.parkStroke} strokeWidth="1" />
-        <text x="257" y="65" textAnchor="middle" fill={isDark ? '#4ADE80' : '#166534'} fontSize="8" fontWeight="700">
-          🌲 Memorial Park
-        </text>
-
-        {/* 5. Road Network Hierarchy */}
-        {/* Secondary Connector Streets (Underlay) */}
-        <g stroke={colors.roadMinorCasing} strokeWidth="7" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="20" y1="70" x2="480" y2="70" />
-          <line x1="20" y1="180" x2="480" y2="180" />
-          <line x1="20" y1="315" x2="480" y2="315" />
-          <line x1="20" y1="415" x2="480" y2="415" />
-
-          <line x1="80" y1="20" x2="80" y2="335" />
-          <line x1="80" y1="380" x2="80" y2="480" />
-          <line x1="150" y1="20" x2="150" y2="335" />
-          <line x1="150" y1="380" x2="150" y2="480" />
-          <line x1="410" y1="20" x2="410" y2="335" />
-          <line x1="410" y1="380" x2="410" y2="480" />
-        </g>
-        <g stroke={colors.roadMinorFill} strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="20" y1="70" x2="480" y2="70" />
-          <line x1="20" y1="180" x2="480" y2="180" />
-          <line x1="20" y1="315" x2="480" y2="315" />
-          <line x1="20" y1="415" x2="480" y2="415" />
-
-          <line x1="80" y1="20" x2="80" y2="335" />
-          <line x1="80" y1="380" x2="80" y2="480" />
-          <line x1="150" y1="20" x2="150" y2="335" />
-          <line x1="150" y1="380" x2="150" y2="480" />
-          <line x1="410" y1="20" x2="410" y2="335" />
-          <line x1="410" y1="380" x2="410" y2="480" />
-        </g>
-
-        {/* Primary Arterial Avenues (Avenue & Highway Grid) */}
-        {/* Casing */}
-        <g stroke={colors.roadMajorCasing} strokeWidth="12" strokeLinecap="round" strokeLinejoin="round">
-          {/* Northway Arterial */}
-          <line x1="20" y1="120" x2="480" y2="120" />
-          {/* Central Commercial Avenue */}
-          <line x1="20" y1="250" x2="480" y2="250" />
-          {/* Radial Crossway */}
-          <line x1="240" y1="20" x2="240" y2="480" />
-          {/* Metro Boulevard */}
-          <line x1="335" y1="20" x2="335" y2="480" />
-          {/* Grand Boulevard (Diagonal Corridor) */}
-          <path d="M 60 450 L 160 380 L 240 310 L 335 220 L 450 75" />
-        </g>
-        {/* Fill */}
-        <g stroke={colors.roadMajorFill} strokeWidth="8.5" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="20" y1="120" x2="480" y2="120" />
-          <line x1="20" y1="250" x2="480" y2="250" />
-          <line x1="240" y1="20" x2="240" y2="480" />
-          <line x1="335" y1="20" x2="335" y2="480" />
-          <path d="M 60 450 L 160 380 L 240 310 L 335 220 L 450 75" />
-        </g>
-
-        {/* Bridges Across Canal (Realistic bridge decks sitting above water) */}
-        <g fill={colors.bridgeDeck} stroke={colors.bridgeParapet} strokeWidth="1">
-          {/* Grand Blvd Bridge */}
-          <rect x="180" y="340" width="22" height="42" rx="2" transform="rotate(-35 191 361)" />
-          {/* Radial Crossway Bridge */}
-          <rect x="233" y="340" width="14" height="42" rx="1.5" />
-          {/* Metro Way Bridge */}
-          <rect x="328" y="340" width="14" height="42" rx="1.5" />
-        </g>
-
-        {/* Street Name Labels (High contrast, restrained placement) */}
-        <g opacity="0.9">
-          <rect x="175" y="242" width="70" height="13" rx="3" fill={colors.badgeBg} stroke={colors.badgeBorder} strokeWidth="0.8" />
-          <text x="210" y="251.5" textAnchor="middle" fill={colors.textPrimary} fontSize="7.5" fontWeight="700">
-            Central Ave
-          </text>
-
-          <rect x="260" y="295" width="72" height="13" rx="3" fill={colors.badgeBg} stroke={colors.badgeBorder} strokeWidth="0.8" />
-          <text x="296" y="304.5" textAnchor="middle" fill={colors.textPrimary} fontSize="7.5" fontWeight="700">
-            Grand Blvd
-          </text>
-        </g>
-
-        {/* 6. Streetlight Nodes along the Lit Corridor */}
-        {showStreetlights && (
-          <g opacity="0.9">
-            {[
-              { x: 75, y: 400 },
-              { x: 110, y: 390 },
-              { x: 160, y: 380 },
-              { x: 200, y: 345 },
-              { x: 240, y: 310 },
-              { x: 290, y: 265 },
-              { x: 335, y: 220 },
-              { x: 385, y: 155 },
-              { x: 425, y: 105 }
-            ].map((st, i) => (
-              <g key={`st-${i}`}>
-                <circle cx={st.x} cy={st.y} r="6" fill="#FEF08A" opacity={isDark ? "0.35" : "0.5"} />
-                <circle cx={st.x} cy={st.y} r="2" fill="#D97706" />
-              </g>
-            ))}
-          </g>
-        )}
-
-        {/* 7. Heatmap Risk Zones Overlay */}
-        {heatmapVisible && (
-          <g className="transition-opacity duration-300">
-            {MOCK_HEATMAP_ZONES.map((zone, idx) => {
-              const gradId =
-                zone.riskLevel === 'safe'
-                  ? 'url(#heat-safe)'
-                  : zone.riskLevel === 'medium'
-                  ? 'url(#heat-caution)'
-                  : 'url(#heat-danger)';
-              return (
-                <circle
-                  key={`zone-${idx}`}
-                  cx={zone.x * 5}
-                  cy={zone.y * 5}
-                  r={zone.radius * 3.2}
-                  fill={gradId}
-                />
-              );
-            })}
-          </g>
-        )}
-
-        {/* 8. Reroute Previous Path (Screen 9 Comparison Mode only) */}
-        {rerouteMode && (
-          <path
-            d="M 75 400 L 125 350 L 150 275 L 225 175 L 440 75"
-            stroke="#EF4444"
-            strokeWidth="4"
-            strokeDasharray="6 4"
-            strokeLinecap="round"
-            fill="none"
-            opacity="0.75"
-          />
-        )}
-
-        {/* 9. Active Selected Navigation Route */}
-        {activeRoute && activeRoute.pathPoints && (
-          <g key={activeRoute.id}>
-            {/* High-contrast outline casing */}
-            <motion.path
-              d={pointsToSvgPath(activeRoute.pathPoints)}
-              fill="none"
-              stroke={isDark ? '#000000' : '#FFFFFF'}
-              strokeWidth="11"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              opacity="0.95"
-              initial={shouldReduceMotion ? false : { pathLength: 0.2, opacity: 0.6 }}
-              animate={shouldReduceMotion ? false : { pathLength: 1, opacity: 0.95 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            />
-            {/* Core navigation route line (Emerald for verified safe) */}
-            <motion.path
-              d={pointsToSvgPath(activeRoute.pathPoints)}
-              fill="none"
-              stroke={activeRoute.isRecommended ? '#10B981' : (isDark ? '#FFFFFF' : '#111827')}
-              strokeWidth="6.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              initial={shouldReduceMotion ? false : { pathLength: 0.2, opacity: 0.7 }}
-              animate={shouldReduceMotion ? false : { pathLength: 1, opacity: 1 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            />
-            {/* Directional Dash Chevrons */}
-            <path
-              d={pointsToSvgPath(activeRoute.pathPoints)}
-              fill="none"
-              stroke="#FFFFFF"
-              strokeWidth="2.5"
-              strokeDasharray="5 18"
-              strokeLinecap="round"
-              opacity="0.95"
-            />
-          </g>
-        )}
-
-        {/* 10. Origin Start Point */}
-        <g transform="translate(75, 400)">
-          <circle cx="0" cy="0" r="10" fill="#10B981" opacity="0.2" className="animate-pulse" />
-          <circle cx="0" cy="0" r="5.5" fill="#10B981" stroke="#FFFFFF" strokeWidth="2" />
-        </g>
-
-        {/* 11. Destination Pin */}
-        <g transform="translate(440, 75)">
-          <circle cx="0" cy="0" r="12" fill={userProgress >= 100 ? '#10B981' : '#EF4444'} opacity={userProgress >= 100 ? 0.35 : 0.2} />
-          <path
-            d="M 0 0 C -6 -8, -8 -13, -8 -17 C -8 -22, -4 -26, 0 -26 C 4 -26, 8 -22, 8 -17 C 8 -13, 6 -8, 0 0 Z"
-            fill={userProgress >= 100 ? '#10B981' : '#EF4444'}
-            filter="drop-shadow(0 2px 4px rgba(0,0,0,0.25))"
-          />
-          <circle cx="0" cy="-17" r="3.5" fill="#FFFFFF" />
-          <g transform="translate(-52, -44)">
-            <rect width="104" height="15" rx="3.5" fill={colors.badgeBg} stroke={userProgress >= 100 ? '#10B981' : colors.badgeBorder} strokeWidth="1" />
-            <text x="52" y="10.5" textAnchor="middle" fill={userProgress >= 100 ? '#10B981' : colors.textPrimary} fontSize="8" fontWeight="800">
-              {userProgress >= 100 ? 'Westwood Res. ✓ Arrived' : 'Westwood Res. 🏁'}
-            </text>
-          </g>
-        </g>
-
-        {/* 12. Verified Help Points (POIs) */}
-        {showHelpPoints &&
-          MOCK_HELP_POINTS.map((hp) => {
-            const px = hp.coords.x * 5;
-            const py = hp.coords.y * 5;
-            const isPolice = hp.type === 'police';
-            const isHosp = hp.type === 'hospital';
-            const isMetro = hp.type === 'metro';
-
-            const bgCol = isPolice ? '#1A73E8' : isHosp ? '#EF4444' : isMetro ? '#E37400' : '#10B981';
-
-            return (
-              <g
-                key={hp.id}
-                transform={`translate(${px}, ${py})`}
-                className="cursor-pointer transition-transform hover:scale-115"
-                onClick={() => {
-                  setSelectedHp(hp);
-                  if (onHelpPointClick) onHelpPointClick(hp);
-                }}
-              >
-                <circle cx="0" cy="0" r="10" fill={colors.badgeBg} stroke={colors.badgeBorder} strokeWidth="1" filter="drop-shadow(0 1px 3px rgba(0,0,0,0.15))" />
-                <circle cx="0" cy="0" r="8" fill={bgCol} />
-                {isPolice && (
-                  <path d="M-2.5 -2.5 L0 -4 L2.5 -2.5 L2.5 1.5 C2.5 2.5 0 4 0 4 C0 4 -2.5 2.5 -2.5 1.5 Z" fill="#FFFFFF" />
-                )}
-                {isHosp && (
-                  <path d="M-1.5 -3.5 h3 v2 h2 v3 h-2 v2 h-3 v-2 h-2 v-3 h2 Z" fill="#FFFFFF" />
-                )}
-                {isMetro && (
-                  <circle cx="0" cy="0" r="2.8" fill="#FFFFFF" />
-                )}
-                {!isPolice && !isHosp && !isMetro && (
-                  <circle cx="0" cy="0" r="2.8" fill="#FFFFFF" />
-                )}
-              </g>
-            );
-          })}
-
-        {/* 13. GPS Navigation Puck with Dynamic Heading Beam */}
-        {navMode && (
-          <g transform={`translate(${currentGps.x * 5}, ${currentGps.y * 5})`}>
-            {/* Dynamic Direction Beam (only when moving) */}
-            {userProgress < 100 && (
-              <path
-                d="M 0 0 L -25 -65 A 65 65 0 0 1 25 -65 Z"
-                fill="url(#nav-beam-cone)"
-                transform={`rotate(${currentGps.angle})`}
-              />
-            )}
-
-            {/* GPS Pulse Ring */}
-            <circle cx="0" cy="0" r="18" fill="#10B981" opacity="0.2" className="animate-ping" />
-            <circle cx="0" cy="0" r="12" fill="#10B981" opacity="0.25" />
-            
-            {/* High-Contrast Navigation Puck */}
-            <circle cx="0" cy="0" r="9" fill="#FFFFFF" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.35))" />
-            <circle cx="0" cy="0" r="7" fill="#10B981" />
-            
-            {/* Directional Arrow Tip */}
-            <path
-              d="M 0 -7 L 3.5 1.5 L 0 0 L -3.5 1.5 Z"
-              fill="#FFFFFF"
-              transform={`rotate(${currentGps.angle})`}
-            />
-          </g>
-        )}
-      </svg>
-
-      {/* Floating Controls for General / Preview Mode only (Suppressed in navMode to avoid collision with nav rail) */}
-      {!navMode && interactive && (
-        <div className="absolute right-3 top-3.5 flex flex-col gap-1.5 z-10">
           <button
-            id="btn-map-compass"
-            aria-label="Map Compass"
-            onClick={() => setZoom(1)}
-            className="w-8 h-8 rounded-lg bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-200 dark:border-neutral-800 shadow-sm flex items-center justify-center cursor-pointer hover:border-black dark:hover:border-white transition-colors"
-            title="Reset Map Orientation"
+            type="button"
+            id="btn-map-zoom-out"
+            aria-label="Zoom Out"
+            onClick={handleZoomOut}
+            className="w-7 h-7.5 flex items-center justify-center text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
+            title="Zoom Out"
           >
-            <Compass className="w-4 h-4 text-red-500" />
+            <Minus className="w-3.5 h-3.5" />
           </button>
 
           <button
+            type="button"
             id="btn-map-recenter"
-            aria-label="Re-Center Location"
-            onClick={() => setZoom(1)}
-            className="w-8 h-8 rounded-lg bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-200 dark:border-neutral-800 shadow-sm flex items-center justify-center cursor-pointer hover:border-black dark:hover:border-white transition-colors"
-            title="Re-Center on Location"
+            aria-label="Recenter Map"
+            onClick={handleRecenter}
+            className="w-7 h-7.5 flex items-center justify-center text-neutral-700 dark:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 cursor-pointer transition-colors"
+            title="Recenter Map on Delhi"
           >
-            <LocateFixed className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <Navigation className="w-3 h-3 text-neutral-800 dark:text-neutral-200" />
           </button>
 
           <button
-            id="btn-toggle-heatmap"
+            type="button"
+            id="btn-map-heatmap-toggle"
             aria-label="Toggle Heatmap"
             onClick={() => setHeatmapVisible(!heatmapVisible)}
-            className={`w-8 h-8 rounded-lg border shadow-sm flex items-center justify-center cursor-pointer transition-colors ${
-              heatmapVisible
-                ? 'bg-emerald-600 text-white border-emerald-700'
-                : 'bg-white/95 dark:bg-black/95 text-black dark:text-white border-neutral-200 dark:border-neutral-800'
+            className={`w-7 h-7.5 flex items-center justify-center cursor-pointer transition-colors ${
+              heatmapVisible ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/40' : 'text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800'
             }`}
-            title="Toggle Safety Heatmap"
+            title="Toggle Heatmap"
           >
-            <Layers className="w-4 h-4" />
-          </button>
-
-          <button
-            id="btn-zoom-in"
-            aria-label="Zoom In"
-            onClick={() => setZoom((z) => Math.min(z + 0.2, 1.8))}
-            className="w-8 h-8 rounded-lg bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-200 dark:border-neutral-800 shadow-sm flex items-center justify-center cursor-pointer hover:border-black dark:hover:border-white transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-
-          <button
-            id="btn-zoom-out"
-            aria-label="Zoom Out"
-            onClick={() => setZoom((z) => Math.max(z - 0.2, 0.8))}
-            className="w-8 h-8 rounded-lg bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-200 dark:border-neutral-800 shadow-sm flex items-center justify-center cursor-pointer hover:border-black dark:hover:border-white transition-colors"
-          >
-            <Minus className="w-4 h-4" />
+            <Layers className="w-3 h-3" />
           </button>
         </div>
       )}
 
-      {/* Floating Speedometer & Lux Telemetry Pill (Repositioned to bottom-22 in navMode to avoid overlapping bottom card) */}
-      <div className={`absolute z-10 flex items-center gap-1.5 ${navMode ? 'left-3 bottom-22' : 'left-3 bottom-3'}`}>
-        <div className="px-2.5 py-1 rounded-xl bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-200 dark:border-neutral-800 shadow-sm backdrop-blur-xs flex items-center gap-2">
-          <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">
-            {userProgress >= 100 ? '0.0' : '4.8'}
-          </span>
-          <span className="text-[9px] uppercase font-bold text-neutral-500">
-            {userProgress >= 100 ? 'Arrived' : 'km/h Walk'}
-          </span>
-        </div>
+      {/* 4. Bottom-Left Speedometer & Real-time Lux Telemetry Pill */}
+      {navMode && (
+        <div className="absolute left-3 bottom-22 z-500 flex items-center gap-1.5 pointer-events-none">
+          <div className="px-2.5 py-1 rounded-xl bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-200 dark:border-neutral-800 shadow-sm backdrop-blur-xs flex items-center gap-1.5">
+            <span className="text-xs font-black text-emerald-600 dark:text-emerald-400">
+              {userProgress >= 100 ? '0.0' : '4.8'}
+            </span>
+            <span className="text-[9px] uppercase font-bold text-neutral-500">
+              {userProgress >= 100 ? 'Arrived' : 'km/h'}
+            </span>
+          </div>
 
-        <div className="px-2 py-1 rounded-xl bg-white/95 dark:bg-black/95 text-black dark:text-white border border-neutral-200 dark:border-neutral-800 shadow-sm backdrop-blur-xs flex items-center gap-1 text-[10px] font-bold">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-emerald-700 dark:text-emerald-400">98 Lux</span>
+          <div className={`px-2 py-1 rounded-xl bg-white/95 dark:bg-black/95 text-black dark:text-white border shadow-sm backdrop-blur-xs flex items-center gap-1 text-[10px] font-bold ${
+            luxLevel < 40 
+              ? 'border-red-400 text-red-600 dark:text-red-400' 
+              : luxLevel < 70 
+              ? 'border-amber-400 text-amber-600 dark:text-amber-400' 
+              : 'border-neutral-200 dark:border-neutral-800 text-emerald-700 dark:text-emerald-400'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+              luxLevel < 40 ? 'bg-red-500' : luxLevel < 70 ? 'bg-amber-500' : 'bg-emerald-500'
+            }`} />
+            <span>{luxLevel} Lux</span>
+          </div>
         </div>
-      </div>
+      )}
 
-      {/* Help Point Selected Card Popover */}
+      {/* 5. Bottom Right Expand Map Pill (if provided via onExpandMap) */}
+      {onExpandMap && (
+        <div className="absolute right-2.5 bottom-2.5 z-500">
+          <button
+            type="button"
+            id="btn-expand-map"
+            onClick={onExpandMap}
+            className="px-2.5 py-1 rounded-lg bg-white/95 dark:bg-black/95 border border-neutral-200 dark:border-neutral-800 text-[10px] font-extrabold text-neutral-800 dark:text-neutral-100 flex items-center gap-1 shadow-sm hover:border-black dark:hover:border-white transition-colors cursor-pointer"
+          >
+            <span>{expandMapLabel || 'Ampliar Mapa'}</span>
+            <span>→</span>
+          </button>
+        </div>
+      )}
+
+      {/* 6. Selected Help Point Details Popover */}
       {selectedHp && (
-        <div className="absolute left-3 right-3 bottom-20 z-30 p-3 bg-white dark:bg-black text-black dark:text-white rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+        <div className="absolute left-2.5 right-2.5 bottom-3 z-600 p-2.5 bg-white dark:bg-black text-black dark:text-white rounded-xl shadow-2xl border border-neutral-200 dark:border-neutral-800 flex items-center justify-between">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
             <div
-              className={`w-9 h-9 rounded-xl flex items-center justify-center text-white shrink-0 shadow-xs ${
+              className={`w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0 shadow-xs ${
                 selectedHp.type === 'police'
                   ? 'bg-blue-600'
                   : selectedHp.type === 'hospital'
@@ -590,21 +641,21 @@ export const MapEngine: React.FC<MapEngineProps> = ({
                   : 'bg-emerald-600'
               }`}
             >
-              {selectedHp.type === 'police' && <Shield className="w-4 h-4" />}
-              {selectedHp.type === 'hospital' && <Hospital className="w-4 h-4" />}
-              {selectedHp.type === 'metro' && <Train className="w-4 h-4" />}
-              {selectedHp.type === 'pharmacy' && <Building2 className="w-4 h-4" />}
+              {selectedHp.type === 'police' && <Shield className="w-3.5 h-3.5" />}
+              {selectedHp.type === 'hospital' && <Hospital className="w-3.5 h-3.5" />}
+              {selectedHp.type === 'metro' && <Train className="w-3.5 h-3.5" />}
+              {selectedHp.type === 'pharmacy' && <Building2 className="w-3.5 h-3.5" />}
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-1.5">
-                <h4 className="text-xs font-bold truncate">{selectedHp.name}</h4>
+                <h4 className="text-[11px] font-bold truncate">{selectedHp.name}</h4>
                 {selectedHp.isOpen247 && (
-                  <span className="px-1.5 py-0.2 rounded text-[8px] font-extrabold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0">
+                  <span className="px-1 py-0.2 rounded text-[7.5px] font-extrabold bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 shrink-0">
                     24/7
                   </span>
                 )}
               </div>
-              <p className="text-[10px] text-neutral-500 dark:text-neutral-400 mt-0.5 truncate">
+              <p className="text-[9px] text-neutral-500 dark:text-neutral-400 truncate">
                 {selectedHp.distance} away • ETA {selectedHp.eta} walk
               </p>
             </div>
@@ -612,17 +663,17 @@ export const MapEngine: React.FC<MapEngineProps> = ({
           <div className="flex items-center gap-1.5 shrink-0 ml-2">
             <a
               href={`tel:${selectedHp.phone}`}
-              className="px-2.5 py-1.5 rounded-lg bg-black text-white dark:bg-white dark:text-black font-bold text-xs hover:opacity-90 transition-opacity"
+              className="px-2.5 py-1 rounded-md bg-black text-white dark:bg-white dark:text-black font-bold text-[10px] hover:opacity-90 transition-opacity"
             >
               Call
             </a>
             <button
               type="button"
               onClick={() => setSelectedHp(null)}
-              className="p-1 rounded-md text-neutral-400 hover:text-black dark:hover:text-white"
-              aria-label="Close"
+              className="p-1 rounded-md text-neutral-400 hover:text-black dark:hover:text-white cursor-pointer"
+              aria-label="Close Help Point"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

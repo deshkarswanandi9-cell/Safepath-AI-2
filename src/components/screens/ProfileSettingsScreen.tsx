@@ -15,12 +15,14 @@ import {
 import { ScreenId } from '../../types';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useUser } from '../../context/UserContext';
 import { SupportedLanguage } from '../../data/translations';
 import { Card } from '../ui/Card';
 import { Switch } from '../ui/Switch';
 import { Button } from '../ui/Button';
 import { motion, useReducedMotion } from 'motion/react';
 import { TRANSITIONS } from '../../utils/motion';
+import { supabase } from '../../lib/supabase';
 
 interface ProfileSettingsScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -33,6 +35,7 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
 }) => {
   const { language, setLanguage, t } = useLanguage();
   const { theme, setTheme, toggleTheme } = useTheme();
+  const { profile } = useUser();
   const shouldReduceMotion = useReducedMotion();
   const [pushNotifications, setPushNotifications] = useState(true);
   const [anonymizeGps, setAnonymizeGps] = useState(false);
@@ -48,6 +51,13 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
     setLanguage(newLang);
     const names = { en: 'English', hi: 'हिन्दी', es: 'Español', fr: 'Français' };
     showToast(`Language set to ${names[newLang]}`);
+  };
+
+  const handleLogout = async () => {
+    // Sign out from Supabase (clears session in DB + localStorage)
+    await supabase.auth.signOut();
+    // onLogout navigates to login screen (also triggered by onAuthStateChange)
+    onLogout();
   };
 
   return (
@@ -82,20 +92,20 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
         <Card variant="default" padding="sm" className="flex items-center gap-3 mb-3 shadow-xs">
           <div className="w-12 h-12 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 overflow-hidden shrink-0 flex items-center justify-center">
             <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80"
-              alt="Shivani profile"
+              src={profile.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80"}
+              alt={`${profile.full_name || 'User'} profile`}
               className="w-full h-full object-cover"
             />
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <h2 className="text-xs font-black text-black dark:text-white truncate">Shivani Sharma</h2>
+              <h2 className="text-xs font-black text-black dark:text-white truncate">{profile.full_name || 'User'}</h2>
               <span className="px-1.5 py-0.2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[8px] font-black rounded">
                 VERIFIED
               </span>
             </div>
-            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">shivani.safety@gmail.com</p>
-            <p className="text-[10px] font-bold text-neutral-600 dark:text-neutral-300 mt-0.5">+1 (555) 789-2045</p>
+            <p className="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">{profile.email || 'user@safepath.ai'}</p>
+            <p className="text-[10px] font-bold text-neutral-600 dark:text-neutral-300 mt-0.5">{profile.phone_number || '+91 98765 43210'}</p>
           </div>
         </Card>
 
@@ -247,7 +257,7 @@ export const ProfileSettingsScreen: React.FC<ProfileSettingsScreenProps> = ({
           variant="outline"
           fullWidth
           size="md"
-          onClick={onLogout}
+          onClick={handleLogout}
           icon={<LogOut className="w-4 h-4 text-red-600 dark:text-red-400" />}
         >
           Sign Out of SafeRoute

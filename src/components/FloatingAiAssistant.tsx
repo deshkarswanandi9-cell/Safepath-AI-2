@@ -8,24 +8,30 @@ import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { drawerVariants, TRANSITIONS } from '../utils/motion';
 
 import { ScreenId } from '../types';
+import { useUser } from '../context/UserContext';
 
 interface Message {
   sender: 'ai' | 'user';
   text: string;
   time: string;
+  actionScreen?: ScreenId;
+  actionLabel?: string;
 }
 
 interface FloatingAiAssistantProps {
   currentScreen?: ScreenId;
   isOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  onNavigate?: (screen: ScreenId) => void;
 }
 
 export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = ({
   currentScreen,
   isOpen: controlledIsOpen,
-  onOpenChange
+  onOpenChange,
+  onNavigate
 }) => {
+  const { firstName } = useUser();
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const isControlled = controlledIsOpen !== undefined;
   const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
@@ -42,16 +48,18 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = ({
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      text: 'Hi Shivani! I am your SafeRoute AI Assistant. I monitor street lighting lux levels, crowd density, and verified safe corridors. How can I assist you?',
+      text: `Hi ${firstName || 'there'}! I am your SafeRoute AI Assistant. I monitor street lighting lux levels, crowd density, and verified safe corridors. How can I assist you?`,
       time: 'Just now'
     }
   ]);
 
   const quickPrompts = [
-    'Explain my 93% SHAP score',
-    'Is Grand Blvd safe right now?',
+    'I feel unsafe. Find me somewhere safe',
+    'Why did recommendation change to Route C?',
+    'How do changing conditions affect score?',
     'Nearest 24/7 safe haven?',
-    'Why is Route D recommended?'
+    'Explain my 93% SHAP score',
+    'What if streetlights fail?'
   ];
 
   const handleSend = (textToSend?: string) => {
@@ -68,23 +76,44 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = ({
     setInputVal('');
 
     setTimeout(() => {
-      let reply = 'Sensors in your 500m vicinity report 92% safety score with 98% municipal street illumination active.';
+      let reply = 'Sensors in your 500m vicinity continuously monitor street lighting lux, pedestrian footfall, and civic gatherings in real-time.';
+      let actionScreen: ScreenId | undefined = undefined;
+      let actionLabel: string | undefined = undefined;
       const lower = query.toLowerCase();
 
-      if (lower.includes('route d') || lower.includes('97%')) {
+      if (lower.includes('unsafe') || lower.includes('somewhere safe') || lower.includes('safe place') || lower.includes('find me somewhere')) {
+        reply = '🚨 Emergency Safe Haven Finder activated! Locating the nearest verified 24/7 safe refuges with active staff, 96-Lux illumination, and police response. Recommending Delhi Police Pink Booth (180m away). Opening emergency guidance screen now...';
+        actionScreen = 'nearest_safe_place';
+        actionLabel = '🚨 Open Nearest Safe Place Finder →';
+        // Auto navigate after short delay
+        setTimeout(() => {
+          onNavigate?.('nearest_safe_place');
+          handleOpenChange(false);
+        }, 1200);
+      } else if (lower.includes('recommendation change') || lower.includes('route c') || lower.includes('why did recommendation')) {
+        reply = 'SafeRoute AI updated its recommendation to Route C (Grand Blvd Corridor) because municipal sensors detected a lighting failure (16 Lux) and a drop in pedestrian footfall on your active path. Route C maintains 96-Lux illumination, 4 verified safe havens, and active police patrols—providing a +39% safety boost for just +4 min extra travel time.';
+      } else if (lower.includes('changing condition') || lower.includes('challenge 1') || lower.includes('affect score')) {
+        reply = 'SafeRoute AI dynamically recalculates your route safety score in real time. If streetlights fail (-18 pts) or pedestrian activity drops (-16 pts), your score drops from 85% to 54%, and the system immediately offers an alternative safe detour via Grand Blvd (+37% gain).';
+      } else if (lower.includes('streetlights fail') || lower.includes('dark') || lower.includes('lighting')) {
+        reply = 'If streetlights fail along your current path, SafeRoute AI detects the lux level drop (below 30 Lux), marks a dynamic Dark Spot on your map, lowers the segment safety score, and alerts you with a rerouting prompt.';
+      } else if (lower.includes('route d') || lower.includes('97%')) {
         reply = 'Route D achieves a 97% safety index by following Baba Kharak Singh Marg, avoiding civic gatherings on Ashoka Rd, and keeping within 100m of the Emergency Green Corridor.';
       } else if (lower.includes('shap') || lower.includes('score')) {
-        reply = 'Your 93% safety score is positively supported by Municipal Lighting (+35 pts) and High Pedestrian Activity (+22 pts).';
+        reply = 'Your baseline 93% safety score is positively supported by Municipal Lighting (+35 pts), High Pedestrian Activity (+22 pts), and nearby Delhi Police Pink Booth (+15 pts).';
       } else if (lower.includes('grand blvd')) {
         reply = 'Grand Boulevard is currently a designated Safe Corridor: 94 lux lighting, open storefronts, and a police patrol station 350m ahead.';
       } else if (lower.includes('haven') || lower.includes('refuge') || lower.includes('pharmacy')) {
-        reply = 'Nearest verified safe refuge is Guardian 24/7 Pharmacy at 210 meters (1 min walk). Division 4 Police Kiosk is at 350 meters.';
+        reply = 'Nearest verified safe refuge is Delhi Police Pink Booth at 180m (2 min walk) and Apollo 24/7 Pharmacy at 240m. Would you like direct navigation?';
+        actionScreen = 'nearest_safe_place';
+        actionLabel = 'Find Nearest Safe Haven →';
       }
 
       const aiMsg: Message = {
         sender: 'ai',
         text: reply,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        actionScreen,
+        actionLabel
       };
       setMessages((prev) => [...prev, aiMsg]);
     }, 450);
@@ -175,6 +204,18 @@ export const FloatingAiAssistant: React.FC<FloatingAiAssistantProps> = ({
                     }`}
                   >
                     <p className="leading-relaxed">{m.text}</p>
+                    {m.actionScreen && m.actionLabel && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          onNavigate?.(m.actionScreen!);
+                          handleOpenChange(false);
+                        }}
+                        className="mt-2 w-full py-1.5 px-2 rounded-lg bg-red-600 text-white font-bold text-[10px] flex items-center justify-center gap-1 shadow-xs hover:bg-red-700 transition-colors cursor-pointer"
+                      >
+                        <span>{m.actionLabel}</span>
+                      </button>
+                    )}
                     <span className={`block text-[8px] mt-1 ${m.sender === 'user' ? 'text-neutral-300 dark:text-neutral-600' : 'text-neutral-400'}`}>
                       {m.time}
                     </span>

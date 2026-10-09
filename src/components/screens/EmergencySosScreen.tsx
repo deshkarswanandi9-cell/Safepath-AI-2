@@ -18,6 +18,7 @@ import { INDIA_EMERGENCY_HELPLINES } from '../../data/realData';
 import { useLanguage } from '../../context/LanguageContext';
 import { Button } from '../ui/Button';
 import { Card } from '../ui/Card';
+import { useSosAlert } from '../../hooks/useSupabase';
 
 interface EmergencySosScreenProps {
   onNavigate: (screen: ScreenId) => void;
@@ -32,6 +33,7 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
   const audioCtxRef = useRef<AudioContext | null>(null);
   const oscRef = useRef<OscillatorNode | null>(null);
   const gainRef = useRef<GainNode | null>(null);
+  const { submitAlert } = useSosAlert();
 
   // Siren Audio Synthesizer via Web Audio API
   useEffect(() => {
@@ -104,6 +106,20 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
     setSosTriggered(true);
     setSirenPlaying(true);
     triggerToast('Emergency SOS Broadcast Transmitted to 3 Guardians & Police Dispatch');
+    // Persist SOS alert to Supabase (falls back to console log if not configured)
+    submitAlert({
+      user_id: 'demo-user',       // Replace with auth.user.id in production
+      latitude: 28.6315,           // Replace with navigator.geolocation in production
+      longitude: 77.2167,
+      severity: 'critical',
+      message: 'SOS triggered via EmergencySosScreen',
+      vehicle_number: null,
+      driver_name: null,
+      dispatch_id: null,
+      acknowledged_by: null,
+      acknowledged_at: null,
+      resolved_at: null,
+    });
   };
 
   return (
@@ -171,6 +187,33 @@ export const EmergencySosScreen: React.FC<EmergencySosScreenProps> = ({ onNaviga
               ? '🔴 Emergency transmission active: Live GPS coordinates sent to Guardians and Dispatch.'
               : 'Pressing SOS transmits live GPS, audio stream, and activates siren alarm.'}
           </p>
+        </div>
+
+        {/* Nearest Safe Place Recommendation Hero Card */}
+        <div className="mb-3 p-3 rounded-2xl bg-gradient-to-r from-red-600/10 via-emerald-600/10 to-transparent border border-red-500/30 dark:border-red-500/40">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[10px] font-black uppercase tracking-wider text-black dark:text-white">
+                Emergency Safe Haven Finder
+              </span>
+            </div>
+            <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400">
+              Ranked by Safety & Staffing
+            </span>
+          </div>
+          <p className="text-[11px] text-neutral-600 dark:text-neutral-300 font-medium mt-1">
+            Immediately find and navigate to the nearest open police booth, hospital emergency ward, or verified 24/7 safe haven.
+          </p>
+          <button
+            type="button"
+            id="btn-open-safe-haven-finder"
+            onClick={() => onNavigate('nearest_safe_place')}
+            className="mt-2 w-full py-2 px-3 rounded-xl bg-black text-white dark:bg-white dark:text-black font-black text-xs flex items-center justify-center gap-2 shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+          >
+            <ShieldCheck className="w-4 h-4 text-emerald-500" />
+            <span>Find Nearest Safe Place & Navigate →</span>
+          </button>
         </div>
 
         {/* Direct Helpline Hotlinks */}

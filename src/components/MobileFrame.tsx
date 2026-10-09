@@ -15,12 +15,15 @@ import {
   ChevronRight,
   Search,
   Check,
-  X
+  X,
+  Siren,
+  Radio
 } from 'lucide-react';
 import { motion, AnimatePresence, useReducedMotion } from 'motion/react';
 import { ScreenId } from '../types';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
+import { useUser } from '../context/UserContext';
 import { TRANSITIONS, popoverVariants } from '../utils/motion';
 
 interface MobileFrameProps {
@@ -29,6 +32,8 @@ interface MobileFrameProps {
   children: React.ReactNode;
   onTriggerAlert: () => void;
   onTriggerCheckIn: () => void;
+  portalMode?: 'citizen' | 'police_command';
+  onSelectPortalMode?: (mode: 'citizen' | 'police_command') => void;
 }
 
 interface ScreenItem {
@@ -65,6 +70,8 @@ const SCREENS_LIST: ScreenItem[] = [
   { id: 'transport_companion', num: 17, label: 'Transit Companion', group: 'Personal, Transit & Community' },
   { id: 'infrastructure_reporting', num: 18, label: 'Infrastructure Hub', group: 'Personal, Transit & Community' },
   { id: 'community_safe_walk', num: 19, label: 'Community Safe Walk', group: 'Personal, Transit & Community' },
+  { id: 'proactive_police_monitoring', num: 20, label: 'Proactive Police Monitor', group: 'Personal, Transit & Community' },
+  { id: 'nearest_safe_place', num: 21, label: 'Nearest Safe Place Finder', group: 'Journey & Emergency' },
 ];
 
 const SCREEN_GROUPS = [
@@ -79,10 +86,13 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
   onSelectScreen,
   children,
   onTriggerAlert,
-  onTriggerCheckIn
+  onTriggerCheckIn,
+  portalMode = 'citizen',
+  onSelectPortalMode
 }) => {
   const { language, setLanguage } = useLanguage();
   const { theme, setTheme } = useTheme();
+  const { liveTime } = useUser();
   const [deviceView, setDeviceView] = useState<'mobile' | 'fluid'>('mobile');
   const [isScreenMenuOpen, setIsScreenMenuOpen] = useState(false);
   const [searchFilter, setSearchFilter] = useState('');
@@ -218,6 +228,46 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
                 </span>
               </div>
             </div>
+
+            {/* Middle: Dedicated Portal Switcher (Citizen App vs Police Command Center) */}
+            {onSelectPortalMode && (
+              <div 
+                role="tablist"
+                aria-label="Platform View Mode"
+                className="flex items-center p-0.5 rounded-xl bg-neutral-100 dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-800 text-[11px] font-black"
+              >
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={portalMode === 'citizen'}
+                  onClick={() => onSelectPortalMode('citizen')}
+                  className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+                    portalMode === 'citizen'
+                      ? 'bg-black text-white dark:bg-white dark:text-black shadow-xs font-black'
+                      : 'text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white font-semibold'
+                  }`}
+                  title="Switch to Passenger / Citizen Mobile App"
+                >
+                  <Smartphone className="w-3.5 h-3.5" />
+                  <span>Citizen Mobile</span>
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={portalMode === 'police_command'}
+                  onClick={() => onSelectPortalMode('police_command')}
+                  className={`px-2.5 py-1 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer ${
+                    portalMode === 'police_command'
+                      ? 'bg-red-600 text-white shadow-xs font-black'
+                      : 'text-neutral-500 hover:text-red-500 dark:text-neutral-400 dark:hover:text-red-400 font-semibold'
+                  }`}
+                  title="Switch to 112 Police & PCR Command Workstation"
+                >
+                  <Siren className="w-3.5 h-3.5" />
+                  <span>112 Police Command HQ</span>
+                </button>
+              </div>
+            )}
 
             {/* Right: Global Toolbar Actions */}
             <div className="flex items-center gap-1.5 sm:gap-2">
@@ -593,7 +643,7 @@ export const MobileFrame: React.FC<MobileFrameProps> = ({
                   : 'height 250ms cubic-bezier(0.16, 1, 0.3, 1), opacity 250ms cubic-bezier(0.16, 1, 0.3, 1), padding 250ms cubic-bezier(0.16, 1, 0.3, 1)'
               }}
             >
-              <span className="font-extrabold tracking-tight">9:41</span>
+              <span className="font-extrabold tracking-tight">{liveTime}</span>
 
               {/* Dynamic Island */}
               <div className="w-20 sm:w-22 h-4.5 rounded-full bg-black dark:bg-neutral-900 flex items-center justify-between px-2 gap-1 border border-neutral-800 dark:border-neutral-700/50">

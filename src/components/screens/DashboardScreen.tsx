@@ -9,11 +9,13 @@ import {
   Activity,
   Compass,
   Hospital,
-  Car
+  Car,
+  Shield
 } from 'lucide-react';
 import { ScreenId } from '../../types';
 import { MapEngine } from '../MapEngine';
 import { useLanguage } from '../../context/LanguageContext';
+import { useUser } from '../../context/UserContext';
 import { Card } from '../ui/Card';
 
 interface DashboardScreenProps {
@@ -23,6 +25,7 @@ interface DashboardScreenProps {
 
 export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) => {
   const { t } = useLanguage();
+  const { profile, greeting, liveDate, liveTime } = useUser();
 
   return (
     <div className="relative h-full flex flex-col bg-white dark:bg-black text-black dark:text-white select-none transition-colors overflow-y-auto no-scrollbar">
@@ -42,8 +45,8 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
             >
               <div className="w-8 h-8 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-900 flex items-center justify-center">
                 <img
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80"
-                  alt="Shivani profile"
+                  src={profile.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=160&q=80"}
+                  alt={`${profile.full_name || 'User'} profile`}
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -51,21 +54,25 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
             </button>
 
             <div className="min-w-0 flex-1">
-              <h1 className="text-xs font-black tracking-tight text-black dark:text-white truncate leading-tight">
-                {t.goodEvening}
-              </h1>
-              <button
-                type="button"
-                onClick={() => onNavigate('trusted_contacts')}
-                className="text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer truncate max-w-full text-left mt-0.5"
-                title="View Guardian Network"
-                aria-label={`${t.guardianOnline}, 3 active guardians`}
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                <span className="text-emerald-600 dark:text-emerald-400 font-bold shrink-0">{t.guardianOnline}</span>
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <h1 className="text-xs font-black tracking-tight text-black dark:text-white truncate leading-tight">
+                  {greeting}
+                </h1>
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] font-semibold text-neutral-500 dark:text-neutral-400 mt-0.5">
+                <button
+                  type="button"
+                  onClick={() => onNavigate('trusted_contacts')}
+                  className="hover:text-black dark:hover:text-white flex items-center gap-1 transition-colors cursor-pointer truncate"
+                  title="View Guardian Network"
+                  aria-label={`${t.guardianOnline}, 3 active guardians`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                  <span className="text-emerald-600 dark:text-emerald-400 font-bold shrink-0">{t.guardianOnline}</span>
+                </button>
                 <span className="text-neutral-400 dark:text-neutral-600 shrink-0">•</span>
-                <span className="truncate">3 Active</span>
-              </button>
+                <span className="text-neutral-500 dark:text-neutral-400 shrink-0 font-medium">{liveDate}</span>
+              </div>
             </div>
           </div>
 
@@ -195,9 +202,9 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
             {/* Metric 1: Safe Havens */}
             <button
               type="button"
-              onClick={() => onNavigate('safe_haven_network')}
+              onClick={() => onNavigate('nearest_safe_place')}
               className="p-1.5 rounded-lg bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-black dark:hover:border-white transition-colors cursor-pointer text-center min-w-0"
-              title="View Safe Havens Network"
+              title="View Emergency Safe Haven Finder"
               aria-label="5 Safe Havens Nearby"
             >
               <div className="text-[9px] text-neutral-500 dark:text-neutral-400 font-bold uppercase tracking-wider truncate">Havens</div>
@@ -238,28 +245,14 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
         {/* ========================================================================= */}
         <div className="relative rounded-2xl overflow-hidden border border-neutral-300 dark:border-neutral-800 shadow-xs">
           <MapEngine
-            heightClass="h-40"
+            heightClass="h-44"
             showHeatmap={true}
             showHelpPoints={true}
             showStreetlights={true}
-            interactive={false}
+            interactive={true}
+            onExpandMap={() => onNavigate('route_search')}
+            expandMapLabel={t.expandMap || 'Expand'}
           />
-          {/* Telemetry Status Badge */}
-          <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-white/95 dark:bg-black/95 border border-neutral-200 dark:border-neutral-800 text-[10px] font-black text-black dark:text-white flex items-center gap-1.5 shadow-xs">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Sector 4 Telemetry Map</span>
-          </div>
-
-          {/* Expand Map Action Button */}
-          <button
-            type="button"
-            onClick={() => onNavigate('route_search')}
-            className="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded-md bg-white/95 dark:bg-black/95 border border-neutral-200 dark:border-neutral-800 text-[10px] font-bold text-black dark:text-white flex items-center gap-1 shadow-xs hover:border-black dark:hover:border-white transition-colors cursor-pointer"
-            aria-label="Expand route search map"
-          >
-            <span>{t.expandMap || 'Expand'}</span>
-            <ArrowRight className="w-3 h-3" />
-          </button>
         </div>
 
         {/* ========================================================================= */}
@@ -324,6 +317,24 @@ export const DashboardScreen: React.FC<DashboardScreenProps> = ({ onNavigate }) 
               </div>
               <div className="text-xs font-bold text-black dark:text-white truncate">Safe Walk</div>
               <div className="text-[10px] text-neutral-500 mt-0.5 line-clamp-1">Volunteer escort network</div>
+            </button>
+
+            {/* 5. Proactive Police Monitoring (Challenge 4) */}
+            <button
+              type="button"
+              onClick={() => onNavigate('proactive_police_monitoring')}
+              className="p-2.5 rounded-xl border-2 border-indigo-300 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/40 hover:border-indigo-600 dark:hover:border-indigo-500 transition-colors text-left cursor-pointer group col-span-2"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-6 h-6 rounded-md bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 shrink-0">
+                  <Shield className="w-3.5 h-3.5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-black text-indigo-800 dark:text-indigo-300 truncate">Proactive Police Monitoring</div>
+                  <div className="text-[10px] text-indigo-600 dark:text-indigo-400 mt-0.5 line-clamp-1">Non-emergency silent PCR safety link • Challenge 4</div>
+                </div>
+                <span className="ml-auto text-[9px] font-black px-1.5 py-0.5 rounded bg-indigo-200 dark:bg-indigo-800 text-indigo-700 dark:text-indigo-300 shrink-0">LIVE</span>
+              </div>
             </button>
           </div>
         </div>
